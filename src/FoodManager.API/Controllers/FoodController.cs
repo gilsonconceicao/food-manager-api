@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodManager.API.Controllers;
-[ApiController]
-[Route("api/[Controller]")]
-public class FoodController : ControllerBase
+public class FoodController : BaseController
 {
     [HttpGet]
     public IActionResult Index()
