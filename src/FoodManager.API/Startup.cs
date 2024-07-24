@@ -1,4 +1,7 @@
 using System.Reflection;
+using FoodManager.Infrastructure.Database;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
@@ -17,7 +20,13 @@ public class Startup
         services.AddEndpointsApiExplorer();
 
         // mediatR to CQRS of application
-        // services.AddMediatR(Assembly.GetExecutingAssembly());
+        services.AddMediatR(Assembly.GetExecutingAssembly());
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+        services.AddDbContext<DataBaseContext>(options =>
+        {
+            options.UseNpgsql(connectionString);
+        });
 
         // Add controllers with NewtonsoftJson for handling JSON serialization
         services.AddControllers().AddNewtonsoftJson(options =>
@@ -30,8 +39,8 @@ public class Startup
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Version = "v1",
-                Title = "Send Email",
-                Description = "System with resources to send emails",
+                Title = "Food-Manager-API",
+                Description = "Sisteme de gerencimaneto de comida",
             });
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
@@ -58,7 +67,7 @@ public class Startup
 
         app.UseSwaggerUI(opt =>
         {
-            opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Send Email");
+            opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Food manager API");
         });
 
         app.UseCors(x => x
