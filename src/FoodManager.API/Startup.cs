@@ -1,4 +1,5 @@
 using System.Reflection;
+using FoodManager.Application.Foods.Commands.CreateFoodCommand;
 using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -22,11 +23,15 @@ public class Startup
         // mediatR to CQRS of application
         services.AddMediatR(Assembly.GetExecutingAssembly());
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+        
+        // database
         services.AddDbContext<DataBaseContext>(options =>
         {
             options.UseNpgsql(connectionString);
         });
+
+        // CQRS containers
+        services.AddTransient<IRequestHandler<CreateFoodCommand, bool>, CreateFoodHandler>();
 
         // Add controllers with NewtonsoftJson for handling JSON serialization
         services.AddControllers().AddNewtonsoftJson(options =>

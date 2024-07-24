@@ -1,18 +1,20 @@
+using FoodManager.Application.Foods.Commands.CreateFoodCommand;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodManager.API.Controllers;
 public class FoodController : BaseController
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator ;
     public FoodController(IMediator mediator)
     {
-        _mediator = mediator;
+        _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
-    [HttpGet]
-    public IActionResult Index()
+    [HttpPost]
+    public async Task<IActionResult> CreateFoodAsync([FromBody] CreateFoodCommand command)
     {
-        return Ok();
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 }
