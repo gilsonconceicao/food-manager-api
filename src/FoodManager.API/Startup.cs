@@ -1,5 +1,6 @@
 using System.Reflection;
 using FoodManager.Infrastructure.Database;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -19,7 +20,8 @@ public class Startup
         services.AddEndpointsApiExplorer();
 
         // mediatR to CQRS of application
-        // services.AddMediatR(Assembly.GetExecutingAssembly());
+        services.AddMediatR(Assembly.GetExecutingAssembly());
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         services.AddDbContext<DataBaseContext>(options =>
         {
