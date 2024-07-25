@@ -1,7 +1,14 @@
+using System.Net.Mime;
 using System.Reflection;
+using FluentValidation;
+using FoodManager.Application.Common.Exceptions;
 using FoodManager.Application.Foods.Commands.CreateFoodCommand;
+using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
+using FoodManager.Domain.Extensions;
 using FoodManager.Infrastructure.Database;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -23,18 +30,44 @@ public class Startup
         // mediatR to CQRS of application
         services.AddMediatR(Assembly.GetExecutingAssembly());
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-        
+
         // database
         services.AddDbContext<DataBaseContext>(options =>
         {
             options.UseNpgsql(connectionString);
         });
 
+        //validations commands 
+        services.AddValidatorsFromAssemblyContaining<CreateFoodValidations>();
+
+
         // CQRS containers
         services.AddTransient<IRequestHandler<CreateFoodCommand, bool>, CreateFoodHandler>();
+        services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, PagedList<GetAllWithPaginationModel>>, GetAllWithPaginationFoodHandler>();
+
 
         // Add controllers with NewtonsoftJson for handling JSON serialization
-        services.AddControllers().AddNewtonsoftJson(options =>
+        services.AddControllers(options =>
+            options.Filters.Add(new HttpResponseExceptionFilter())
+        )
+        .ConfigureApiBehaviorOptions(options =>
+        {
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var result = new BadRequestObjectResult(context.ModelState);
+
+                result.ContentTypes.Add(MediaTypeNames.Application.Json);
+                result.ContentTypes.Add(MediaTypeNames.Application.Xml);
+                options.SuppressConsumesConstraintForFormFileParameters = true;
+                options.SuppressInferBindingSourcesForParameters = true;
+                options.SuppressModelStateInvalidFilter = true;
+                options.SuppressMapClientErrors = true;
+                options.ClientErrorMapping[StatusCodes.Status404NotFound].Link = "https://httpstatuses.com/404";
+                options.DisableImplicitFromServicesParameters = true;
+                return result;
+            };
+        })
+        .AddNewtonsoftJson(options =>
         {
             options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         });
