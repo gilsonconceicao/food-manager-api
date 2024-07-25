@@ -1,15 +1,21 @@
-using System;
 using System.ComponentModel;
-using System.Reflection;
 namespace FoodManager.Domain.Extensions
 {
-    public static class EnumExtensions
+     public static class EnumExtensions
     {
-        public static string GetDescription(this Enum value)
+        static public string GetDescription(this Enum enumValue)
         {
-            FieldInfo field = value.GetType().GetField(value.ToString());
-            DescriptionAttribute attribute = field.GetCustomAttribute<DescriptionAttribute>();
-            return attribute == null ? value.ToString() : attribute.Description;
+            var field = enumValue.GetType().GetField(enumValue.ToString());
+            if (field == null)
+                return enumValue.ToString();
+
+            var attributes = field.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            if (Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
+            {
+                return attribute.Description;
+            }
+
+            return enumValue.ToString();
         }
     }
 }
