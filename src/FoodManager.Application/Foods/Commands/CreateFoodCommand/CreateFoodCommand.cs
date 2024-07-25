@@ -11,7 +11,6 @@ namespace FoodManager.Application.Foods.Commands.CreateFoodCommand
         public bool IsAvailable { get; set; }
         public decimal Price { get; set; }
         public FoodCategory Category { get; set; }
-        public int Calories { get; set; }
         public string PreparationTime { get; set; }
     }
 }
