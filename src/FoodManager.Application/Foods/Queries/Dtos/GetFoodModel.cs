@@ -2,7 +2,7 @@ using FoodManager.Domain.Enums;
 #nullable disable
 namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
 {
-    public class GetAllWithPaginationModel
+    public class GetFoodModel
     {
         public string Name { get; set; }
         public string CategoryDisplay { get; set; }
