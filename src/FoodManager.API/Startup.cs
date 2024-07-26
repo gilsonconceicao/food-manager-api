@@ -3,7 +3,9 @@ using System.Reflection;
 using FluentValidation;
 using FoodManager.Application.Common.Exceptions;
 using FoodManager.Application.Foods.Commands.CreateFoodCommand;
+using FoodManager.Application.Foods.Commands.DeleteFoodCommand;
 using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
+using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
 using FoodManager.Domain.Extensions;
 using FoodManager.Infrastructure.Database;
 using MediatR;
@@ -42,8 +44,13 @@ public class Startup
 
 
         // CQRS containers
+        // commands
         services.AddTransient<IRequestHandler<CreateFoodCommand, bool>, CreateFoodHandler>();
-        services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, PagedList<GetAllWithPaginationModel>>, GetAllWithPaginationFoodHandler>();
+        services.AddTransient<IRequestHandler<DeleteFoodCommand, bool>, DeleteFoodHandler>();
+        
+        // queries
+        services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, PagedList<GetFoodModel>>, GetAllWithPaginationFoodHandler>();
+        services.AddTransient<IRequestHandler<GetFoodByIdQuery, GetFoodModel>, getFoodByIdHandler>();
 
 
         // Add controllers with NewtonsoftJson for handling JSON serialization

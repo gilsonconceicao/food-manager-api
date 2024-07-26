@@ -1,5 +1,7 @@
 using FoodManager.Application.Foods.Commands.CreateFoodCommand;
+using FoodManager.Application.Foods.Commands.DeleteFoodCommand;
 using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
+using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,9 +34,35 @@ public class FoodController : BaseController
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
     [HttpGet]
-    public async Task<IActionResult> GetAllFoodsWithPagination([FromQuery] GetAllWithPaginationFoodQuery query)
+    public async Task<IActionResult> GetAllFoodsWithPaginationAsync([FromQuery] GetAllWithPaginationFoodQuery query)
     {
         var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Obtem um regitro de comida por identifcador
+    /// </summary>
+    /// <returns>Food</returns>
+    /// <response code="200">200 Sucesso</response>
+    /// <response code="400">400 Erro</response>
+    [HttpGet("{Id}")]
+    public async Task<IActionResult> GetFoodByIdAsync(Guid Id)
+    {
+        var result = await _mediator.Send(new GetFoodByIdQuery(Id));
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Remove um registro de comida por identifcador 
+    /// </summary>
+    /// <returns>Food</returns>
+    /// <response code="200">200 Sucesso</response>
+    /// <response code="400">400 Erro</response>
+    [HttpDelete("{Id}")]
+    public async Task<IActionResult> DeleteFoodAsync(Guid Id)
+    {
+        var result = await _mediator.Send(new DeleteFoodCommand(Id));
         return Ok(result);
     }
 }
