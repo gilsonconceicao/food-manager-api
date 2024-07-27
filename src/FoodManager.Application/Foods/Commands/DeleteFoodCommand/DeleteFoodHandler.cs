@@ -42,6 +42,10 @@ public class DeleteFoodHandler : IRequestHandler<DeleteFoodCommand, bool>
 
             return true;
         }
+        catch (HttpResponseException ex)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             throw new HttpResponseException

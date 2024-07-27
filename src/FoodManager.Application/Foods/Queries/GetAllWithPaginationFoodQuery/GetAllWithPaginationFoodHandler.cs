@@ -43,6 +43,10 @@ namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
 
                 return dataMapped;
             }
+            catch (HttpResponseException ex)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 throw new HttpResponseException

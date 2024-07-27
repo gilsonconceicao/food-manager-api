@@ -43,6 +43,10 @@ public class getFoodByIdHandler : IRequestHandler<GetFoodByIdQuery, GetFoodModel
 
             return _mapper.Map<GetFoodModel>(getFoodById);
         }
+        catch (HttpResponseException ex)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             throw new HttpResponseException

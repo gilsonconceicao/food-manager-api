@@ -27,27 +27,31 @@ public class CreateFoodHandler : IRequestHandler<CreateFoodCommand, bool>
     public async Task<bool> Handle(CreateFoodCommand request, CancellationToken cancellationToken)
     {
 
-        var validationResult = _validator.Validate(request);
-
-        if (!validationResult.IsValid)
-        {
-            throw new HttpResponseException
-            {
-                Status = 400, 
-                Value = new {
-                    Code = CodeErrorEnum.INVALID_FORM_FIELDS.ToString(),
-                    Message = "Erro ao validar campos", 
-                    Details = ErrorUtils.ValidationFailure(validationResult.Errors)
-                }
-            };
-        }
-
         try
         {
+            var validationResult = _validator.Validate(request);
+
+            if (!validationResult.IsValid)
+            {
+                throw new HttpResponseException
+                {
+                    Status = 400,
+                    Value = new
+                    {
+                        Code = CodeErrorEnum.INVALID_FORM_FIELDS.ToString(),
+                        Message = "Erro ao validar campos",
+                        Details = ErrorUtils.ValidationFailure(validationResult.Errors)
+                    }
+                };
+            }
             Food food = _mapper.Map<Food>(request);
-            await _context.Foods.AddAsync(food); 
+            await _context.Foods.AddAsync(food);
             await _context.SaveChangesAsync();
             return true;
+        }
+        catch (HttpResponseException ex)
+        {
+            throw;
         }
         catch (Exception ex)
         {
