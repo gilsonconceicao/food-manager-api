@@ -4,6 +4,7 @@ using FluentValidation;
 using FoodManager.Application.Common.Exceptions;
 using FoodManager.Application.Foods.Commands.CreateFoodCommand;
 using FoodManager.Application.Foods.Commands.DeleteFoodCommand;
+using FoodManager.Application.Foods.Commands.UpdateFoodCommand;
 using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
 using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
 using FoodManager.Domain.Extensions;
@@ -47,6 +48,7 @@ public class Startup
         // commands
         services.AddTransient<IRequestHandler<CreateFoodCommand, bool>, CreateFoodHandler>();
         services.AddTransient<IRequestHandler<DeleteFoodCommand, bool>, DeleteFoodHandler>();
+        services.AddTransient<IRequestHandler<UpdateFoodCommand, bool>, UpdateFoodHandler>();
         
         // queries
         services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, PagedList<GetFoodModel>>, GetAllWithPaginationFoodHandler>();

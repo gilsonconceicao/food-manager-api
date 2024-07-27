@@ -1,5 +1,7 @@
 using FoodManager.Application.Foods.Commands.CreateFoodCommand;
 using FoodManager.Application.Foods.Commands.DeleteFoodCommand;
+using FoodManager.Application.Foods.Commands.Dtos;
+using FoodManager.Application.Foods.Commands.UpdateFoodCommand;
 using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
 using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
 using MediatR;
@@ -8,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FoodManager.API.Controllers;
 public class FoodController : BaseController
 {
-    private readonly IMediator _mediator ;
+    private readonly IMediator _mediator;
     public FoodController(IMediator mediator)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
@@ -20,6 +22,7 @@ public class FoodController : BaseController
     /// <returns>Food</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
+    [ProducesResponseType<List<bool>>(StatusCodes.Status200OK)]
     [HttpPost]
     public async Task<IActionResult> CreateFoodAsync([FromBody] CreateFoodCommand command)
     {
@@ -33,6 +36,7 @@ public class FoodController : BaseController
     /// <returns>Food</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
+    [ProducesResponseType<List<GetFoodModel>>(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetAllFoodsWithPaginationAsync([FromQuery] GetAllWithPaginationFoodQuery query)
     {
@@ -46,6 +50,7 @@ public class FoodController : BaseController
     /// <returns>Food</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
+    [ProducesResponseType<GetFoodModel>(StatusCodes.Status200OK)]
     [HttpGet("{Id}")]
     public async Task<IActionResult> GetFoodByIdAsync(Guid Id)
     {
@@ -59,10 +64,25 @@ public class FoodController : BaseController
     /// <returns>Food</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpDelete("{Id}")]
     public async Task<IActionResult> DeleteFoodAsync(Guid Id)
     {
         var result = await _mediator.Send(new DeleteFoodCommand(Id));
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Atualiza um registro de comida por identifcador 
+    /// </summary>
+    /// <returns>Food</returns>
+    /// <response code="200">200 Sucesso</response>
+    /// <response code="400">400 Erro</response>
+    [ProducesResponseType<UpdateFoodCommand>(StatusCodes.Status200OK)]
+    [HttpPut("{Id}")]
+    public async Task<IActionResult> UpdateFoodAsync(Guid Id, [FromBody] FoodUpdateDto update)
+    {
+        var result = await _mediator.Send(new UpdateFoodCommand(Id, update));
         return Ok(result);
     }
 }
