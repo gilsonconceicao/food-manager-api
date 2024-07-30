@@ -48,7 +48,7 @@ public class CreateFoodOrderHandler : IRequestHandler<CreateFoodOrderCommand, bo
 
             FoodOrder orderRequested = _mapper.Map<CreateFoodOrderCommand, FoodOrder>(request);
             
-            orderRequested.RequestNumber = orderCount++;
+            orderRequested.RequestNumber = orderCount+1;
             if (orderRequested.Client is not null)
             {
                 orderRequested.Client.Address.ClientId = orderRequested.Client.Id;

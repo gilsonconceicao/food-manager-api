@@ -6,7 +6,6 @@ namespace FoodManager.Application.FoodOrders.Commands.CreateFoodOrderCommand;
 #nullable disable
 public class CreateFoodOrderCommand : IRequest<bool>
 {
-    public int RequestNumber { get; set; }
     public ClientCreateDto Client { get; set; }
     public StatusFoodOrder Status { get; set; }
 }
