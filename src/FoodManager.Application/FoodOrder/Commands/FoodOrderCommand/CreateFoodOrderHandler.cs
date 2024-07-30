@@ -45,8 +45,15 @@ public class CreateFoodOrderHandler : IRequestHandler<CreateFoodOrderCommand, bo
             }
 
             var orderCount = await _context.FoodOrders.CountAsync();
-            
+
             FoodOrder orderRequested = _mapper.Map<CreateFoodOrderCommand, FoodOrder>(request);
+            
+            orderRequested.RequestNumber = orderCount++;
+            if (orderRequested.Client is not null)
+            {
+                orderRequested.Client.Address.ClientId = orderRequested.Client.Id;
+            }; 
+
             await _context.FoodOrders.AddAsync(orderRequested);
             await _context.SaveChangesAsync();
             return true;
