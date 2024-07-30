@@ -1,4 +1,7 @@
 using AutoMapper;
+using crud_products_api.src.Models;
+using FoodManager.Application.FoodOrders.Commands.CreateFoodOrderCommand;
+using FoodManager.Application.FoodOrders.Commands.Dtos;
 using FoodManager.Application.Foods.Commands.CreateFoodCommand;
 using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
 using FoodManager.Domain.Extensions;
@@ -11,6 +14,10 @@ public class Mappings : Profile
     public Mappings()
     {
         CreateMap<CreateFoodCommand, Food>();
+
+        CreateMap<CreateFoodOrderCommand, FoodOrder>(); 
+        CreateMap<ClientCreateDto, Client>();
+        CreateMap<AddressCreateDto, Address>(); 
 
         CreateMap<Food, GetFoodModel>()
             .ForMember(x => x.CategoryDisplay, src => src.MapFrom(x => x.Category.GetDescription()))
