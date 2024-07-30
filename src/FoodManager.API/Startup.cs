@@ -2,6 +2,7 @@ using System.Net.Mime;
 using System.Reflection;
 using FluentValidation;
 using FoodManager.Application.Common.Exceptions;
+using FoodManager.Application.FoodOrders.Commands.CreateFoodOrderCommand;
 using FoodManager.Application.Foods.Commands.CreateFoodCommand;
 using FoodManager.Application.Foods.Commands.DeleteFoodCommand;
 using FoodManager.Application.Foods.Commands.UpdateFoodCommand;
@@ -42,6 +43,7 @@ public class Startup
 
         //validations commands 
         services.AddValidatorsFromAssemblyContaining<CreateFoodValidations>();
+        services.AddValidatorsFromAssemblyContaining<CreateFoodOrderValidations>();
 
 
         // CQRS containers
@@ -49,6 +51,7 @@ public class Startup
         services.AddTransient<IRequestHandler<CreateFoodCommand, bool>, CreateFoodHandler>();
         services.AddTransient<IRequestHandler<DeleteFoodCommand, bool>, DeleteFoodHandler>();
         services.AddTransient<IRequestHandler<UpdateFoodCommand, bool>, UpdateFoodHandler>();
+        services.AddTransient<IRequestHandler<CreateFoodOrderCommand, bool>, CreateFoodOrderHandler>();
         
         // queries
         services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, PagedList<GetFoodModel>>, GetAllWithPaginationFoodHandler>();
