@@ -7,7 +7,6 @@ namespace FoodManager.Domain.Models
     {
         public int RequestNumber { get; set; }
         public Client Client { get; set; }
-        public OrderStatus Status { get; set; }
         public ICollection<Food> Foods { get; set; }
     }
 }

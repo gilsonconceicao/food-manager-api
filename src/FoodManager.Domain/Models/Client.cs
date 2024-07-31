@@ -8,7 +8,5 @@ public class Client : BaseEntity
     public string DocumentNumber { get; set; }
     public string PhoneNumber { get; set; }
     public Address Address { get; set; } 
-    public Guid AddressId { get; set; } 
-    public Guid OrderId { get; set; }
-    public Order Order { get; set; }
+    public Guid? AddressId { get; set; } 
 }

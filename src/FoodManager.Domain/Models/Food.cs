@@ -4,7 +4,7 @@ namespace FoodManager.Domain.Models
 {
     public class Food : BaseEntity
     {
-        public Guid OrderId { get; set; }
+        public Guid? OrderId { get; set; }
         public Order Order { get; set; }
         public string Name { get; set; }
         public string UrlImage { get; set; }

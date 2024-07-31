@@ -11,7 +11,7 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
             .HasOne(x => x.Address)
             .WithOne(x => x.Client)
             .HasForeignKey<Client>(x => x.AddressId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
-
     }
 }

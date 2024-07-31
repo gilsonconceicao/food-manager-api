@@ -1,4 +1,3 @@
-using FoodManager.Application.Foods.Commands.Dtos;
 using FoodManager.Domain.Enums;
 using MediatR;
 
@@ -6,11 +5,31 @@ namespace FoodManager.Application.Foods.Commands.FoodUpdateCommand;
 
 public class FoodUpdateCommand : IRequest<bool>
 {
-    public Guid Id { get; set; }
-    public FoodUpdateDto Payload { get; set; }
-    public FoodUpdateCommand(Guid id, FoodUpdateDto payload)
+    public FoodUpdateCommand(
+        Guid Id,
+        string Name,
+        string UrlImage,
+        string Description,
+        bool IsAvailable,
+        decimal Price,
+        FoodCategory Category,
+        string PreparationTime)
     {
-        this.Id = id;
-        this.Payload = payload; 
+        this.Id = Id;
+        this.Name = Name;
+        this.UrlImage = UrlImage;
+        this.Description = Description;
+        this.IsAvailable = IsAvailable;
+        this.Price = Price;
+        this.Category = Category;
+        this.PreparationTime = PreparationTime;
     }
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string UrlImage { get; set; }
+    public string Description { get; set; }
+    public bool IsAvailable { get; set; }
+    public decimal Price { get; set; }
+    public FoodCategory Category { get; set; }
+    public string PreparationTime { get; set; }
 }

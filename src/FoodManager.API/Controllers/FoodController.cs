@@ -80,9 +80,20 @@ public class FoodController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<FoodUpdateCommand>(StatusCodes.Status200OK)]
     [HttpPut("{Id}")]
-    public async Task<IActionResult> UpdateFoodAsync(Guid Id, [FromBody] FoodUpdateDto update)
+    public async Task<IActionResult> UpdateFoodAsync(Guid Id, [FromBody] FoodUpdateDto model)
     {
-        var result = await _mediator.Send(new FoodUpdateCommand(Id, update));
+        var result = await _mediator.Send(new FoodUpdateCommand
+        (
+            Id: Id, 
+            Category: model.Category, 
+            Description: model.Description,
+            IsAvailable: model.IsAvailable,
+            Name: model.Name,
+            PreparationTime: model.PreparationTime,
+            Price: model.Price,
+            UrlImage: model.UrlImage
+        ));
+
         return Ok(result);
     }
 }

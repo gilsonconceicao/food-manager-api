@@ -36,14 +36,13 @@ public class FoodUpdateHandler : IRequestHandler<FoodUpdateCommand, bool>
                 };
             }
 
-            var payload = request.Payload;
-
-            getFoodById.Name = payload.Name;
-            getFoodById.Price = payload.Price;
-            getFoodById.Category = payload.Category;
-            getFoodById.Description = payload.Description;
-            getFoodById.UrlImage = payload.UrlImage;
-            getFoodById.PreparationTime = payload.PreparationTime;
+    
+            getFoodById.Name = request.Name;
+            getFoodById.Price = request.Price;
+            getFoodById.Category = request.Category;
+            getFoodById.Description = request.Description;
+            getFoodById.UrlImage = request.UrlImage;
+            getFoodById.PreparationTime = request.PreparationTime;
 
             _context.Foods.Update(getFoodById);
             _context.Entry(getFoodById).State = Microsoft.EntityFrameworkCore.EntityState.Modified;

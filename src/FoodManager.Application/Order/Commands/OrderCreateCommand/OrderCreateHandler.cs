@@ -46,15 +46,41 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
 
             var orderCount = await _context.Orders.CountAsync();
 
-            Order orderRequested = _mapper.Map<OrderCreateCommand, Order>(request);
-            
-            orderRequested.RequestNumber = orderCount+1;
-            if (orderRequested.Client is not null)
-            {
-                orderRequested.Client.Address.ClientId = orderRequested.Client.Id;
-            }; 
+            Order order = _mapper.Map<OrderCreateCommand, Order>(request);
 
-            await _context.Orders.AddAsync(orderRequested);
+            order.RequestNumber = orderCount + 1;
+            if (order.Client.Address is not null && order.Client is not null)
+            {
+                order.Client.Address.ClientId = order.Client.Id;
+            };
+
+            List<Food> foodsList = new List<Food>();
+
+            foreach (var foodId in request.FoodsIds)
+            {
+                Food getFoodById = await _context
+                    .Foods
+                    .Where(x => !x.IsDeleted)
+                    .FirstOrDefaultAsync(x => x.Id == foodId);
+
+                if (getFoodById is null)
+                {
+                    throw new HttpResponseException
+                    {
+                        Status = 404,
+                        Value = new
+                        {
+                            Code = CodeErrorEnum.INVALID_FORM_FIELDS.ToString(),
+                            Message = $"Não foi possível seguir com o cadastro",
+                            Details = $"Comida não encontrada ou não existe {foodId}"
+                        }
+                    };
+                }
+
+                foodsList.Add(getFoodById);
+            }
+            order.Foods = foodsList;
+            await _context.Orders.AddAsync(order);
             await _context.SaveChangesAsync();
             return true;
         }
