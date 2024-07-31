@@ -1,4 +1,4 @@
-namespace FoodManager.Application.FoodsOrders.Commands.Dtos;
+namespace FoodManager.Application.Orders.Commands.Dtos;
 #nullable disable
 public class ClientCreateDto
 {

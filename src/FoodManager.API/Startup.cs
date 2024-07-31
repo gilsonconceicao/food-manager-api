@@ -2,7 +2,7 @@ using System.Net.Mime;
 using System.Reflection;
 using FluentValidation;
 using FoodManager.Application.Common.Exceptions;
-using FoodManager.Application.FoodsOrders.Commands.OrderCreateCommand;
+using FoodManager.Application.Orders.Commands.OrderCreateCommand;
 using FoodManager.Application.Foods.Commands.FoodCreateCommand;
 using FoodManager.Application.Foods.Commands.FoodDeleteCommand;
 using FoodManager.Application.Foods.Commands.FoodUpdateCommand;
@@ -12,10 +12,11 @@ using FoodManager.Domain.Extensions;
 using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using FoodManager.Application.Orders.Queries.OrderPaginationListQuery;
+using FoodManager.Application.Orders.Dtos;
 
 public class Startup
 {
@@ -56,6 +57,7 @@ public class Startup
         // queries
         services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, PagedList<GetFoodModel>>, GetAllWithPaginationFoodHandler>();
         services.AddTransient<IRequestHandler<GetFoodByIdQuery, GetFoodModel>, getFoodByIdHandler>();
+        services.AddTransient<IRequestHandler<OrderPaginationListQuery, PagedList<OrderGetDto>>, OrderPaginationListHandler>();
 
 
         // Add controllers with NewtonsoftJson for handling JSON serialization
