@@ -2,13 +2,13 @@ using FoodManager.Application.Foods.Commands.Dtos;
 using FoodManager.Domain.Enums;
 using MediatR;
 
-namespace FoodManager.Application.Foods.Commands.UpdateFoodCommand;
+namespace FoodManager.Application.Foods.Commands.FoodUpdateCommand;
 
-public class UpdateFoodCommand : IRequest<bool>
+public class FoodUpdateCommand : IRequest<bool>
 {
     public Guid Id { get; set; }
     public FoodUpdateDto Payload { get; set; }
-    public UpdateFoodCommand(Guid id, FoodUpdateDto payload)
+    public FoodUpdateCommand(Guid id, FoodUpdateDto payload)
     {
         this.Id = id;
         this.Payload = payload; 

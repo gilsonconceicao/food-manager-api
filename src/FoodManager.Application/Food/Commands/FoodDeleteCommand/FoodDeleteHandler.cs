@@ -4,18 +4,18 @@ using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodManager.Application.Foods.Commands.DeleteFoodCommand;
+namespace FoodManager.Application.Foods.Commands.FoodDeleteCommand;
 
-public class DeleteFoodHandler : IRequestHandler<DeleteFoodCommand, bool>
+public class FoodDeleteHandler : IRequestHandler<FoodDeleteCommand, bool>
 {
     private readonly DataBaseContext _context;
 
-    public DeleteFoodHandler(DataBaseContext context)
+    public FoodDeleteHandler(DataBaseContext context)
     {
         _context = context;
     }
 
-    public async Task<bool> Handle(DeleteFoodCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(FoodDeleteCommand request, CancellationToken cancellationToken)
     {
         try
         {

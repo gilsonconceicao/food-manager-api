@@ -9,6 +9,6 @@ public class Client : BaseEntity
     public string PhoneNumber { get; set; }
     public Address Address { get; set; } 
     public Guid AddressId { get; set; } 
-    public Guid FoodOrderId { get; set; }
-    public FoodOrder FoodOrder { get; set; }
+    public Guid OrderId { get; set; }
+    public Order Order { get; set; }
 }

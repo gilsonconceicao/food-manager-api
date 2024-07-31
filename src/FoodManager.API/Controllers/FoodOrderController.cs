@@ -1,4 +1,4 @@
-using FoodManager.Application.FoodOrders.Commands.CreateFoodOrderCommand;
+using FoodManager.Application.FoodsOrders.Commands.OrderCreateCommand;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +20,7 @@ public class FoodOrderController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status200OK)]
     [HttpPost]
-    public async Task<IActionResult> CreateFoodOrder([FromBody] CreateFoodOrderCommand command)
+    public async Task<IActionResult> CreateFoodOrder([FromBody] OrderCreateCommand command)
     {
         var result = await _mediator.Send(command);
         return Ok(result);

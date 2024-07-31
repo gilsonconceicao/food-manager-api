@@ -1,9 +1,9 @@
 using FoodManager.Domain.Enums;
 using MediatR;
 #nullable disable
-namespace FoodManager.Application.Foods.Commands.CreateFoodCommand
+namespace FoodManager.Application.Foods.Commands.FoodCreateCommand
 {
-    public class CreateFoodCommand : IRequest<bool>
+    public class FoodCreateCommand : IRequest<bool>
     {
         public string Name { get; set; }
         public string UrlImage { get; set; }

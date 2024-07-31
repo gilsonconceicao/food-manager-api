@@ -4,17 +4,17 @@ using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodManager.Application.Foods.Commands.UpdateFoodCommand;
+namespace FoodManager.Application.Foods.Commands.FoodUpdateCommand;
 
-public class UpdateFoodHandler : IRequestHandler<UpdateFoodCommand, bool>
+public class FoodUpdateHandler : IRequestHandler<FoodUpdateCommand, bool>
 {
     private readonly DataBaseContext _context;
-    public UpdateFoodHandler(DataBaseContext context)
+    public FoodUpdateHandler(DataBaseContext context)
     {
         _context = context;
     }
 
-    public async Task<bool> Handle(UpdateFoodCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(FoodUpdateCommand request, CancellationToken cancellationToken)
     {
         try
         {

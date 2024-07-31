@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using AutoMapper;
 using FluentValidation;
 using FoodManager.API.Enums;
@@ -6,26 +7,26 @@ using FoodManager.Application.Utils;
 using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
-namespace FoodManager.Application.FoodOrders.Commands.CreateFoodOrderCommand;
-public class CreateFoodOrderHandler : IRequestHandler<CreateFoodOrderCommand, bool>
+namespace FoodManager.Application.Foods.Commands.FoodCreateCommand;
+
+
+public class FoodCreateHandler : IRequestHandler<FoodCreateCommand, bool>
 {
-    private readonly DataBaseContext _context;
-    private readonly IValidator<CreateFoodOrderCommand> _validator;
     private readonly IMapper _mapper;
+    private readonly DataBaseContext _context;
+    private readonly IValidator<FoodCreateCommand> _validator;
 
-
-    public CreateFoodOrderHandler(DataBaseContext context,
-    IMapper mapper, IValidator<CreateFoodOrderCommand> validator)
+    public FoodCreateHandler(IMapper mapper, DataBaseContext context, IValidator<FoodCreateCommand> validator)
     {
-        _context = context;
         _mapper = mapper;
+        _context = context;
         _validator = validator;
     }
 
-    public async Task<bool> Handle(CreateFoodOrderCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(FoodCreateCommand request, CancellationToken cancellationToken)
     {
+
         try
         {
             var validationResult = _validator.Validate(request);
@@ -43,18 +44,8 @@ public class CreateFoodOrderHandler : IRequestHandler<CreateFoodOrderCommand, bo
                     }
                 };
             }
-
-            var orderCount = await _context.FoodOrders.CountAsync();
-
-            FoodOrder orderRequested = _mapper.Map<CreateFoodOrderCommand, FoodOrder>(request);
-            
-            orderRequested.RequestNumber = orderCount+1;
-            if (orderRequested.Client is not null)
-            {
-                orderRequested.Client.Address.ClientId = orderRequested.Client.Id;
-            }; 
-
-            await _context.FoodOrders.AddAsync(orderRequested);
+            Food food = _mapper.Map<Food>(request);
+            await _context.Foods.AddAsync(food);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -64,7 +55,8 @@ public class CreateFoodOrderHandler : IRequestHandler<CreateFoodOrderCommand, bo
         }
         catch (Exception ex)
         {
-            throw new Exception(ex.Message, ex);
+            throw new Exception(ex.Message);
         }
     }
+
 }

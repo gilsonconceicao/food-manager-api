@@ -1,7 +1,7 @@
-using FoodManager.Application.Foods.Commands.CreateFoodCommand;
-using FoodManager.Application.Foods.Commands.DeleteFoodCommand;
+using FoodManager.Application.Foods.Commands.FoodCreateCommand;
+using FoodManager.Application.Foods.Commands.FoodDeleteCommand;
 using FoodManager.Application.Foods.Commands.Dtos;
-using FoodManager.Application.Foods.Commands.UpdateFoodCommand;
+using FoodManager.Application.Foods.Commands.FoodUpdateCommand;
 using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
 using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
 using MediatR;
@@ -24,7 +24,7 @@ public class FoodController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<List<bool>>(StatusCodes.Status200OK)]
     [HttpPost]
-    public async Task<IActionResult> CreateFoodAsync([FromBody] CreateFoodCommand command)
+    public async Task<IActionResult> CreateFoodAsync([FromBody] FoodCreateCommand command)
     {
         var result = await _mediator.Send(command);
         return Ok(result);
@@ -68,7 +68,7 @@ public class FoodController : BaseController
     [HttpDelete("{Id}")]
     public async Task<IActionResult> DeleteFoodAsync(Guid Id)
     {
-        var result = await _mediator.Send(new DeleteFoodCommand(Id));
+        var result = await _mediator.Send(new FoodDeleteCommand(Id));
         return Ok(result);
     }
 
@@ -78,11 +78,11 @@ public class FoodController : BaseController
     /// <returns>Food</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
-    [ProducesResponseType<UpdateFoodCommand>(StatusCodes.Status200OK)]
+    [ProducesResponseType<FoodUpdateCommand>(StatusCodes.Status200OK)]
     [HttpPut("{Id}")]
     public async Task<IActionResult> UpdateFoodAsync(Guid Id, [FromBody] FoodUpdateDto update)
     {
-        var result = await _mediator.Send(new UpdateFoodCommand(Id, update));
+        var result = await _mediator.Send(new FoodUpdateCommand(Id, update));
         return Ok(result);
     }
 }

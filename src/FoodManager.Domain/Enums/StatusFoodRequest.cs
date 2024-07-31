@@ -1,7 +1,7 @@
 using System.ComponentModel;
 
 namespace FoodManager.Domain.Enums;
-public enum StatusFoodOrder
+public enum OrderStatus
 {
     [Description("Recebido")]
     Received = 0,

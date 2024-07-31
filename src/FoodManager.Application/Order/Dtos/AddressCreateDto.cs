@@ -1,4 +1,4 @@
-namespace FoodManager.Application.FoodOrders.Commands.Dtos;
+namespace FoodManager.Application.FoodsOrders.Commands.Dtos;
 
 public class AddressCreateDto
 {

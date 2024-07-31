@@ -1,10 +1,10 @@
 using FluentValidation;
 
-namespace FoodManager.Application.Foods.Commands.CreateFoodCommand
+namespace FoodManager.Application.Foods.Commands.FoodCreateCommand
 {
-    public class CreateFoodValidations : AbstractValidator<CreateFoodCommand>
+    public class FoodCreateValidations : AbstractValidator<FoodCreateCommand>
     {
-        public CreateFoodValidations()
+        public FoodCreateValidations()
         {
             RuleFor(c => c.Price)
                 .NotNull()

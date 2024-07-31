@@ -6,11 +6,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class AddressConfiguration : IEntityTypeConfiguration<Address>
 {
-    public void Configure(EntityTypeBuilder<Address> builder) 
-    { 
+    public void Configure(EntityTypeBuilder<Address> builder)
+    {
         builder
             .HasOne(x => x.Client)
             .WithOne(x => x.Address)
-            .HasForeignKey<Client>(x => x.AddressId);
+            .HasForeignKey<Client>(x => x.AddressId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

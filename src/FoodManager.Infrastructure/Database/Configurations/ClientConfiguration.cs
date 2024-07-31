@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class ClientConfiguration : IEntityTypeConfiguration<Client>
 {
-    public void Configure(EntityTypeBuilder<Client> builder) 
-    { 
+    public void Configure(EntityTypeBuilder<Client> builder)
+    {
         builder
             .HasOne(x => x.Address)
             .WithOne(x => x.Client)
-            .HasForeignKey<Client>(x => x.AddressId);
+            .HasForeignKey<Client>(x => x.AddressId)
+            .OnDelete(DeleteBehavior.Cascade);
+
     }
 }
