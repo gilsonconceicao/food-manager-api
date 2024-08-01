@@ -6,14 +6,17 @@ using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
 using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace FoodManager.API.Controllers;
 public class FoodController : BaseController
 {
     private readonly IMediator _mediator;
-    public FoodController(IMediator mediator)
+    private readonly IMapper _mapper;
+    public FoodController(IMediator mediator, IMapper mapper)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mediator));
     }
 
     /// <summary>
@@ -55,7 +58,7 @@ public class FoodController : BaseController
     public async Task<IActionResult> GetFoodByIdAsync(Guid Id)
     {
         var result = await _mediator.Send(new GetFoodByIdQuery(Id));
-        return Ok(result);
+        return Ok(_mapper.Map<GetFoodModel>(result));
     }
 
     /// <summary>

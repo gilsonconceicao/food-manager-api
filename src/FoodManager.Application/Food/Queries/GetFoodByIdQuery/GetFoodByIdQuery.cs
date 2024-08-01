@@ -1,9 +1,10 @@
-using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
+using FoodManager.Domain.Models;
 using MediatR;
 
+#nullable disable
 namespace FoodManager.Application.Foods.Queries.GetFoodByIdQuery
 {
-    public class GetFoodByIdQuery : IRequest<GetFoodModel>
+    public class GetFoodByIdQuery : IRequest<Food>
     {
         public Guid Id { get; set;}
         public GetFoodByIdQuery(Guid id)

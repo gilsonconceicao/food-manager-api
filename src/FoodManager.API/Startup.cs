@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using FoodManager.Application.Orders.Queries.OrderPaginationListQuery;
-using FoodManager.Application.Orders.Dtos;
 using FoodManager.Application.Orders.Queries.OrderGetByIdQuery;
 using FoodManager.Domain.Models;
 
@@ -58,7 +57,7 @@ public class Startup
         
         // queries
         services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, PagedList<GetFoodModel>>, GetAllWithPaginationFoodHandler>();
-        services.AddTransient<IRequestHandler<GetFoodByIdQuery, GetFoodModel>, getFoodByIdHandler>();
+        services.AddTransient<IRequestHandler<GetFoodByIdQuery, Food>, getFoodByIdHandler>();
         services.AddTransient<IRequestHandler<OrderPaginationListQuery, ListDataResponse<List<Order>>>, OrderPaginationListHandler>();
         services.AddTransient<IRequestHandler<OrderGetByIdQuery, Order>, OrderGetByIdHandler>();
 
