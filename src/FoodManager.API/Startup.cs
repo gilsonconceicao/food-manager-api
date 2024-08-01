@@ -17,6 +17,8 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using FoodManager.Application.Orders.Queries.OrderPaginationListQuery;
 using FoodManager.Application.Orders.Dtos;
+using FoodManager.Application.Orders.Queries.OrderGetByIdQuery;
+using FoodManager.Domain.Models;
 
 public class Startup
 {
@@ -58,6 +60,7 @@ public class Startup
         services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, PagedList<GetFoodModel>>, GetAllWithPaginationFoodHandler>();
         services.AddTransient<IRequestHandler<GetFoodByIdQuery, GetFoodModel>, getFoodByIdHandler>();
         services.AddTransient<IRequestHandler<OrderPaginationListQuery, PagedList<OrderGetDto>>, OrderPaginationListHandler>();
+        services.AddTransient<IRequestHandler<OrderGetByIdQuery, Order>, OrderGetByIdHandler>();
 
 
         // Add controllers with NewtonsoftJson for handling JSON serialization
