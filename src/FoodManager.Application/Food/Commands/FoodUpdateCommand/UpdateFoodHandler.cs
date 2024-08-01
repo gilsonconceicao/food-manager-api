@@ -21,20 +21,16 @@ public class FoodUpdateHandler : IRequestHandler<FoodUpdateCommand, bool>
             var getFoodById = await _context
                 .Foods
                 .Where(x => !x.IsDeleted)
-                .FirstOrDefaultAsync(x => x.Id == request.Id);
-
-            if (getFoodById is null)
-            {
-                throw new HttpResponseException
+                .FirstOrDefaultAsync(x => x.Id == request.Id)
+                ?? throw new HttpResponseException
                 {
-                    Status = 400,
+                    Status = 404,
                     Value = new
                     {
                         Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
                         Message = "Comida não encontrada ou não existe",
                     }
                 };
-            }
 
     
             getFoodById.Name = request.Name;
@@ -50,7 +46,7 @@ public class FoodUpdateHandler : IRequestHandler<FoodUpdateCommand, bool>
 
             return true;
         }
-        catch (HttpResponseException ex)
+        catch (HttpResponseException)
         {
             throw;
         }

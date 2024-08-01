@@ -44,12 +44,13 @@ public class FoodCreateHandler : IRequestHandler<FoodCreateCommand, bool>
                     }
                 };
             }
+            
             Food food = _mapper.Map<Food>(request);
             await _context.Foods.AddAsync(food);
             await _context.SaveChangesAsync();
             return true;
         }
-        catch (HttpResponseException ex)
+        catch (HttpResponseException)
         {
             throw;
         }

@@ -40,7 +40,7 @@ public class getFoodByIdHandler : IRequestHandler<GetFoodByIdQuery, Food>
 
             return getFoodById; 
         }
-        catch (HttpResponseException ex)
+        catch (HttpResponseException)
         {
             throw;
         }

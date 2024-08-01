@@ -1,5 +1,5 @@
 namespace FoodManager.Application.orders.Dtos;
-
+#nullable disable
 public class AddressGetDto
 {
     public Guid Id { get; set; }

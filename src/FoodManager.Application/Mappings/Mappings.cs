@@ -20,7 +20,8 @@ public class Mappings : Profile
         CreateMap<FoodCreateDto, Food>();
 
         CreateMap<OrderCreateCommand, Order>(); 
-        CreateMap<Order, OrderGetDto>(); 
+        CreateMap<Order, OrderGetDto>()
+            .ForMember(x => x.OrderNumber, src => src.MapFrom(x => x.RequestNumber)); 
         
         CreateMap<ClientCreateDto, Client>();
         CreateMap<AddressCreateDto, Address>();

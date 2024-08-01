@@ -3,13 +3,14 @@
 using AutoMapper;
 using FoodManager.Application.Common.Exceptions;
 using FoodManager.Domain.Extensions;
+using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
 {
-    public class GetAllWithPaginationFoodHandler : IRequestHandler<GetAllWithPaginationFoodQuery, PagedList<GetFoodModel>>
+    public class GetAllWithPaginationFoodHandler : IRequestHandler<GetAllWithPaginationFoodQuery, ListDataResponse<List<Food>>>
     {
         private readonly DataBaseContext _context;
         private readonly IMapper _mapper;
@@ -21,7 +22,7 @@ namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
             _mapper = mapper;
         }
 
-        public async Task<PagedList<GetFoodModel>> Handle(GetAllWithPaginationFoodQuery request, CancellationToken cancellationToken)
+        public async Task<ListDataResponse<List<Food>>> Handle(GetAllWithPaginationFoodQuery request, CancellationToken cancellationToken)
         {
             try
             {
@@ -32,20 +33,16 @@ namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
 
                 var totalCount = await queryData.CountAsync(cancellationToken);
 
-                var listPaginated = await queryData
+                var data = await queryData
                     .Skip((page) * size)
                     .Take(size)
                     .ToListAsync(cancellationToken);
 
-                var foodList = _mapper.Map<List<GetFoodModel>>(listPaginated);
-
-                var dataMapped = new PagedList<GetFoodModel>(foodList, totalCount, request.Page, request.Size);
-
-                return dataMapped;
-            }
-            catch (HttpResponseException ex)
-            {
-                throw;
+                return new ListDataResponse<List<Food>>
+                {
+                    Count = totalCount, 
+                    Data = data
+                };
             }
             catch (Exception ex)
             {

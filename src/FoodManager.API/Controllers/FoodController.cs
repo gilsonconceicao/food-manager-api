@@ -7,6 +7,7 @@ using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
+using FoodManager.Domain.Extensions;
 
 namespace FoodManager.API.Controllers;
 public class FoodController : BaseController
@@ -44,7 +45,17 @@ public class FoodController : BaseController
     public async Task<IActionResult> GetAllFoodsWithPaginationAsync([FromQuery] GetAllWithPaginationFoodQuery query)
     {
         var result = await _mediator.Send(query);
-        return Ok(result);
+        
+        var foodList = _mapper.Map<List<GetFoodModel>>(result.Data);
+
+        var listMappedFromPagination = new PagedList<GetFoodModel>(
+            data: foodList, 
+            count: result.Count ?? 0, 
+            pageNumber: query.Page, 
+            pageSize: query.Size
+        );
+
+        return Ok(listMappedFromPagination);
     }
 
     /// <summary>
@@ -87,8 +98,8 @@ public class FoodController : BaseController
     {
         var result = await _mediator.Send(new FoodUpdateCommand
         (
-            Id: Id, 
-            Category: model.Category, 
+            Id: Id,
+            Category: model.Category,
             Description: model.Description,
             IsAvailable: model.IsAvailable,
             Name: model.Name,

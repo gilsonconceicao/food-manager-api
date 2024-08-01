@@ -20,13 +20,10 @@ public class FoodDeleteHandler : IRequestHandler<FoodDeleteCommand, bool>
         try
         {
             var getFoodById = await _context
-                        .Foods
-                        .Where(x => !x.IsDeleted)
-                        .FirstOrDefaultAsync(x => x.Id == request.Id);
-
-            if (getFoodById is null)
-            {
-                throw new HttpResponseException
+                .Foods
+                .Where(x => !x.IsDeleted)
+                .FirstOrDefaultAsync(x => x.Id == request.Id)
+                ?? throw new HttpResponseException
                 {
                     Status = 404,
                     Value = new
@@ -35,14 +32,12 @@ public class FoodDeleteHandler : IRequestHandler<FoodDeleteCommand, bool>
                         Message = "Comida não encontrada ou não existe",
                     }
                 };
-            }
 
             getFoodById.IsDeleted = true;
             await _context.SaveChangesAsync();
-
             return true;
         }
-        catch (HttpResponseException ex)
+        catch (HttpResponseException)
         {
             throw;
         }

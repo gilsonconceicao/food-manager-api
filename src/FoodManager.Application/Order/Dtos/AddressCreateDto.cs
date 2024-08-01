@@ -1,5 +1,5 @@
 namespace FoodManager.Application.Orders.Commands.Dtos;
-
+#nullable disable
 public class AddressCreateDto
 {
     public string Street { get; set; }

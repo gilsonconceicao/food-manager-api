@@ -58,10 +58,10 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
 
             foreach (var foodId in request.FoodsIds)
             {
-                Food getFoodById = await _context
+                Food getFoodById = _context
                     .Foods
                     .Where(x => !x.IsDeleted)
-                    .FirstOrDefaultAsync(x => x.Id == foodId);
+                    .First(x => x.Id == foodId);
 
                 if (getFoodById is null)
                 {
@@ -84,7 +84,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
             await _context.SaveChangesAsync();
             return true;
         }
-        catch (HttpResponseException ex)
+        catch (HttpResponseException)
         {
             throw;
         }
