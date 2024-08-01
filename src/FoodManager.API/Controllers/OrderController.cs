@@ -3,6 +3,7 @@ using FoodManager.Application.Orders.Commands.OrderCreateCommand;
 using FoodManager.Application.Orders.Dtos;
 using FoodManager.Application.Orders.Queries.OrderGetByIdQuery;
 using FoodManager.Application.Orders.Queries.OrderPaginationListQuery;
+using FoodManager.Domain.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,9 +12,9 @@ namespace FoodManager.API.Controllers;
 public class OrderController : BaseController
 {
     private readonly IMediator _mediator;
-    private readonly IMapper _mapper; 
+    private readonly IMapper _mapper;
 
-    public OrderController(IMediator mediator, 
+    public OrderController(IMediator mediator,
     IMapper mapper)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
@@ -45,7 +46,16 @@ public class OrderController : BaseController
     public async Task<IActionResult> OrderGetListAsync([FromQuery] OrderPaginationListQuery query)
     {
         var result = await _mediator.Send(query);
-        return Ok(result);
+        var listMapped = _mapper.Map<List<OrderGetDto>>(result.Data);
+
+        var listPaginated = new PagedList<OrderGetDto>(
+            data: listMapped,
+            count: result.Count ?? 0,
+            pageNumber: query.Page,
+            pageSize: query.Size
+        );
+        
+        return Ok(listPaginated);
     }
 
     /// <summary>

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FoodManager.Application.Orders.Queries.OrderPaginationListQuery;
 
-public class OrderPaginationListHandler : IRequestHandler<OrderPaginationListQuery, PagedList<OrderGetDto>>
+public class OrderPaginationListHandler : IRequestHandler<OrderPaginationListQuery, ListDataResponse<List<Order>>>
 {
     private readonly DataBaseContext _context;
     private readonly IMapper _mapper;
@@ -20,7 +20,7 @@ public class OrderPaginationListHandler : IRequestHandler<OrderPaginationListQue
         _mapper = mapper;
     }
 
-    public async Task<PagedList<OrderGetDto>> Handle(OrderPaginationListQuery request, CancellationToken cancellationToken)
+    public async Task<ListDataResponse<List<Order>>> Handle(OrderPaginationListQuery request, CancellationToken cancellationToken)
     {
         try
         {
@@ -30,25 +30,23 @@ public class OrderPaginationListHandler : IRequestHandler<OrderPaginationListQue
             var queryData = _context
                 .Orders
                 .Include(x => x.Client)
+                .Include(x => x.Foods)
                 .Where(x => !x.IsDeleted);
 
             var totalCount = await queryData.CountAsync(cancellationToken);
 
-            var listPaginated = await queryData
+            var data = await queryData
                 .Skip((page) * size)
                 .Take(size)
                 .ToListAsync(cancellationToken);
 
-            listPaginated.OrderByDescending(x => x.CreatedAt);
+            data.OrderByDescending(x => x.CreatedAt);
 
-            var listMapped = _mapper.Map<List<OrderGetDto>>(listPaginated);
-
-            return new PagedList<OrderGetDto>(
-                data: listMapped, 
-                count: totalCount, 
-                pageNumber: request.Page, 
-                pageSize: request.Size
-            );
+            return new ListDataResponse<List<Order>> 
+            {
+                Count = totalCount,
+                Data = data
+            };
         }
         catch (Exception ex)
         {
