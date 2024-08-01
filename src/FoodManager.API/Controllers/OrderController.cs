@@ -1,5 +1,6 @@
 using AutoMapper;
 using FoodManager.Application.Orders.Commands.OrderCreateCommand;
+using FoodManager.Application.Orders.Commands.OrderDeleteCommand;
 using FoodManager.Application.Orders.Dtos;
 using FoodManager.Application.Orders.Queries.OrderGetByIdQuery;
 using FoodManager.Application.Orders.Queries.OrderPaginationListQuery;
@@ -27,7 +28,7 @@ public class OrderController : BaseController
     /// <returns>Order</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
-    [ProducesResponseType<bool>(StatusCodes.Status200OK)]
+    [ProducesResponseType<bool>(StatusCodes.Status201Created)]
     [HttpPost]
     public async Task<IActionResult> OrderCreateAsync([FromBody] OrderCreateCommand command)
     {
@@ -71,5 +72,19 @@ public class OrderController : BaseController
         var result = await _mediator.Send(new OrderGetByIdQuery(Id));
         var projectedData = _mapper.Map<OrderGetDto>(result);
         return Ok(projectedData);
+    }
+    
+    /// <summary>
+    /// Método para remover um pedido da lista
+    /// </summary>
+    /// <returns>Order</returns>
+    /// <response code="200">200 Sucesso</response>
+    /// <response code="400">400 Erro</response>
+    [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
+    [HttpDelete("{Id}")]
+    public async Task<IActionResult> OrderDeleteByIdAsync(Guid Id)
+    {
+        var result = await _mediator.Send(new OrderDeleteCommand(Id));
+        return Ok(result);
     }
 }

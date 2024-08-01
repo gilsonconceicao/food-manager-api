@@ -29,7 +29,7 @@ public class OrderGetByIdHandler : IRequestHandler<OrderGetByIdQuery, Order>
                     Value = new
                     {
                         Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                        Message = "Comida não encontrada ou não existe",
+                        Message = "Pedido não encontrada ou não existe",
                     }
                 };
 

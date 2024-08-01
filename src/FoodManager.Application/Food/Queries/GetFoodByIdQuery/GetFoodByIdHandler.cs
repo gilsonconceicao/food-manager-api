@@ -36,7 +36,7 @@ public class getFoodByIdHandler : IRequestHandler<GetFoodByIdQuery, Food>
                         Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
                         Message = "Comida não encontrada ou não existe",
                     }
-                };;
+                };
 
             return getFoodById; 
         }

@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using FoodManager.Application.Orders.Queries.OrderPaginationListQuery;
 using FoodManager.Application.Orders.Queries.OrderGetByIdQuery;
 using FoodManager.Domain.Models;
+using FoodManager.Application.Orders.Commands.OrderDeleteCommand;
 
 public class Startup
 {
@@ -54,6 +55,7 @@ public class Startup
         services.AddTransient<IRequestHandler<FoodDeleteCommand, bool>, FoodDeleteHandler>();
         services.AddTransient<IRequestHandler<FoodUpdateCommand, bool>, FoodUpdateHandler>();
         services.AddTransient<IRequestHandler<OrderCreateCommand, bool>, OrderCreateHandler>();
+        services.AddTransient<IRequestHandler<OrderDeleteCommand, bool>, OrderDeleteHandler>();
         
         // queries
         services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, ListDataResponse<List<Food>>>, GetAllWithPaginationFoodHandler>();

@@ -26,7 +26,7 @@ public class FoodController : BaseController
     /// <returns>Food</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
-    [ProducesResponseType<List<bool>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<List<bool>>(StatusCodes.Status201Created)]
     [HttpPost]
     public async Task<IActionResult> CreateFoodAsync([FromBody] FoodCreateCommand command)
     {
@@ -78,7 +78,7 @@ public class FoodController : BaseController
     /// <returns>Food</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpDelete("{Id}")]
     public async Task<IActionResult> DeleteFoodAsync(Guid Id)
     {
@@ -92,7 +92,7 @@ public class FoodController : BaseController
     /// <returns>Food</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
-    [ProducesResponseType<FoodUpdateCommand>(StatusCodes.Status200OK)]
+    [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpPut("{Id}")]
     public async Task<IActionResult> UpdateFoodAsync(Guid Id, [FromBody] FoodUpdateDto model)
     {
