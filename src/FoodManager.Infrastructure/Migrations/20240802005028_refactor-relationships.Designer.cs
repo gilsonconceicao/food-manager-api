@@ -3,6 +3,7 @@ using System;
 using FoodManager.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FoodManager.Infrastructure.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240802005028_refactor-relationships")]
+    partial class refactorrelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -125,9 +128,19 @@ namespace FoodManager.Infrastructure.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("FoodId1")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("OrderId1")
+                        .HasColumnType("uuid");
+
                     b.HasKey("FoodId", "OrderId");
 
+                    b.HasIndex("FoodId1");
+
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("OrderId1");
 
                     b.ToTable("OrdersFoodsRelationships");
                 });
@@ -180,17 +193,25 @@ namespace FoodManager.Infrastructure.Migrations
 
             modelBuilder.Entity("FoodManager.Domain.Models.OrdersFoodsRelationship", b =>
                 {
-                    b.HasOne("FoodManager.Domain.Models.Food", "Food")
+                    b.HasOne("FoodManager.Domain.Models.Food", null)
                         .WithMany("OrdersFoodsRelationship")
                         .HasForeignKey("FoodId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FoodManager.Domain.Models.Order", "Order")
+                    b.HasOne("FoodManager.Domain.Models.Food", "Food")
+                        .WithMany()
+                        .HasForeignKey("FoodId1");
+
+                    b.HasOne("FoodManager.Domain.Models.Order", null)
                         .WithMany("OrdersFoodsRelationship")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("FoodManager.Domain.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId1");
 
                     b.Navigation("Food");
 

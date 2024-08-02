@@ -30,7 +30,7 @@ public class OrderPaginationListHandler : IRequestHandler<OrderPaginationListQue
             var queryData = _context
                 .Orders
                 .Include(x => x.Client)
-                .Include(x => x.Foods)
+                .Include(x => x.OrdersFoodsRelationship)
                 .Where(x => !x.IsDeleted);
 
             var totalCount = await queryData.CountAsync(cancellationToken);
