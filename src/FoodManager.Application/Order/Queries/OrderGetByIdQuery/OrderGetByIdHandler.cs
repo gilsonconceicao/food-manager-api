@@ -20,7 +20,8 @@ public class OrderGetByIdHandler : IRequestHandler<OrderGetByIdQuery, Order>
     {
         var order = await _context.Orders
             .Include(x => x.Client)
-            .Include(x => x.Foods)
+            .Include(x => x.OrdersFoodsRelationship)
+            .ThenInclude(x => x.Food)
             .Where(x => !x.IsDeleted)
             .FirstOrDefaultAsync(x => x.Id == request.OrderId)
             ?? throw new HttpResponseException

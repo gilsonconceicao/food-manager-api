@@ -44,7 +44,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
                 };
             }
 
-            var orderCount = await _context.Orders.CountAsync();
+            var orderCount = await _context.Orders.CountAsync(cancellationToken);
 
             Order order = _mapper.Map<OrderCreateCommand, Order>(request);
 
@@ -54,18 +54,18 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
                 order.Client.Address.ClientId = order.Client.Id;
             };
 
-            List<Food> foodsList = new List<Food>();
+            await _context.Orders.AddAsync(order, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            var ordersFoodsRelationship = new List<OrdersFoodsRelationship>();
 
             foreach (var foodId in request.FoodsIds)
             {
-                Food getFoodById = _context
+                Food food = await _context
                     .Foods
                     .Where(x => !x.IsDeleted)
-                    .First(x => x.Id == foodId);
-
-                if (getFoodById is null)
-                {
-                    throw new HttpResponseException
+                    .FirstOrDefaultAsync(x => x.Id == foodId, cancellationToken)
+                    ?? throw new HttpResponseException
                     {
                         Status = 404,
                         Value = new
@@ -75,13 +75,18 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
                             Details = $"Comida não encontrada ou não existe {foodId}"
                         }
                     };
-                }
 
-                foodsList.Add(getFoodById);
+                ordersFoodsRelationship.Add(new OrdersFoodsRelationship
+                {
+                    FoodId = food.Id,
+                    OrderId = order.Id
+                });
             }
-            order.Foods = foodsList;
-            await _context.Orders.AddAsync(order);
-            await _context.SaveChangesAsync();
+
+            order.OrdersFoodsRelationship = ordersFoodsRelationship;
+
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync(cancellationToken);
             return true;
         }
         catch (HttpResponseException)
