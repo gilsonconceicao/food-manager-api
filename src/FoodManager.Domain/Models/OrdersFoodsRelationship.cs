@@ -1,4 +1,5 @@
 namespace FoodManager.Domain.Models; 
+
 public class OrdersFoodsRelationship 
 {
     public Guid FoodId { get; set; }

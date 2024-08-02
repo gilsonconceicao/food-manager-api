@@ -12,7 +12,6 @@ namespace FoodManager.Domain.Models
         public FoodCategory? Category { get; set; }
         public string PreparationTime { get; set; }
 
-        // public ICollection<Order> Orders { get; set; }
         public ICollection<OrdersFoodsRelationship> OrdersFoodsRelationship { get; set; }
     }
 }
