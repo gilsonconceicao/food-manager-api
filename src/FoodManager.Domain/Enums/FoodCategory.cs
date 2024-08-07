@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace FoodManager.Domain.Enums
 {
-    public enum FoodCategory
+    public enum FoodCategoryEnum
     {
         [Description("Entrada")]
         Appetizer = 0,
