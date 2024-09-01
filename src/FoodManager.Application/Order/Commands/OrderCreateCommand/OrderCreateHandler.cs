@@ -49,10 +49,10 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
             Order order = _mapper.Map<OrderCreateCommand, Order>(request);
 
             order.RequestNumber = orderCount + 1;
-            if (order.Client.Address is not null && order.Client is not null)
-            {
-                order.Client.Address.ClientId = order.Client.Id;
-            };
+            // if (order.Client.Address is not null && order.Client is not null)
+            // {
+            //     order.Client.Address.ClientId = order.Client.Id;
+            // };
 
             await _context.Orders.AddAsync(order, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);

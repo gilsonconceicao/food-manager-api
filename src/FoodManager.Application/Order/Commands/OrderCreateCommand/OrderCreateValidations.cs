@@ -6,6 +6,6 @@ public class OrderCreateValidations : AbstractValidator<OrderCreateCommand>
 {
     public OrderCreateValidations()
     {
-        RuleFor(c => c.Client).NotNull().NotEmpty().WithMessage($"Cliente é obrigatório");
+        // RuleFor(c => c.Client).NotNull().NotEmpty().WithMessage($"Cliente é obrigatório");
     }
 }

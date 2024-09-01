@@ -1,6 +1,5 @@
 using FoodManager.API.Enums;
 using FoodManager.Application.Common.Exceptions;
-using FoodManager.Application.Orders.Dtos;
 using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
 using MediatR;
@@ -19,7 +18,6 @@ public class OrderGetByIdHandler : IRequestHandler<OrderGetByIdQuery, Order>
     public async Task<Order> Handle(OrderGetByIdQuery request, CancellationToken cancellationToken)
     {
         var order = await _context.Orders
-            .Include(x => x.Client)
             .Include(x => x.OrdersFoodsRelationship)
             .ThenInclude(x => x.Food)
             .Where(x => !x.IsDeleted)

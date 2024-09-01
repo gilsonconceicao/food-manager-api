@@ -1,5 +1,4 @@
 using AutoMapper;
-using crud_products_api.src.Models;
 using FoodManager.Application.Orders.Commands.OrderCreateCommand;
 using FoodManager.Application.Orders.Commands.Dtos;
 using FoodManager.Application.Foods.Commands.FoodCreateCommand;
@@ -24,11 +23,7 @@ public class Mappings : Profile
             .ForMember(x =>x.Foods, src => src.MapFrom(x => x.OrdersFoodsRelationship.Select(x => x.Food)))
             .ForMember(x => x.OrderNumber, src => src.MapFrom(x => x.RequestNumber)); 
         
-        CreateMap<ClientCreateDto, Client>();
         CreateMap<AddressCreateDto, Address>();
-        
-        CreateMap<ClientGetDto, Client>()
-            .ReverseMap();
 
         CreateMap<Food, GetFoodModel>()
             .ForMember(x => x.CategoryDisplay,  
