@@ -13,14 +13,12 @@ namespace FoodManager.Infrastructure.Database
         public DbSet<Address> Address { get; set; }
         public DbSet<User> User { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<OrdersFoodsRelationship> OrdersFoodsRelationships { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new FoodConfiguration()); 
             modelBuilder.ApplyConfiguration(new OrderConfiguration()); 
             modelBuilder.ApplyConfiguration(new UserConfiguration()); 
-            modelBuilder.ApplyConfiguration(new OrdersFoodsRelationshipConfiguration()); 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(modelBuilder);
         }

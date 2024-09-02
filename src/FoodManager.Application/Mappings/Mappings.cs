@@ -20,7 +20,6 @@ public class Mappings : Profile
 
         CreateMap<OrderCreateCommand, Order>(); 
         CreateMap<Order, OrderGetDto>()
-            .ForMember(x =>x.Foods, src => src.MapFrom(x => x.OrdersFoodsRelationship.Select(x => x.Food)))
             .ForMember(x => x.OrderNumber, src => src.MapFrom(x => x.RequestNumber)); 
         
         CreateMap<AddressCreateDto, Address>();
