@@ -11,8 +11,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder
             .HasMany(x => x.Foods)
             .WithOne(x => x.Order)
-            .HasForeignKey(x => x.OrderId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey("OrderId")
+            .IsRequired(false);
     }
 }

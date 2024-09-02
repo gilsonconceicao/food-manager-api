@@ -11,7 +11,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder
             .HasOne(x => x.Address)
             .WithOne(x => x.User)
-            .HasForeignKey<Address>(x => x.UserId)
+            .HasForeignKey<Address>("UserId")
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
@@ -19,8 +19,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder
             .HasMany(x => x.Orders)
             .WithOne(x => x.User)
-            .HasForeignKey(x => x.UserId)
-            .IsRequired(true)
-            .OnDelete(DeleteBehavior.Cascade);;
+            .HasForeignKey("UserId")
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

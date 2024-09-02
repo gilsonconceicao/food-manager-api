@@ -10,6 +10,5 @@ public class Address
     public string City { get; set; }
     public string State { get; set; }
     public string ZipCode { get; set; }
-    public Guid UserId { get; set; }
-    public User User { get; set; }
+    public User? User { get; set; }
 }
