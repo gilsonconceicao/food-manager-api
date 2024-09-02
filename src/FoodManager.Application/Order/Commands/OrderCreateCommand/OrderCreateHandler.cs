@@ -57,34 +57,6 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
             await _context.Orders.AddAsync(order, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 
-            var ordersFoodsRelationship = new List<OrdersFoodsRelationship>();
-
-            foreach (var foodId in request.FoodsIds)
-            {
-                Food food = await _context
-                    .Foods
-                    .Where(x => !x.IsDeleted)
-                    .FirstOrDefaultAsync(x => x.Id == foodId, cancellationToken)
-                    ?? throw new HttpResponseException
-                    {
-                        Status = 404,
-                        Value = new
-                        {
-                            Code = CodeErrorEnum.INVALID_FORM_FIELDS.ToString(),
-                            Message = $"Não foi possível seguir com o cadastro",
-                            Details = $"Comida não encontrada ou não existe {foodId}"
-                        }
-                    };
-
-                ordersFoodsRelationship.Add(new OrdersFoodsRelationship
-                {
-                    FoodId = food.Id,
-                    OrderId = order.Id
-                });
-            }
-
-            order.OrdersFoodsRelationship = ordersFoodsRelationship;
-
             _context.Orders.Update(order);
             await _context.SaveChangesAsync(cancellationToken);
             return true;

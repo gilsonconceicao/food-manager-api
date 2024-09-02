@@ -6,7 +6,8 @@ namespace FoodManager.Domain.Models
     public class Order : BaseEntity
     {
         public int RequestNumber { get; set; }
-        public Guid ClientId { get; set; }
-        public ICollection<OrdersFoodsRelationship> OrdersFoodsRelationship { get; set; }
+        public ICollection<Food> Foods { get; set; }
+        public Guid UserId { get; set; }
+        public User User { get; set; }
     }
 }

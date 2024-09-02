@@ -9,8 +9,18 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasKey(x => x.Id);
 
         builder
-        .HasOne(x => x.Address)
-        .WithOne(x => x.User)
-        .HasForeignKey<Address>(x => x.UserId);
+            .HasOne(x => x.Address)
+            .WithOne(x => x.User)
+            .HasForeignKey<Address>(x => x.UserId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Cascade);
+
+
+        builder
+            .HasMany(x => x.Orders)
+            .WithOne(x => x.User)
+            .HasForeignKey(x => x.UserId)
+            .IsRequired(true)
+            .OnDelete(DeleteBehavior.Cascade);;
     }
 }
