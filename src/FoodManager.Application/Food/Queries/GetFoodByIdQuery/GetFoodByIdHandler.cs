@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
 
-public class getFoodByIdHandler : IRequestHandler<GetFoodByIdQuery, Food>
+public class GetFoodByIdHandler : IRequestHandler<GetFoodByIdQuery, Food>
 {
     private readonly DataBaseContext _context;
     private readonly IMapper _mapper;
-    public getFoodByIdHandler(DataBaseContext context,
+    public GetFoodByIdHandler(DataBaseContext context,
     IMapper mapper)
     {
         _context = context;
@@ -26,6 +26,7 @@ public class getFoodByIdHandler : IRequestHandler<GetFoodByIdQuery, Food>
         {
             var getFoodById = await _context
                .Foods
+               .Include(x => x.Order)
                .Where(x => !x.IsDeleted)
                .FirstOrDefaultAsync(x => x.Id == request.Id) 
                ?? throw new HttpResponseException
