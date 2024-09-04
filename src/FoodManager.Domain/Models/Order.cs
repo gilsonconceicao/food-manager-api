@@ -1,4 +1,3 @@
-using FoodManager.Domain.Enums;
 
 namespace FoodManager.Domain.Models
 {
@@ -6,8 +5,8 @@ namespace FoodManager.Domain.Models
     public class Order : BaseEntity
     {
         public int RequestNumber { get; set; }
-        public Client Client { get; set; }
-        public Guid ClientId { get; set; }
-        public ICollection<OrdersFoodsRelationship> OrdersFoodsRelationship { get; set; }
+        public ICollection<Food> Foods { get; set; } = []; 
+        public User? User { get; set; }
+        public Guid? UserId { get; set; }
     }
 }

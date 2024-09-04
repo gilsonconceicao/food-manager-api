@@ -3,6 +3,7 @@ using System;
 using FoodManager.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FoodManager.Infrastructure.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240901223835_create-user-entity")]
+    partial class createuserentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,7 +40,7 @@ namespace FoodManager.Infrastructure.Migrations
                     b.Property<string>("Street")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ZipCode")
@@ -75,9 +78,6 @@ namespace FoodManager.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("OrderId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("PreparationTime")
                         .HasColumnType("text");
 
@@ -89,8 +89,6 @@ namespace FoodManager.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId");
-
                     b.ToTable("Foods");
                 });
 
@@ -98,6 +96,9 @@ namespace FoodManager.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -109,14 +110,24 @@ namespace FoodManager.Infrastructure.Migrations
                     b.Property<int>("RequestNumber")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("FoodManager.Domain.Models.OrdersFoodsRelationship", b =>
+                {
+                    b.Property<Guid>("FoodId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("FoodId", "OrderId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrdersFoodsRelationships");
                 });
 
             modelBuilder.Entity("FoodManager.Domain.Models.User", b =>
@@ -147,40 +158,44 @@ namespace FoodManager.Infrastructure.Migrations
                     b.HasOne("FoodManager.Domain.Models.User", "User")
                         .WithOne("Address")
                         .HasForeignKey("FoodManager.Domain.Models.Address", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FoodManager.Domain.Models.Food", b =>
+            modelBuilder.Entity("FoodManager.Domain.Models.OrdersFoodsRelationship", b =>
                 {
+                    b.HasOne("FoodManager.Domain.Models.Food", "Food")
+                        .WithMany("OrdersFoodsRelationship")
+                        .HasForeignKey("FoodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FoodManager.Domain.Models.Order", "Order")
-                        .WithMany("Foods")
-                        .HasForeignKey("OrderId");
+                        .WithMany("OrdersFoodsRelationship")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Food");
 
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("FoodManager.Domain.Models.Order", b =>
+            modelBuilder.Entity("FoodManager.Domain.Models.Food", b =>
                 {
-                    b.HasOne("FoodManager.Domain.Models.User", "User")
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("User");
+                    b.Navigation("OrdersFoodsRelationship");
                 });
 
             modelBuilder.Entity("FoodManager.Domain.Models.Order", b =>
                 {
-                    b.Navigation("Foods");
+                    b.Navigation("OrdersFoodsRelationship");
                 });
 
             modelBuilder.Entity("FoodManager.Domain.Models.User", b =>
                 {
                     b.Navigation("Address");
-
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

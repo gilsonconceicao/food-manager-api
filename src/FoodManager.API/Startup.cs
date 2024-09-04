@@ -59,7 +59,7 @@ public class Startup
         
         // queries
         services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, ListDataResponse<List<Food>>>, GetAllWithPaginationFoodHandler>();
-        services.AddTransient<IRequestHandler<GetFoodByIdQuery, Food>, getFoodByIdHandler>();
+        services.AddTransient<IRequestHandler<GetFoodByIdQuery, Food>, GetFoodByIdHandler>();
         services.AddTransient<IRequestHandler<OrderPaginationListQuery, ListDataResponse<List<Order>>>, OrderPaginationListHandler>();
         services.AddTransient<IRequestHandler<OrderGetByIdQuery, Order>, OrderGetByIdHandler>();
 
