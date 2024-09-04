@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-using FoodManager.Domain.Enums;
 
 namespace FoodManager.Domain.Models
 {
@@ -9,5 +7,6 @@ namespace FoodManager.Domain.Models
         public int RequestNumber { get; set; }
         public ICollection<Food> Foods { get; set; } = []; 
         public User? User { get; set; }
+        public Guid? UserId { get; set; }
     }
 }

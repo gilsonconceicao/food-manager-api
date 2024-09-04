@@ -11,7 +11,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder
             .HasMany(x => x.Foods)
             .WithOne(x => x.Order)
-            .HasForeignKey("OrderId")
+            .HasForeignKey(x => x.OrderId)
             .IsRequired(false);
     }
 }

@@ -12,5 +12,6 @@ namespace FoodManager.Domain.Models
         public FoodCategoryEnum? Category { get; set; }
         public string PreparationTime { get; set; }
         public Order? Order { get; set; }
+        public Guid? OrderId { get; set; }
     }
 }
