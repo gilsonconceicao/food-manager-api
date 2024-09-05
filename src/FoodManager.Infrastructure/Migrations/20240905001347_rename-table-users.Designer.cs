@@ -3,6 +3,7 @@ using System;
 using FoodManager.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FoodManager.Infrastructure.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240905001347_rename-table-users")]
+    partial class renametableusers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,10 +78,7 @@ namespace FoodManager.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("OrderFoodRelatedFoodId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("OrderFoodRelatedOrderId")
+                    b.Property<Guid?>("OrderId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("PreparationTime")
@@ -92,7 +92,7 @@ namespace FoodManager.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderFoodRelatedFoodId", "OrderFoodRelatedOrderId");
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Foods");
                 });
@@ -109,12 +109,6 @@ namespace FoodManager.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid?>("OrderFoodRelatedFoodId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("OrderFoodRelatedOrderId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("RequestNumber")
                         .HasColumnType("integer");
 
@@ -125,24 +119,7 @@ namespace FoodManager.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("OrderFoodRelatedFoodId", "OrderFoodRelatedOrderId");
-
                     b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("FoodManager.Domain.Models.OrderFoodRelated", b =>
-                {
-                    b.Property<Guid>("FoodId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("FoodId", "OrderId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderFoodRelateds");
                 });
 
             modelBuilder.Entity("FoodManager.Domain.Models.User", b =>
@@ -172,51 +149,34 @@ namespace FoodManager.Infrastructure.Migrations
                 {
                     b.HasOne("FoodManager.Domain.Models.User", "User")
                         .WithOne("Address")
-                        .HasForeignKey("FoodManager.Domain.Models.Address", "UserId");
+                        .HasForeignKey("FoodManager.Domain.Models.Address", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("FoodManager.Domain.Models.Food", b =>
                 {
-                    b.HasOne("FoodManager.Domain.Models.OrderFoodRelated", null)
-                        .WithMany("Food")
-                        .HasForeignKey("OrderFoodRelatedFoodId", "OrderFoodRelatedOrderId");
+                    b.HasOne("FoodManager.Domain.Models.Order", "Order")
+                        .WithMany("Foods")
+                        .HasForeignKey("OrderId");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("FoodManager.Domain.Models.Order", b =>
                 {
                     b.HasOne("FoodManager.Domain.Models.User", "User")
                         .WithMany("Orders")
-                        .HasForeignKey("UserId");
-
-                    b.HasOne("FoodManager.Domain.Models.OrderFoodRelated", null)
-                        .WithMany("Order")
-                        .HasForeignKey("OrderFoodRelatedFoodId", "OrderFoodRelatedOrderId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FoodManager.Domain.Models.OrderFoodRelated", b =>
+            modelBuilder.Entity("FoodManager.Domain.Models.Order", b =>
                 {
-                    b.HasOne("FoodManager.Domain.Models.Food", null)
-                        .WithMany()
-                        .HasForeignKey("FoodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FoodManager.Domain.Models.Order", null)
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("FoodManager.Domain.Models.OrderFoodRelated", b =>
-                {
-                    b.Navigation("Food");
-
-                    b.Navigation("Order");
+                    b.Navigation("Foods");
                 });
 
             modelBuilder.Entity("FoodManager.Domain.Models.User", b =>

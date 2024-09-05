@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace FoodManager.Application.Orders.Commands.OrderCreateCommand;
+namespace FoodManager.Application.Orders.Commands.Validatons;
 
 public class OrderCreateValidations : AbstractValidator<OrderCreateCommand>
 {

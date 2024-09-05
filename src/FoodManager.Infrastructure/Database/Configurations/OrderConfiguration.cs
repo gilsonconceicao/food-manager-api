@@ -9,9 +9,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasKey(x => x.Id);
 
         builder
-            .HasMany(x => x.Foods)
-            .WithOne(x => x.Order)
-            .HasForeignKey(x => x.OrderId)
-            .IsRequired(false);
+            .HasMany(e => e.Foods)
+            .WithMany(e => e.Orders)
+            .UsingEntity<OrderFoodRelated>(
+                x => x.HasOne<Food>().WithMany().HasForeignKey(e => e.FoodId),
+                x => x.HasOne<Order>().WithMany().HasForeignKey(e => e.OrderId));
     }
 }

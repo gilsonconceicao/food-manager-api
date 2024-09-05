@@ -4,7 +4,16 @@ using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodManager.Application.Foods.Commands.FoodDeleteCommand;
+namespace FoodManager.Application.Foods.Commands;
+
+public class FoodDeleteCommand : IRequest<bool> 
+{
+    public Guid Id { get; set; }
+    public FoodDeleteCommand(Guid id)
+    {
+        this.Id = id;
+    }
+}
 
 public class FoodDeleteHandler : IRequestHandler<FoodDeleteCommand, bool>
 {

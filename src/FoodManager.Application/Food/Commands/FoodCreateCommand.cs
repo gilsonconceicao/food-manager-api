@@ -4,12 +4,23 @@ using FluentValidation;
 using FoodManager.API.Enums;
 using FoodManager.Application.Common.Exceptions;
 using FoodManager.Application.Utils;
+using FoodManager.Domain.Enums;
 using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
 using MediatR;
+#nullable disable
+namespace FoodManager.Application.Foods.Commands;
 
-namespace FoodManager.Application.Foods.Commands.FoodCreateCommand;
-
+public class FoodCreateCommand : IRequest<bool>
+    {
+        public string Name { get; set; }
+        public string UrlImage { get; set; }
+        public string Description { get; set; }
+        public bool IsAvailable { get; set; }
+        public decimal Price { get; set; }
+        public FoodCategoryEnum Category { get; set; }
+        public string PreparationTime { get; set; }
+    }
 
 public class FoodCreateHandler : IRequestHandler<FoodCreateCommand, bool>
 {

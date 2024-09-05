@@ -1,13 +1,17 @@
 using AutoMapper;
-using FoodManager.Application.Orders.Dtos;
 using FoodManager.Domain.Extensions;
 using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodManager.Application.Orders.Queries.OrderPaginationListQuery;
+namespace FoodManager.Application.Orders.Queries;
 
+public class OrderPaginationListQuery : IRequest<ListDataResponse<List<Order>>>
+{
+    public int Page { get; set; } = 0;
+    public int Size { get; set; } = 5;
+}
 public class OrderPaginationListHandler : IRequestHandler<OrderPaginationListQuery, ListDataResponse<List<Order>>>
 {
     private readonly DataBaseContext _context;

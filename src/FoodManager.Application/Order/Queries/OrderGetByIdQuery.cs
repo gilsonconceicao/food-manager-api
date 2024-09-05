@@ -5,7 +5,16 @@ using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodManager.Application.Orders.Queries.OrderGetByIdQuery;
+namespace FoodManager.Application.Orders.Queries;
+
+public class OrderGetByIdQuery : IRequest<Order>
+{
+    public Guid OrderId { get; set; }
+    public OrderGetByIdQuery(Guid OrderId)
+    {
+        this.OrderId = OrderId;
+    }
+}
 
 public class OrderGetByIdHandler : IRequestHandler<OrderGetByIdQuery, Order>
 {
@@ -21,15 +30,15 @@ public class OrderGetByIdHandler : IRequestHandler<OrderGetByIdQuery, Order>
             .Where(x => !x.IsDeleted)
             .FirstOrDefaultAsync(x => x.Id == request.OrderId)
             ?? throw new HttpResponseException
+            {
+                Status = 404,
+                Value = new
                 {
-                    Status = 404,
-                    Value = new
-                    {
-                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                        Message = "Pedido não encontrada ou não existe",
-                    }
-                };
+                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                    Message = "Pedido não encontrada ou não existe",
+                }
+            };
 
-            return order;
+        return order;
     }
 }

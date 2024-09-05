@@ -1,7 +1,5 @@
-using FoodManager.Application.Foods.Commands.FoodCreateCommand;
-using FoodManager.Application.Foods.Commands.FoodDeleteCommand;
+using FoodManager.Application.Foods.Commands;
 using FoodManager.Application.Foods.Commands.Dtos;
-using FoodManager.Application.Foods.Commands.FoodUpdateCommand;
 using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
 using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
 using MediatR;
@@ -23,9 +21,6 @@ public class FoodController : BaseController
     /// <summary>
     /// Método utilizado para adicionar comida
     /// </summary>
-    /// <returns>Food</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
     [ProducesResponseType<List<bool>>(StatusCodes.Status201Created)]
     [HttpPost]
     public async Task<IActionResult> CreateFoodAsync([FromBody] FoodCreateCommand command)
@@ -37,18 +32,15 @@ public class FoodController : BaseController
     /// <summary>
     /// Consulta todas as comidas com paginação
     /// </summary>
-    /// <returns>Food</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
-    [ProducesResponseType<List<GetFoodModel>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedList<GetFoodDto>>(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetAllFoodsWithPaginationAsync([FromQuery] GetAllWithPaginationFoodQuery query)
     {
         var result = await _mediator.Send(query);
         
-        var foodList = _mapper.Map<List<GetFoodModel>>(result.Data);
+        var foodList = _mapper.Map<List<GetFoodDto>>(result.Data);
 
-        var listMappedFromPagination = new PagedList<GetFoodModel>(
+        var listMappedFromPagination = new PagedList<GetFoodDto>(
             data: foodList, 
             count: result.Count ?? 0, 
             pageNumber: query.Page, 
@@ -61,23 +53,17 @@ public class FoodController : BaseController
     /// <summary>
     /// Obtem um regitro de comida por identifcador
     /// </summary>
-    /// <returns>Food</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
-    [ProducesResponseType<GetFoodModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType<GetFoodDto>(StatusCodes.Status200OK)]
     [HttpGet("{Id}")]
     public async Task<IActionResult> GetFoodByIdAsync(Guid Id)
     {
         var result = await _mediator.Send(new GetFoodByIdQuery(Id));
-        return Ok(_mapper.Map<GetFoodModel>(result));
+        return Ok(_mapper.Map<GetFoodDto>(result));
     }
 
     /// <summary>
     /// Remove um registro de comida por identifcador 
     /// </summary>
-    /// <returns>Food</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpDelete("{Id}")]
     public async Task<IActionResult> DeleteFoodAsync(Guid Id)
@@ -89,9 +75,6 @@ public class FoodController : BaseController
     /// <summary>
     /// Atualiza um registro de comida por identifcador 
     /// </summary>
-    /// <returns>Food</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpPut("{Id}")]
     public async Task<IActionResult> UpdateFoodAsync(Guid Id, [FromBody] FoodUpdateDto model)

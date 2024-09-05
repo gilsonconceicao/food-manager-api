@@ -11,8 +11,9 @@ namespace FoodManager.Infrastructure.Database
 
         public DbSet<Food> Foods { get; set; }
         public DbSet<Address> Address { get; set; }
-        public DbSet<User> User { get; set; }
+        public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderFoodRelated> OrderFoodRelateds { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

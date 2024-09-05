@@ -12,15 +12,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasOne(x => x.Address)
             .WithOne(x => x.User)
             .HasForeignKey<Address>(x => x.UserId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.Cascade);
+            .IsRequired(false);
 
 
         builder
             .HasMany(x => x.Orders)
             .WithOne(x => x.User)
             .HasForeignKey(x => x.UserId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.Cascade);
+            .IsRequired(false);
     }
 }
