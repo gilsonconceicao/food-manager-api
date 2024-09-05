@@ -16,6 +16,8 @@ using Newtonsoft.Json;
 using FoodManager.Application.Orders.Queries;
 using FoodManager.Domain.Models;
 using FoodManager.Application.Orders.Commands.Validatons;
+using FoodManager.Application.Users.Queries;
+using FoodManager.API.Extensions;
 
 public class Startup
 {
@@ -41,25 +43,7 @@ public class Startup
             options.UseNpgsql(connectionString);
         });
 
-        //validations commands 
-        services.AddValidatorsFromAssemblyContaining<FoodCreateValidations>();
-        services.AddValidatorsFromAssemblyContaining<OrderCreateValidations>();
-
-
-        // CQRS containers
-        // commands
-        services.AddTransient<IRequestHandler<FoodCreateCommand, bool>, FoodCreateHandler>();
-        services.AddTransient<IRequestHandler<FoodDeleteCommand, bool>, FoodDeleteHandler>();
-        services.AddTransient<IRequestHandler<FoodUpdateCommand, bool>, FoodUpdateHandler>();
-        services.AddTransient<IRequestHandler<OrderCreateCommand, bool>, OrderCreateHandler>();
-        services.AddTransient<IRequestHandler<OrderDeleteCommand, bool>, OrderDeleteHandler>();
-        
-        // queries
-        services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, ListDataResponse<List<Food>>>, GetAllWithPaginationFoodHandler>();
-        services.AddTransient<IRequestHandler<GetFoodByIdQuery, Food>, GetFoodByIdHandler>();
-        services.AddTransient<IRequestHandler<OrderPaginationListQuery, ListDataResponse<List<Order>>>, OrderPaginationListHandler>();
-        services.AddTransient<IRequestHandler<OrderGetByIdQuery, Order>, OrderGetByIdHandler>();
-
+        services.AddDependencyInjections();
 
         // Add controllers with NewtonsoftJson for handling JSON serialization
         services.AddControllers(options =>

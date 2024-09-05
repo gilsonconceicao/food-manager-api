@@ -1,0 +1,40 @@
+using FluentValidation;
+using FoodManager.Application.Foods.Commands;
+using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
+using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
+using FoodManager.Application.Orders.Commands;
+using FoodManager.Application.Orders.Commands.Validatons;
+using FoodManager.Application.Orders.Queries;
+using FoodManager.Application.Users.Queries;
+using FoodManager.Domain.Extensions;
+using FoodManager.Domain.Models;
+using MediatR;
+
+namespace FoodManager.API.Extensions;
+public static class MyConfigServiceCollectionExtensions
+{
+    public static IServiceCollection AddDependencyInjections(
+        this IServiceCollection services
+    )
+    {
+        // #region FluentValidations
+        services.AddValidatorsFromAssemblyContaining<FoodCreateValidations>();
+        services.AddValidatorsFromAssemblyContaining<OrderCreateValidations>();
+
+        // #region Commands
+        services.AddTransient<IRequestHandler<FoodCreateCommand, bool>, FoodCreateHandler>();
+        services.AddTransient<IRequestHandler<FoodDeleteCommand, bool>, FoodDeleteHandler>();
+        services.AddTransient<IRequestHandler<FoodUpdateCommand, bool>, FoodUpdateHandler>();
+        services.AddTransient<IRequestHandler<OrderCreateCommand, bool>, OrderCreateHandler>();
+        services.AddTransient<IRequestHandler<OrderDeleteCommand, bool>, OrderDeleteHandler>();
+
+        // #region Queries
+        services.AddTransient<IRequestHandler<GetAllWithPaginationFoodQuery, ListDataResponse<List<Food>>>, GetAllWithPaginationFoodHandler>();
+        services.AddTransient<IRequestHandler<GetFoodByIdQuery, Food>, GetFoodByIdHandler>();
+        services.AddTransient<IRequestHandler<OrderPaginationListQuery, ListDataResponse<List<Order>>>, OrderPaginationListHandler>();
+        services.AddTransient<IRequestHandler<OrderGetByIdQuery, Order>, OrderGetByIdHandler>();
+        services.AddTransient<IRequestHandler<UserPaginationListQuery, ListDataResponse<List<User>>>, UserPaginationListQueryHandler>();
+
+        return services;
+    }
+}

@@ -21,9 +21,6 @@ public class FoodController : BaseController
     /// <summary>
     /// Método utilizado para adicionar comida
     /// </summary>
-    /// <returns>Food</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
     [ProducesResponseType<List<bool>>(StatusCodes.Status201Created)]
     [HttpPost]
     public async Task<IActionResult> CreateFoodAsync([FromBody] FoodCreateCommand command)
@@ -35,10 +32,7 @@ public class FoodController : BaseController
     /// <summary>
     /// Consulta todas as comidas com paginação
     /// </summary>
-    /// <returns>Food</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
-    [ProducesResponseType<List<GetFoodDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedList<GetFoodDto>>(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetAllFoodsWithPaginationAsync([FromQuery] GetAllWithPaginationFoodQuery query)
     {
@@ -59,9 +53,6 @@ public class FoodController : BaseController
     /// <summary>
     /// Obtem um regitro de comida por identifcador
     /// </summary>
-    /// <returns>Food</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
     [ProducesResponseType<GetFoodDto>(StatusCodes.Status200OK)]
     [HttpGet("{Id}")]
     public async Task<IActionResult> GetFoodByIdAsync(Guid Id)
@@ -73,9 +64,6 @@ public class FoodController : BaseController
     /// <summary>
     /// Remove um registro de comida por identifcador 
     /// </summary>
-    /// <returns>Food</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpDelete("{Id}")]
     public async Task<IActionResult> DeleteFoodAsync(Guid Id)
@@ -87,9 +75,6 @@ public class FoodController : BaseController
     /// <summary>
     /// Atualiza um registro de comida por identifcador 
     /// </summary>
-    /// <returns>Food</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpPut("{Id}")]
     public async Task<IActionResult> UpdateFoodAsync(Guid Id, [FromBody] FoodUpdateDto model)

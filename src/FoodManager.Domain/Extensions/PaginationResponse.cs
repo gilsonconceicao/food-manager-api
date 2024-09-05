@@ -6,14 +6,16 @@ namespace FoodManager.Domain.Extensions
         {
             Data = data;
             TotalPages = (int)Math.Ceiling(count / (double)pageSize);
-            PageSize = pageSize;
-            TotalCount = count;
+            Size = pageSize;
+            Page = pageNumber;
+            TotalItems = count;
         }
 
         public List<T> Data { get; set; }
         public int TotalPages { get; set; }
-        public int PageSize { get; set; }
-        public double TotalCount { get; set; }
+        public int Size { get; set; }
+        public int Page { get; set; }
+        public double TotalItems { get; set; }
 
     }
 }

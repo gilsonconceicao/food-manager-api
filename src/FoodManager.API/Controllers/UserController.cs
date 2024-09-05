@@ -19,6 +19,13 @@ public class UserController : BaseController
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
+    /// <summary>
+    /// Método utilizado para obter usuários
+    /// </summary>
+    /// <returns>Usuários</returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<PagedList<GetUserDto>>(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetList([FromQuery] UserPaginationListQuery query)
     {
