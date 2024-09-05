@@ -17,8 +17,6 @@ public class FoodMappers : Profile
        CreateMap<Food, GetFoodDto>()
             .ForMember(x => x.CategoryDisplay,
                 src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null))
-            .ForMember(x => x.OrderId,
-                src => src.MapFrom(x => x.OrderId == Guid.Empty ? (Guid?)null : x.OrderId))
             .ReverseMap();
     }
 }
