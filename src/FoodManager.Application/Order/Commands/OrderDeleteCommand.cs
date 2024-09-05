@@ -4,8 +4,16 @@ using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodManager.Application.Orders.Commands.OrderDeleteCommand
+namespace FoodManager.Application.Orders.Commands
 {
+    public class OrderDeleteCommand : IRequest<bool>
+    {
+        public Guid OrderId { get; set; }
+        public OrderDeleteCommand(Guid OrderId)
+        {
+            this.OrderId = OrderId;
+        }
+    }
     public class OrderDeleteHandler : IRequestHandler<OrderDeleteCommand, bool>
     {
         private readonly DataBaseContext _context;
@@ -33,7 +41,7 @@ namespace FoodManager.Application.Orders.Commands.OrderDeleteCommand
                     };
 
 
-                order.IsDeleted = true; 
+                order.IsDeleted = true;
                 await _context.SaveChangesAsync();
                 return true;
             }

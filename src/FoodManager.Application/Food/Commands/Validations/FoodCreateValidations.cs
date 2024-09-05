@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace FoodManager.Application.Foods.Commands.FoodCreateCommand
+namespace FoodManager.Application.Foods.Commands
 {
     public class FoodCreateValidations : AbstractValidator<FoodCreateCommand>
     {

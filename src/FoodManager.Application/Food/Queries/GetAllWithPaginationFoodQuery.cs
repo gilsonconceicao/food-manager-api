@@ -10,6 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
 {
+    public class GetAllWithPaginationFoodQuery : IRequest<ListDataResponse<List<Food>>>
+    {
+        public int Page { get; set; } = 0;
+        public int Size { get; set; } = 5;
+    }
     public class GetAllWithPaginationFoodHandler : IRequestHandler<GetAllWithPaginationFoodQuery, ListDataResponse<List<Food>>>
     {
         private readonly DataBaseContext _context;
@@ -40,7 +45,7 @@ namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
 
                 return new ListDataResponse<List<Food>>
                 {
-                    Count = totalCount, 
+                    Count = totalCount,
                     Data = data
                 };
             }

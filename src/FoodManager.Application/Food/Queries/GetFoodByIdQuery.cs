@@ -9,6 +9,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
 
+ public class GetFoodByIdQuery : IRequest<Food>
+    {
+        public Guid Id { get; set;}
+        public GetFoodByIdQuery(Guid id)
+        {
+            this.Id = id;
+        }
+    }
+
 public class GetFoodByIdHandler : IRequestHandler<GetFoodByIdQuery, Food>
 {
     private readonly DataBaseContext _context;

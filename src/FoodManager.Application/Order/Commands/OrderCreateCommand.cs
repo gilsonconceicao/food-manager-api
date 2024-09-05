@@ -8,7 +8,13 @@ using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodManager.Application.Orders.Commands.OrderCreateCommand;
+#nullable disable
+namespace FoodManager.Application.Orders.Commands;
+public class OrderCreateCommand : IRequest<bool>
+{
+    public List<Guid> FoodsIds { get; set; }
+}
+
 public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
 {
     private readonly DataBaseContext _context;

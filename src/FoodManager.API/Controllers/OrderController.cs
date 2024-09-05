@@ -1,9 +1,7 @@
 using AutoMapper;
-using FoodManager.Application.Orders.Commands.OrderCreateCommand;
-using FoodManager.Application.Orders.Commands.OrderDeleteCommand;
+using FoodManager.Application.Orders.Commands;
 using FoodManager.Application.Orders.Dtos;
-using FoodManager.Application.Orders.Queries.OrderGetByIdQuery;
-using FoodManager.Application.Orders.Queries.OrderPaginationListQuery;
+using FoodManager.Application.Orders.Queries;
 using FoodManager.Domain.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
