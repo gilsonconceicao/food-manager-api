@@ -5,6 +5,7 @@ using FoodManager.Application.Common.Exceptions;
 using FoodManager.Application.Utils;
 using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
+using FoodManager.Infrastructure.Migrations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -64,11 +65,25 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
                     }
                 };
 
-            var foods = await _context.Foods
+            var orderCount = await _context.Orders.CountAsync(cancellationToken);
+
+            Order order = new Order
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                RequestNumber = orderCount + 1,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            await _context.Orders.AddAsync(order, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            var getFoodIncludeIds = await _context.Foods
                 .Where(x => request.FoodsIds.Contains(x.Id))
+                .Select(x => x.Id)
                 .ToListAsync();
 
-            var missingFoodIds = request.FoodsIds.Except(foods.Select(f => f.Id)).ToList();
+            var missingFoodIds = request.FoodsIds.Except(getFoodIncludeIds).ToList();
 
             if (missingFoodIds.Any())
             {
@@ -84,23 +99,18 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
                 };
             };
 
-            var orderCount = await _context.Orders.CountAsync(cancellationToken);
-
-            Order order = new Order
+            foreach (var foodId in request.FoodsIds)
             {
-                Id = Guid.NewGuid(),
-                UserId = user.Id,
-                Foods = foods,
-                User = user,
-                RequestNumber = orderCount + 1,
-                CreatedAt = DateTime.UtcNow,
+                var orderFoodRelation = new FoodOrderRelation
+                {
+                    OrderId = order.Id,
+                    FoodId = foodId
+                };
+
+                _context.Set<FoodOrderRelation>().Add(orderFoodRelation);
             };
 
-            await _context.Orders.AddAsync(order, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            _context.Orders.Update(order);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync();
             return true;
         }
         catch (HttpResponseException)
