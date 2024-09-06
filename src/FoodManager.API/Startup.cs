@@ -18,6 +18,7 @@ using FoodManager.Domain.Models;
 using FoodManager.Application.Orders.Commands.Validatons;
 using FoodManager.Application.Users.Queries;
 using FoodManager.API.Extensions;
+using FoodManager.Application.Mappings;
 
 public class Startup
 {
@@ -35,7 +36,9 @@ public class Startup
 
         // mediatR to CQRS of application
         services.AddMediatR(Assembly.GetExecutingAssembly());
-        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+        // mappers 
+        services.AddMappersConfigs();
 
         // database
         services.AddDbContext<DataBaseContext>(options =>

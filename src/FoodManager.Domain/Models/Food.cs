@@ -12,5 +12,7 @@ namespace FoodManager.Domain.Models
         public FoodCategoryEnum? Category { get; set; }
         public string PreparationTime { get; set; }
         public ICollection<Order> Orders { get; set; }
+        public List<OrderFoodRelated> OrderFoodRelateds { get; } = [];
+
     }
 }

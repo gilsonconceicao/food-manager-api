@@ -27,6 +27,8 @@ public class OrderGetByIdHandler : IRequestHandler<OrderGetByIdQuery, Order>
     public async Task<Order> Handle(OrderGetByIdQuery request, CancellationToken cancellationToken)
     {
         var order = await _context.Orders
+            .Include(x => x.OrderFoodRelateds)
+            .ThenInclude(x => x.Order)
             .Where(x => !x.IsDeleted)
             .FirstOrDefaultAsync(x => x.Id == request.OrderId)
             ?? throw new HttpResponseException

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FoodManager.Application.Orders.Commands;
 public class OrderCreateCommand : IRequest<bool>
 {
+    public Guid UserId { get; set; }
     public List<Guid> FoodsIds { get; set; }
 }
 
@@ -50,15 +51,50 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
                 };
             }
 
+            var user = _context.Users
+                .Where(user => !user.IsDeleted)
+                .FirstOrDefault(user => user.Id == request.UserId)
+                ?? throw new HttpResponseException
+                {
+                    Status = 404,
+                    Value = new
+                    {
+                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                        Message = "Usuário não encontrado",
+                    }
+                };
+
+            var foods = await _context.Foods
+                .Where(x => request.FoodsIds.Contains(x.Id))
+                .ToListAsync();
+
+            var missingFoodIds = request.FoodsIds.Except(foods.Select(f => f.Id)).ToList();
+
+            if (missingFoodIds.Any())
+            {
+                throw new HttpResponseException
+                {
+                    Status = 404,
+                    Value = new
+                    {
+                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                        Message = $"Comidas não foram encontradas",
+                        Resource = missingFoodIds
+                    }
+                };
+            };
+
             var orderCount = await _context.Orders.CountAsync(cancellationToken);
 
-            Order order = _mapper.Map<OrderCreateCommand, Order>(request);
-
-            order.RequestNumber = orderCount + 1;
-            // if (order.Client.Address is not null && order.Client is not null)
-            // {
-            //     order.Client.Address.ClientId = order.Client.Id;
-            // };
+            Order order = new Order
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Foods = foods,
+                User = user,
+                RequestNumber = orderCount + 1,
+                CreatedAt = DateTime.UtcNow,
+            };
 
             await _context.Orders.AddAsync(order, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
