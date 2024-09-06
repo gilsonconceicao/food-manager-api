@@ -1,5 +1,5 @@
 using FoodManager.Domain.Models;
-
+#nullable disable
 namespace FoodManager.Domain.Models;
 
 #nullable disable

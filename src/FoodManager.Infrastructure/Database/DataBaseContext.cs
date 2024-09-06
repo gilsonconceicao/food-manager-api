@@ -13,13 +13,13 @@ namespace FoodManager.Infrastructure.Database
         public DbSet<Address> Address { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderFoodRelated> OrderFoodRelateds { get; set; }
 
+        public async Task MigrateAsync() => await base.Database.MigrateAsync();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new FoodConfiguration()); 
-            modelBuilder.ApplyConfiguration(new OrderConfiguration()); 
-            modelBuilder.ApplyConfiguration(new UserConfiguration()); 
+            modelBuilder.ApplyConfiguration(new FoodConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(modelBuilder);
         }
