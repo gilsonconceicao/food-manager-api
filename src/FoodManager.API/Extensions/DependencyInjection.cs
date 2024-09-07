@@ -5,6 +5,7 @@ using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
 using FoodManager.Application.Orders.Commands;
 using FoodManager.Application.Orders.Commands.Validatons;
 using FoodManager.Application.Orders.Queries;
+using FoodManager.Application.Users.Commands;
 using FoodManager.Application.Users.Queries;
 using FoodManager.Domain.Extensions;
 using FoodManager.Domain.Models;
@@ -34,6 +35,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<OrderPaginationListQuery, ListDataResponse<List<Order>>>, OrderPaginationListHandler>();
         services.AddTransient<IRequestHandler<OrderGetByIdQuery, Order>, OrderGetByIdHandler>();
         services.AddTransient<IRequestHandler<UserPaginationListQuery, ListDataResponse<List<User>>>, UserPaginationListQueryHandler>();
+        services.AddTransient<IRequestHandler<UserCreateCommand, Guid>, UserCreateCommandHandler>();
 
         return services;
     }
