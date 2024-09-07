@@ -16,7 +16,7 @@ public class OrderPaginationListHandler : IRequestHandler<OrderPaginationListQue
 {
     private readonly DataBaseContext _context;
     private readonly IMapper _mapper;
-    
+
     public OrderPaginationListHandler(DataBaseContext context,
     IMapper mapper)
     {
@@ -33,6 +33,9 @@ public class OrderPaginationListHandler : IRequestHandler<OrderPaginationListQue
 
             var queryData = _context
                 .Orders
+                .Include(x => x.User)
+                .Include(x => x.FoodOrderRelations)
+                .ThenInclude(x => x.Food)
                 .Where(x => !x.IsDeleted);
 
             var totalCount = await queryData.CountAsync(cancellationToken);
@@ -44,7 +47,7 @@ public class OrderPaginationListHandler : IRequestHandler<OrderPaginationListQue
 
             data.OrderByDescending(x => x.CreatedAt);
 
-            return new ListDataResponse<List<Order>> 
+            return new ListDataResponse<List<Order>>
             {
                 Count = totalCount,
                 Data = data

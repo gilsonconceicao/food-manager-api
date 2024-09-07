@@ -1,4 +1,6 @@
+using System.Data;
 using FluentValidation;
+using FoodManager.Application.Utils;
 
 namespace FoodManager.Application.Users.Commands.Validations; 
 
@@ -15,5 +17,9 @@ public class UserCreateValidation : AbstractValidator<UserCreateCommand>
            .NotNull()
            .NotEmpty()
            .WithMessage($"Nome é obrigatório"); 
+
+        RuleFor(x => x.RegistrationNumber)
+            .Must(x => ValidationsUtils.IsValidRegistrationNumber(x))
+            .WithMessage("CPF informado é inválido");
     }
 }

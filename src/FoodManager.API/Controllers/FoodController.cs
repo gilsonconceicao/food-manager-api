@@ -34,7 +34,7 @@ public class FoodController : BaseController
     /// </summary>
     [ProducesResponseType<PagedList<GetFoodDto>>(StatusCodes.Status200OK)]
     [HttpGet]
-    public async Task<IActionResult> GetAllFoodsWithPaginationAsync([FromQuery] GetAllWithPaginationFoodQuery query)
+    public async Task<IActionResult> GetAllFoodsWithPaginationAsync([FromQuery] FoodGetListPaginationQuery query)
     {
         var result = await _mediator.Send(query);
         

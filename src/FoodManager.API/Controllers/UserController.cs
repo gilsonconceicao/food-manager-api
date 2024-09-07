@@ -3,6 +3,7 @@ using FoodManager.Application.Users.Commands;
 using FoodManager.Application.Users.Dtos;
 using FoodManager.Application.Users.Queries;
 using FoodManager.Domain.Extensions;
+using FoodManager.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,9 +45,27 @@ public class UserController : BaseController
 
         return Ok(listMappedFromPagination);
     }
+    
+    /// <summary>
+    /// Método utilizado para obter usuário por identificador
+    /// </summary>
+    /// <returns>Usuários</returns>
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<User>(StatusCodes.Status200OK)]
+    [HttpGet("{Id}")]
+    public async Task<IActionResult> GetUserByIdAsync(Guid Id)
+    {
+        var result = await _mediator.Send(new UserGetByIdQuery
+        {
+            Id = Id
+        });
+        return Ok(_mapper.Map<GetUserDto>(result));
+    }
 
     /// <summary>
-    /// Método utilizado para obter usuários
+    /// Método utilizado para criar usuários
     /// </summary>
     /// <returns>Usuários</returns>
     [ProducesResponseType(StatusCodes.Status201Created)]

@@ -35,6 +35,8 @@ public class GetFoodByIdHandler : IRequestHandler<GetFoodByIdQuery, Food>
         {
             var getFoodById = await _context
                .Foods
+               .Include(x => x.FoodOrderRelations)
+               .ThenInclude(x => x.Order)
                .Where(x => !x.IsDeleted)
                .FirstOrDefaultAsync(x => x.Id == request.Id) 
                ?? throw new HttpResponseException
