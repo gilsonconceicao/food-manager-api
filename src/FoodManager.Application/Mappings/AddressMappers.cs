@@ -9,5 +9,6 @@ public class AddressMappers : Profile
     public AddressMappers()
     {
         CreateMap<Address, AddressGetDto>();
+        CreateMap<AddressCreateDto, Address>();
     }
 }
