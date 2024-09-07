@@ -1,4 +1,5 @@
 using AutoMapper;
+using FoodManager.Application.Users.Commands;
 using FoodManager.Application.Users.Dtos;
 using FoodManager.Application.Users.Queries;
 using FoodManager.Domain.Extensions;
@@ -25,6 +26,7 @@ public class UserController : BaseController
     /// <returns>Usuários</returns>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<PagedList<GetUserDto>>(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetList([FromQuery] UserPaginationListQuery query)
@@ -41,5 +43,20 @@ public class UserController : BaseController
         );
 
         return Ok(listMappedFromPagination);
+    }
+
+    /// <summary>
+    /// Método utilizado para obter usuários
+    /// </summary>
+    /// <returns>Usuários</returns>
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<Guid>(StatusCodes.Status201Created)]
+    [HttpPost]
+    public async Task<IActionResult> CreateAsync([FromBody] UserCreateCommand query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 }
