@@ -6,6 +6,8 @@ public class OrderCreateValidations : AbstractValidator<OrderCreateCommand>
 {
     public OrderCreateValidations()
     {
-        // RuleFor(c => c.Client).NotNull().NotEmpty().WithMessage($"Cliente é obrigatório");
+        RuleFor(c => c.FoodsIds)
+            .Must(x => x == null || x.Any())
+            .WithMessage("É necessário informar ao menos uma comida");
     }
 }

@@ -9,10 +9,7 @@ namespace FoodManager.Application.Orders.Commands
     public class OrderDeleteCommand : IRequest<bool>
     {
         public Guid OrderId { get; set; }
-        public OrderDeleteCommand(Guid OrderId)
-        {
-            this.OrderId = OrderId;
-        }
+        public bool IsPermanent { get; set; }
     }
     public class OrderDeleteHandler : IRequestHandler<OrderDeleteCommand, bool>
     {
@@ -42,6 +39,10 @@ namespace FoodManager.Application.Orders.Commands
 
 
                 order.IsDeleted = true;
+                if (!!request.IsPermanent) 
+                {
+                    _context.Remove(order); 
+                }
                 await _context.SaveChangesAsync();
                 return true;
             }

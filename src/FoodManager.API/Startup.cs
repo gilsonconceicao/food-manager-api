@@ -18,6 +18,7 @@ using FoodManager.Domain.Models;
 using FoodManager.Application.Orders.Commands.Validatons;
 using FoodManager.Application.Users.Queries;
 using FoodManager.API.Extensions;
+using FoodManager.Application.Mappings;
 
 public class Startup
 {
@@ -35,7 +36,9 @@ public class Startup
 
         // mediatR to CQRS of application
         services.AddMediatR(Assembly.GetExecutingAssembly());
-        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+        // mappers 
+        services.AddMappersConfigs();
 
         // database
         services.AddDbContext<DataBaseContext>(options =>
@@ -44,6 +47,7 @@ public class Startup
         });
 
         services.AddDependencyInjections();
+
 
         // Add controllers with NewtonsoftJson for handling JSON serialization
         services.AddControllers(options =>
@@ -82,41 +86,72 @@ public class Startup
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
         });
+
+        var postgreSql = GetPostgreSql(services);
+        var logger = GetLogger(services);
+
+        try
+        {
+            postgreSql.MigrateAsync().GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            logger.LogCritical(ex, "Error on migration");
+            Console.WriteLine("Não foi possível concluir a migração do DB." + ex.ToString());
+            throw;
+        }
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env
+        )
     {
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
-        else
-        {
-            app.UseExceptionHandler("/Home/Error");
-            app.UseHsts();
-        }
 
-        app.UseHttpsRedirection();
-        app.UseStaticFiles();
-        app.UseRouting();
-
-        app.UseSwagger();
-
-        app.UseSwaggerUI(opt =>
+        app.UseSwagger(o =>
         {
-            opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Food manager API");
+            o.RouteTemplate = "docs/{documentName}/docs.json";
+        });
+        app.UseSwaggerUI(c =>
+        {
+            c.RoutePrefix = "docs";
+            c.SwaggerEndpoint("/docs/v1/docs.json", "FoodAPI");
+
+            c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
         });
 
-        app.UseCors(x => x
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader());
+#if DEBUG
+        app.UseDeveloperExceptionPage();
+#endif
+
+        app.UseRouting();
+        app.UseCors(policy =>
+        {
+            policy.AllowAnyOrigin();
+            policy.AllowAnyHeader();
+            policy.AllowAnyMethod();
+        });
+        app.UseAuthentication();
+
+
+        app.UseAuthorization();
+
 
         app.UseEndpoints(endpoints =>
         {
-            endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+            endpoints.MapControllers();
         });
+
     }
+
+    private static DataBaseContext GetPostgreSql(IServiceCollection services)
+    {
+        return (DataBaseContext)services.BuildServiceProvider().GetService(typeof(DataBaseContext))!;
+    }
+
+    private static ILogger<Startup> GetLogger(IServiceCollection services)
+    {
+        return (ILogger<Startup>)services.BuildServiceProvider().GetService(typeof(ILogger<Startup>))!;
+    }
+
 }

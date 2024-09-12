@@ -8,18 +8,18 @@ using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
+namespace FoodManager.Application.Foods.Queries.FoodGetListPaginationQuery
 {
-    public class GetAllWithPaginationFoodQuery : IRequest<ListDataResponse<List<Food>>>
+    public class FoodGetListPaginationQuery : IRequest<ListDataResponse<List<Food>>>
     {
         public int Page { get; set; } = 0;
         public int Size { get; set; } = 5;
     }
-    public class GetAllWithPaginationFoodHandler : IRequestHandler<GetAllWithPaginationFoodQuery, ListDataResponse<List<Food>>>
+    public class FoodGetListPaginationQueryHandler : IRequestHandler<FoodGetListPaginationQuery, ListDataResponse<List<Food>>>
     {
         private readonly DataBaseContext _context;
         private readonly IMapper _mapper;
-        public GetAllWithPaginationFoodHandler(DataBaseContext context,
+        public FoodGetListPaginationQueryHandler(DataBaseContext context,
             IMapper mapper
         )
         {
@@ -27,14 +27,17 @@ namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
             _mapper = mapper;
         }
 
-        public async Task<ListDataResponse<List<Food>>> Handle(GetAllWithPaginationFoodQuery request, CancellationToken cancellationToken)
+        public async Task<ListDataResponse<List<Food>>> Handle(FoodGetListPaginationQuery request, CancellationToken cancellationToken)
         {
             try
             {
                 var page = request.Page;
                 var size = request.Size;
 
-                var queryData = _context.Foods.Where(x => !x.IsDeleted);
+                var queryData = _context.Foods
+                    .Include(x => x.FoodOrderRelations)
+                    .ThenInclude(x => x.Order)
+                    .Where(x => !x.IsDeleted);
 
                 var totalCount = await queryData.CountAsync(cancellationToken);
 

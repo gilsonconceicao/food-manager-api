@@ -5,6 +5,7 @@ using FoodManager.Application.Common.Exceptions;
 using FoodManager.Application.Utils;
 using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
+using FoodManager.Infrastructure.Migrations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FoodManager.Application.Orders.Commands;
 public class OrderCreateCommand : IRequest<bool>
 {
+    public Guid UserId { get; set; }
     public List<Guid> FoodsIds { get; set; }
 }
 
@@ -37,34 +39,67 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
             var validationResult = _validator.Validate(request);
 
             if (!validationResult.IsValid)
-            {
-                throw new HttpResponseException
+                ErrorUtils.InvalidFieldsError(validationResult);
+
+
+            var user = _context.Users
+                .Where(user => !user.IsDeleted)
+                .FirstOrDefault(user => user.Id == request.UserId)
+                ?? throw new HttpResponseException
                 {
-                    Status = 400,
+                    Status = 404,
                     Value = new
                     {
-                        Code = CodeErrorEnum.INVALID_FORM_FIELDS.ToString(),
-                        Message = "Erro ao validar campos",
-                        Details = ErrorUtils.ValidationFailure(validationResult.Errors)
+                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                        Message = "Usuário não encontrado",
                     }
                 };
-            }
 
             var orderCount = await _context.Orders.CountAsync(cancellationToken);
 
-            Order order = _mapper.Map<OrderCreateCommand, Order>(request);
-
-            order.RequestNumber = orderCount + 1;
-            // if (order.Client.Address is not null && order.Client is not null)
-            // {
-            //     order.Client.Address.ClientId = order.Client.Id;
-            // };
+            Order order = new Order
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                RequestNumber = orderCount + 1,
+                CreatedAt = DateTime.UtcNow,
+            };
 
             await _context.Orders.AddAsync(order, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
 
-            _context.Orders.Update(order);
-            await _context.SaveChangesAsync(cancellationToken);
+            var getFoodIncludeIds = await _context.Foods
+                .Where(x => request.FoodsIds.Contains(x.Id))
+                .Select(x => x.Id)
+                .ToListAsync();
+
+            var missingFoodIds = request.FoodsIds.Except(getFoodIncludeIds).ToList();
+
+            if (missingFoodIds.Any())
+            {
+                throw new HttpResponseException
+                {
+                    Status = 404,
+                    Value = new
+                    {
+                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                        Message = $"Comidas não foram encontradas",
+                        Resource = missingFoodIds
+                    }
+                };
+            };
+
+            foreach (var foodId in request.FoodsIds)
+            {
+                var orderFoodRelation = new FoodOrderRelation
+                {
+                    OrderId = order.Id,
+                    FoodId = foodId
+                };
+
+                _context.Set<FoodOrderRelation>().Add(orderFoodRelation);
+            };
+
+            await _context.SaveChangesAsync();
             return true;
         }
         catch (HttpResponseException)

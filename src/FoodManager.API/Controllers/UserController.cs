@@ -1,7 +1,9 @@
 using AutoMapper;
+using FoodManager.Application.Users.Commands;
 using FoodManager.Application.Users.Dtos;
 using FoodManager.Application.Users.Queries;
 using FoodManager.Domain.Extensions;
+using FoodManager.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +27,7 @@ public class UserController : BaseController
     /// <returns>Usuários</returns>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<PagedList<GetUserDto>>(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetList([FromQuery] UserPaginationListQuery query)
@@ -41,5 +44,38 @@ public class UserController : BaseController
         );
 
         return Ok(listMappedFromPagination);
+    }
+    
+    /// <summary>
+    /// Método utilizado para obter usuário por identificador
+    /// </summary>
+    /// <returns>Usuários</returns>
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<User>(StatusCodes.Status200OK)]
+    [HttpGet("{Id}")]
+    public async Task<IActionResult> GetUserByIdAsync(Guid Id)
+    {
+        var result = await _mediator.Send(new UserGetByIdQuery
+        {
+            Id = Id
+        });
+        return Ok(_mapper.Map<GetUserDto>(result));
+    }
+
+    /// <summary>
+    /// Método utilizado para criar usuários
+    /// </summary>
+    /// <returns>Usuários</returns>
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<Guid>(StatusCodes.Status201Created)]
+    [HttpPost]
+    public async Task<IActionResult> CreateAsync([FromBody] UserCreateCommand query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result);
     }
 }

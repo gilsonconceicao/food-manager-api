@@ -11,6 +11,6 @@ namespace FoodManager.Domain.Models
         public decimal Price { get; set; }
         public FoodCategoryEnum? Category { get; set; }
         public string PreparationTime { get; set; }
-        public ICollection<Order> Orders { get; set; }
+        public ICollection<FoodOrderRelation> FoodOrderRelations { get; set; } = new List<FoodOrderRelation>();
     }
 }

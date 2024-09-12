@@ -27,6 +27,8 @@ public class UserPaginationListQueryHandler : IRequestHandler<UserPaginationList
 
         var queryData = _context
             .Users
+            .Include(x => x.Address)
+            .Include(x => x.Orders)
             .Where(x => !x.IsDeleted)
             .Skip((page) * size)
             .Take(size);

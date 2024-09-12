@@ -1,6 +1,6 @@
 using AutoMapper;
-using FoodManager.Application.Orders.Commands;
 using FoodManager.Application.Orders.Dtos;
+using FoodManager.Application.Orders.Commands;
 using FoodManager.Application.Orders.Queries;
 using FoodManager.Domain.Extensions;
 using MediatR;
@@ -21,16 +21,19 @@ public class OrderController : BaseController
     }
 
     /// <summary>
-    /// Método utilizado para adicionar comida
+    /// Método utilizado para realizar um pedido
     /// </summary>
-    /// <returns>Order</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<bool>(StatusCodes.Status201Created)]
-    [HttpPost]
-    public async Task<IActionResult> OrderCreateAsync([FromBody] OrderCreateCommand command)
+    [HttpPost("{UserId}")]
+    public async Task<IActionResult> OrderCreateAsync([FromRoute] Guid UserId, [FromBody] OrderCreateDto model)
     {
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(new OrderCreateCommand
+        {
+            UserId = UserId,
+            FoodsIds = model.FoodsIds
+        });
         return Ok(result);
     }
 
@@ -45,15 +48,15 @@ public class OrderController : BaseController
     public async Task<IActionResult> OrderGetListAsync([FromQuery] OrderPaginationListQuery query)
     {
         var result = await _mediator.Send(query);
-        var listMapped = _mapper.Map<List<OrderGetDto>>(result.Data);
+        var listMapped = _mapper.Map<List<OrderListDto>>(result.Data);
 
-        var listPaginated = new PagedList<OrderGetDto>(
+        var listPaginated = new PagedList<OrderListDto>(
             data: listMapped,
             count: result.Count ?? 0,
             pageNumber: query.Page,
             pageSize: query.Size
         );
-        
+
         return Ok(listPaginated);
     }
 
@@ -71,7 +74,7 @@ public class OrderController : BaseController
         var projectedData = _mapper.Map<OrderGetDto>(result);
         return Ok(projectedData);
     }
-    
+
     /// <summary>
     /// Método para remover um pedido da lista
     /// </summary>
@@ -80,9 +83,13 @@ public class OrderController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpDelete("{Id}")]
-    public async Task<IActionResult> OrderDeleteByIdAsync(Guid Id)
+    public async Task<IActionResult> OrderDeleteByIdAsync(Guid Id, [FromQuery] bool IsPermanent)
     {
-        var result = await _mediator.Send(new OrderDeleteCommand(Id));
+        var result = await _mediator.Send(new OrderDeleteCommand
+        {
+            OrderId = Id,
+            IsPermanent = IsPermanent
+        });
         return Ok(result);
     }
 }

@@ -12,15 +12,15 @@ using MediatR;
 namespace FoodManager.Application.Foods.Commands;
 
 public class FoodCreateCommand : IRequest<bool>
-    {
-        public string Name { get; set; }
-        public string UrlImage { get; set; }
-        public string Description { get; set; }
-        public bool IsAvailable { get; set; }
-        public decimal Price { get; set; }
-        public FoodCategoryEnum Category { get; set; }
-        public string PreparationTime { get; set; }
-    }
+{
+    public string Name { get; set; }
+    public string UrlImage { get; set; }
+    public string Description { get; set; }
+    public bool IsAvailable { get; set; }
+    public decimal Price { get; set; }
+    public FoodCategoryEnum Category { get; set; }
+    public string PreparationTime { get; set; }
+}
 
 public class FoodCreateHandler : IRequestHandler<FoodCreateCommand, bool>
 {
@@ -43,19 +43,9 @@ public class FoodCreateHandler : IRequestHandler<FoodCreateCommand, bool>
             var validationResult = _validator.Validate(request);
 
             if (!validationResult.IsValid)
-            {
-                throw new HttpResponseException
-                {
-                    Status = 400,
-                    Value = new
-                    {
-                        Code = CodeErrorEnum.INVALID_FORM_FIELDS.ToString(),
-                        Message = "Erro ao validar campos",
-                        Details = ErrorUtils.ValidationFailure(validationResult.Errors)
-                    }
-                };
-            }
-            
+                ErrorUtils.InvalidFieldsError(validationResult);
+
+
             Food food = _mapper.Map<Food>(request);
             await _context.Foods.AddAsync(food);
             await _context.SaveChangesAsync();
