@@ -4,9 +4,11 @@ using FoodManager.API.Enums;
 using FoodManager.Application.Common.Exceptions;
 using FoodManager.Application.Users.Dtos;
 using FoodManager.Application.Utils;
+using FoodManager.Domain.Extensions;
 using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace FoodManager.Application.Users.Commands;
 #nullable disable
@@ -24,7 +26,7 @@ public class UserCreateCommandHandler : IRequestHandler<UserCreateCommand, Guid>
     private readonly IMapper _mapper;
 
     public UserCreateCommandHandler(DataBaseContext context,
-        IValidator<UserCreateCommand> validator, 
+        IValidator<UserCreateCommand> validator,
         IMapper mapper
     )
     {
@@ -35,19 +37,50 @@ public class UserCreateCommandHandler : IRequestHandler<UserCreateCommand, Guid>
 
     public async Task<Guid> Handle(UserCreateCommand request, CancellationToken cancellationToken)
     {
-        var validationResult = _validator.Validate(request);
+        try
+        {
+            var validationResult = _validator.Validate(request);
 
-        if (!validationResult.IsValid)
-            ErrorUtils.InvalidFieldsError(validationResult);
+            if (!validationResult.IsValid)
+                ErrorUtils.InvalidFieldsError(validationResult);
 
-        User user = _mapper.Map<User>(request); 
-        user.RegistrationNumber = ValidationsUtils.RemoveSpecialCharacters(user.RegistrationNumber); 
-        if (request.Address != null) {
-            user.Address.UserId = user.Id; 
-        }; 
+            var userByRegistrationNumber = _context.Users
+                .Include(x => x.Address)
+                .Where(x => !x.IsDeleted)
+                .FirstOrDefault(x => x.RegistrationNumber == request.RegistrationNumber.RemoveSpecialCharacters());
 
-        await _context.Users.AddAsync(user); 
-        await _context.SaveChangesAsync();
-        return user.Id;
+            if (userByRegistrationNumber != null)
+            {
+                throw new HttpResponseException
+                {
+                    Status = 404,
+                    Value = new
+                    {
+                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                        Message = $"CPF informado já existe", 
+                        Resource = request.RegistrationNumber
+                    }
+                };
+            }
+
+            User user = _mapper.Map<User>(request);
+            user.RegistrationNumber = user.RegistrationNumber.RemoveSpecialCharacters();
+            if (request.Address != null)
+            {
+                user.Address.UserId = user.Id;
+            };
+
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+            return user.Id;
+        }
+        catch (HttpResponseException)
+        { 
+            throw; 
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 }

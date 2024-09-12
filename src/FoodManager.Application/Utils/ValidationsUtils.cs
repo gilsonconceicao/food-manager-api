@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using FoodManager.Domain.Extensions;
 
 namespace FoodManager.Application.Utils;
 
@@ -20,7 +21,7 @@ static class ValidationsUtils
             return false;
 
         cpf = cpf.Trim();
-        cpf = RemoveSpecialCharacters(cpf);
+        cpf = cpf.RemoveSpecialCharacters();
 
         if (cpf.Length != 11)
             return false;
@@ -46,10 +47,5 @@ static class ValidationsUtils
             rest = 11 - rest;
         digit = digit + rest.ToString();
         return cpf.EndsWith(digit);
-    }
-
-    public static string RemoveSpecialCharacters(string str)
-    {
-        return Regex.Replace(str, "[^a-zA-Z0-9_]+", "", RegexOptions.Compiled);
     }
 }
