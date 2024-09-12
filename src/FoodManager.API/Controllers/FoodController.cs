@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using FoodManager.Domain.Extensions;
+using FoodManager.Application.Foods.Queries.FoodGetListPaginationQuery;
 
 namespace FoodManager.API.Controllers;
 public class FoodController : BaseController
@@ -32,15 +33,15 @@ public class FoodController : BaseController
     /// <summary>
     /// Consulta todas as comidas com paginação
     /// </summary>
-    [ProducesResponseType<PagedList<GetFoodDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedList<FoodGetDto>>(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetAllFoodsWithPaginationAsync([FromQuery] FoodGetListPaginationQuery query)
     {
         var result = await _mediator.Send(query);
         
-        var foodList = _mapper.Map<List<GetFoodDto>>(result.Data);
+        var foodList = _mapper.Map<List<FoodListDto>>(result.Data);
 
-        var listMappedFromPagination = new PagedList<GetFoodDto>(
+        var listMappedFromPagination = new PagedList<FoodListDto>(
             data: foodList, 
             count: result.Count ?? 0, 
             pageNumber: query.Page, 
@@ -53,12 +54,12 @@ public class FoodController : BaseController
     /// <summary>
     /// Obtem um regitro de comida por identifcador
     /// </summary>
-    [ProducesResponseType<GetFoodDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<FoodGetDto>(StatusCodes.Status200OK)]
     [HttpGet("{Id}")]
     public async Task<IActionResult> GetFoodByIdAsync(Guid Id)
     {
         var result = await _mediator.Send(new GetFoodByIdQuery(Id));
-        return Ok(_mapper.Map<GetFoodDto>(result));
+        return Ok(_mapper.Map<FoodGetDto>(result));
     }
 
     /// <summary>

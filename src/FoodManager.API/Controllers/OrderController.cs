@@ -48,9 +48,9 @@ public class OrderController : BaseController
     public async Task<IActionResult> OrderGetListAsync([FromQuery] OrderPaginationListQuery query)
     {
         var result = await _mediator.Send(query);
-        var listMapped = _mapper.Map<List<OrderGetDto>>(result.Data);
+        var listMapped = _mapper.Map<List<OrderListDto>>(result.Data);
 
-        var listPaginated = new PagedList<OrderGetDto>(
+        var listPaginated = new PagedList<OrderListDto>(
             data: listMapped,
             count: result.Count ?? 0,
             pageNumber: query.Page,

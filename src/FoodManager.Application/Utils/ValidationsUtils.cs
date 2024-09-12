@@ -16,6 +16,9 @@ static class ValidationsUtils
         int sum;
         int rest;
 
+        if (string.IsNullOrEmpty(cpf))
+            return false;
+
         cpf = cpf.Trim();
         cpf = RemoveSpecialCharacters(cpf);
 

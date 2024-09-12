@@ -18,15 +18,16 @@ static class ErrorUtils
     }
 
     
-    public static object InvalidFieldsError(FluentValidation.Results.ValidationResult validations, string Message = "Erro ao validar campos")
+    public static object InvalidFieldsError(FluentValidation.Results.ValidationResult validations)
     {
+        var errorsList = validations.Errors;
         throw new HttpResponseException
         {
             Status = 400,
             Value = new
             {
                 Code = CodeErrorEnum.INVALID_FORM_FIELDS.ToString(),
-                Message = "Erro ao validar campos",
+                Message = errorsList.Count > 1 ? "Erro ao validar os campos" : $"Campo {validations.Errors[0].PropertyName} inválido",
                 Details = ErrorUtils.ValidationFailure(validations.Errors)
             }
         };

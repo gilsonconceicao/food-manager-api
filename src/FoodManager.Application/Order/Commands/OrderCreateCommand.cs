@@ -66,7 +66,6 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
             };
 
             await _context.Orders.AddAsync(order, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
 
             var getFoodIncludeIds = await _context.Foods
                 .Where(x => request.FoodsIds.Contains(x.Id))

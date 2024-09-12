@@ -13,5 +13,6 @@ public class UserMappers : Profile
         CreateMap<UserCreateCommand, User>();
         CreateMap<User, GetUserDto>()
             .ReverseMap();
+        CreateMap<User, UserRelatedOrderDto>(); 
     }
 }
