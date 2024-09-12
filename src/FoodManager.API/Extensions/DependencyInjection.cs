@@ -29,6 +29,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<OrderCreateCommand, bool>, OrderCreateHandler>();
         services.AddTransient<IRequestHandler<OrderDeleteCommand, bool>, OrderDeleteHandler>();
         services.AddTransient<IRequestHandler<UserCreateCommand, Guid>, UserCreateCommandHandler>();
+        services.AddTransient<IRequestHandler<UserUpdateCommand, bool>, UserUpdateCommandHandler>();
 
         // #region Queries
         services.AddTransient<IRequestHandler<FoodGetListPaginationQuery, ListDataResponse<List<Food>>>, FoodGetListPaginationQueryHandler>();

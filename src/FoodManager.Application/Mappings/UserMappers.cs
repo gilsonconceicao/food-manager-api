@@ -10,9 +10,12 @@ public class UserMappers : Profile
     public UserMappers()
     {
         CreateMap<AddressCreateDto, Address>();
+        CreateMap<AddressUpdateDto, Address>();
         CreateMap<UserCreateCommand, User>();
         CreateMap<User, GetUserDto>()
             .ReverseMap();
         CreateMap<User, UserRelatedOrderDto>(); 
+
+
     }
 }
