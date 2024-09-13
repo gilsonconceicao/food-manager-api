@@ -10,13 +10,11 @@ public class OrderMappers : Profile
     public OrderMappers()
     {
         CreateMap<OrderCreateCommand, Order>();
-        CreateMap<Order, OrderGetDto>()
-            .ForMember(x => x.OrderNumber, src => src.MapFrom(x => x.RequestNumber));
 
         CreateMap<Order, OrderRelatedsDto>()
             .ForMember(x => x.OrderNumber, src => src.MapFrom(x => x.RequestNumber));
             
-        CreateMap<Order, OrderListDto>()
+        CreateMap<Order, OrderDto>()
             .ForMember(x => x.OrderNumber, 
                 src => src.MapFrom(x => x.RequestNumber))
             .ForMember(x => x.CreatedBy, 

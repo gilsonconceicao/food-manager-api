@@ -3,7 +3,7 @@ using FoodManager.Application.Users.Dtos;
 
 namespace FoodManager.Application.Orders.Dtos;
 #nullable disable
-public class OrderListDto
+public class OrderDto
 {
     public Guid Id { get; set; }
     public int OrderNumber { get; set; }
