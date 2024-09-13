@@ -65,14 +65,17 @@ public class UserUpdateCommandHandler : IRequestHandler<UserUpdateCommand, bool>
             if (user.Address == null && request.Address != null) 
             {
                 Address newAddress = _mapper.Map<Address>(request.Address); 
+                newAddress.UserId = user.Id;
                 _context.Address.Add(newAddress);
             } else if (request.Address != null) 
             {
                 user.Address.ZipCode = request.Address.ZipCode; 
                 user.Address.City = request.Address.City; 
+                user.Address.Number = request.Address.Number;
                 user.Address.State = request.Address.State;
                 user.Address.Street = request.Address.Street;
-            }
+            }; 
+
             user.Name = request.Name;
             await _context.SaveChangesAsync();
             return true;
