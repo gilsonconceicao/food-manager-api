@@ -12,9 +12,15 @@ public class UserMappers : Profile
         CreateMap<AddressCreateDto, Address>();
         CreateMap<AddressUpdateDto, Address>();
         CreateMap<UserCreateCommand, User>();
+        CreateMap<User, UserRelatedOrderDto>(); 
+        
         CreateMap<User, GetUserDto>()
             .ReverseMap();
-        CreateMap<User, UserRelatedOrderDto>(); 
+        CreateMap<CreatedByDto, User>()
+            .ForMember(x => x.Name, src => src.MapFrom(x => x.UserName))
+            .ForMember(x => x.Id, src => src.MapFrom(x => x.UserId))
+            .ForMember(x => x.RegistrationNumber, src => src.MapFrom(x => x.UserRegistrationNumber))
+            .ReverseMap();
 
 
     }
