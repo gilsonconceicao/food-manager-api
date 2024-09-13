@@ -78,4 +78,24 @@ public class UserController : BaseController
         var result = await _mediator.Send(query);
         return Ok(result);
     }
+
+    /// <summary>
+    /// Método utilizado para atualizar um usuário
+    /// </summary>
+    /// <returns>Usuários</returns>
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<Guid>(StatusCodes.Status201Created)]
+    [HttpPut("{Id}")]
+    public async Task<IActionResult> CreateAsync([FromRoute] Guid Id, [FromBody] UserUpdateDto model)
+    {
+        var result = await _mediator.Send(new UserUpdateCommand
+        {
+            Id = Id,
+            Address = model.Address,
+            Name = model.Name 
+        });
+        return Ok(result);
+    }
 }

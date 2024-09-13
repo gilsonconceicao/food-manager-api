@@ -53,10 +53,10 @@ public class UserCreateCommandHandler : IRequestHandler<UserCreateCommand, Guid>
             {
                 throw new HttpResponseException
                 {
-                    Status = 404,
+                    Status = 400,
                     Value = new
                     {
-                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                        Code = CodeErrorEnum.INVALID_FORM_FIELDS.ToString(),
                         Message = $"CPF informado já existe", 
                         Resource = request.RegistrationNumber
                     }
