@@ -6,8 +6,10 @@ public class OrderListDto
 {
     public Guid Id { get; set; }
     public Guid? UserId { get; set; }
+    public string UserName { get; set; }
+    public string UserRegistrationNumber { get; set; }
     public int OrderNumber { get; set; }
     public DateTime CreatedAt { get; set; }
-    public List<FoodsRelatedsDto> Foods { get; set; }
+    public List<OrderItemsDto> Items { get; set; }
 
 }

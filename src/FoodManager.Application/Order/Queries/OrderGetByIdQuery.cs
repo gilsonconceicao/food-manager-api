@@ -28,7 +28,7 @@ public class OrderGetByIdHandler : IRequestHandler<OrderGetByIdQuery, Order>
     {
         var order = await _context.Orders
             .Include(x => x.User)
-            .Include(x => x.FoodOrderRelations)
+            .Include(x => x.Items)
             .ThenInclude(x => x.Food)
             .Where(x => !x.IsDeleted)
             .FirstOrDefaultAsync(x => x.Id == request.OrderId)

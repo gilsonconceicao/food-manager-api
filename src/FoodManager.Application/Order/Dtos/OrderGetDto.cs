@@ -10,5 +10,5 @@ public class OrderGetDto
     public int OrderNumber { get; set; }
     public DateTime CreatedAt { get; set; }
     public UserRelatedOrderDto User { get; set; }
-    public List<FoodsRelatedsDto> Foods { get; set; }
+    public List<FoodItemsDto> Foods { get; set; }
 }

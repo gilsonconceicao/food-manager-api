@@ -71,7 +71,6 @@ public class FoodUpdateHandler : IRequestHandler<FoodUpdateCommand, bool>
             getFoodById.Category = request.Category;
             getFoodById.Description = request.Description;
             getFoodById.UrlImage = request.UrlImage;
-            getFoodById.PreparationTime = request.PreparationTime;
 
             _context.Foods.Update(getFoodById);
             _context.Entry(getFoodById).State = Microsoft.EntityFrameworkCore.EntityState.Modified;

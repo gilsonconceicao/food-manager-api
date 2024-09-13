@@ -16,19 +16,13 @@ public class FoodMappers : Profile
 
         CreateMap<Food, FoodGetDto>()
              .ForMember(x => x.CategoryDisplay,
-                 src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null))
-             .ForMember(x => x.Orders,
-                src => src.MapFrom(x => x.FoodOrderRelations.Select(x => x.Order)))    
-             .ReverseMap();
+                 src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null));
              
         CreateMap<Food, FoodListDto>()
              .ForMember(x => x.CategoryDisplay,
-                 src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null))
-             .ForMember(x => x.Orders,
-                src => src.MapFrom(x => x.FoodOrderRelations.Select(x => x.Order)))    
-             .ReverseMap();
+                 src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null));
 
-        CreateMap<Food, FoodsRelatedsDto>()
+        CreateMap<Food, FoodItemsDto>()
              .ForMember(x => x.CategoryDisplay,
                  src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null))
              .ReverseMap();

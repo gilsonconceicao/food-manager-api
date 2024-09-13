@@ -34,11 +34,11 @@ public class GetFoodByIdHandler : IRequestHandler<GetFoodByIdQuery, Food>
         try
         {
             var getFoodById = await _context
-               .Foods
-               .Include(x => x.FoodOrderRelations)
-               .ThenInclude(x => x.Order)
-               .Where(x => !x.IsDeleted)
-               .FirstOrDefaultAsync(x => x.Id == request.Id) 
+               .Items
+               .Include(x => x.Order)
+               .Include(x => x.Food)
+               .Where(x => !x.Food.IsDeleted)
+               .FirstOrDefaultAsync(x => x.Food.Id == request.Id) 
                ?? throw new HttpResponseException
                 {
                     Status = 404,
@@ -49,7 +49,7 @@ public class GetFoodByIdHandler : IRequestHandler<GetFoodByIdQuery, Food>
                     }
                 };
 
-            return getFoodById; 
+            return getFoodById.Food; 
         }
         catch (HttpResponseException)
         {
