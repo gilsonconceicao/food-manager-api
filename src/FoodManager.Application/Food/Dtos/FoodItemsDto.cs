@@ -1,9 +1,8 @@
-using FoodManager.Application.Orders.Dtos;
 using FoodManager.Domain.Enums;
 #nullable disable
 namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
 {
-    public class FoodsRelatedsDto
+    public class FoodItemsDto
     {
         public string Name { get; set; }
         public decimal Price { get; set; }

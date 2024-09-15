@@ -7,6 +7,6 @@ namespace FoodManager.Domain.Models
         public int RequestNumber { get; set; }
         public User? User { get; set; }
         public Guid? UserId { get; set; }
-        public ICollection<FoodOrderRelation> FoodOrderRelations { get; set; } = new List<FoodOrderRelation>();
+        public ICollection<OrderItems> Items { get; set; } = new List<OrderItems>();
     }
 }

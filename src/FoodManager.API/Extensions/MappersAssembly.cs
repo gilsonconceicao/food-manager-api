@@ -9,6 +9,7 @@ public static class MapperAssembly
         services.AddAutoMapper(typeof(FoodMappers).Assembly);
         services.AddAutoMapper(typeof(OrderMappers).Assembly);
         services.AddAutoMapper(typeof(UserMappers).Assembly);
+        services.AddAutoMapper(typeof(OrderItemsMapper).Assembly);
         services.AddAutoMapper(typeof(AddressMappers).Assembly);
 
         return services;

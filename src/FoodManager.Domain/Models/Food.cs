@@ -9,8 +9,8 @@ namespace FoodManager.Domain.Models
         public string Description { get; set; }
         public bool IsAvailable { get; set; }
         public decimal Price { get; set; }
+        public int Quantity { get; set; }
         public FoodCategoryEnum? Category { get; set; }
-        public string PreparationTime { get; set; }
-        public ICollection<FoodOrderRelation> FoodOrderRelations { get; set; } = new List<FoodOrderRelation>();
+        // public ICollection<FoodOrderRelation> FoodOrderRelations { get; set; } = new List<FoodOrderRelation>();
     }
 }

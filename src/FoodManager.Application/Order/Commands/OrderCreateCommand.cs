@@ -90,13 +90,13 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
 
             foreach (var foodId in request.FoodsIds)
             {
-                var orderFoodRelation = new FoodOrderRelation
+                var orderFoodRelation = new OrderItems
                 {
                     OrderId = order.Id,
                     FoodId = foodId
                 };
 
-                _context.Set<FoodOrderRelation>().Add(orderFoodRelation);
+                _context.Set<OrderItems>().Add(orderFoodRelation);
             };
 
             await _context.SaveChangesAsync();

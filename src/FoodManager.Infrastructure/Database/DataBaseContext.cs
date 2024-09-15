@@ -10,6 +10,7 @@ namespace FoodManager.Infrastructure.Database
         { }
 
         public DbSet<Food> Foods { get; set; }
+        public DbSet<OrderItems> Items { get; set; }
         public DbSet<Address> Address { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -17,10 +18,7 @@ namespace FoodManager.Infrastructure.Database
         public async Task MigrateAsync() => await base.Database.MigrateAsync();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new FoodConfiguration());
-            modelBuilder.ApplyConfiguration(new OrderConfiguration());
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
-            modelBuilder.ApplyConfiguration(new OrderFoodRelationConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderItemsConfiguration());
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(modelBuilder);
         }

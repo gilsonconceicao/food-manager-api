@@ -43,14 +43,14 @@ public class OrderController : BaseController
     /// <returns>Order</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
-    [ProducesResponseType<List<OrderGetDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<List<OrderDto>>(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> OrderGetListAsync([FromQuery] OrderPaginationListQuery query)
     {
         var result = await _mediator.Send(query);
-        var listMapped = _mapper.Map<List<OrderListDto>>(result.Data);
+        var listMapped = _mapper.Map<List<OrderDto>>(result.Data);
 
-        var listPaginated = new PagedList<OrderListDto>(
+        var listPaginated = new PagedList<OrderDto>(
             data: listMapped,
             count: result.Count ?? 0,
             pageNumber: query.Page,
@@ -66,12 +66,12 @@ public class OrderController : BaseController
     /// <returns>Order</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
-    [ProducesResponseType<OrderGetDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<OrderDto>(StatusCodes.Status200OK)]
     [HttpGet("{Id}")]
     public async Task<IActionResult> OrderGetByIdAsync(Guid Id)
     {
         var result = await _mediator.Send(new OrderGetByIdQuery(Id));
-        var projectedData = _mapper.Map<OrderGetDto>(result);
+        var projectedData = _mapper.Map<OrderDto>(result);
         return Ok(projectedData);
     }
 
