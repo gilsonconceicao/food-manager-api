@@ -17,10 +17,11 @@ public class FoodMappers : Profile
         CreateMap<Food, FoodGetDto>()
              .ForMember(x => x.CategoryDisplay,
                  src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null));
-             
+
         CreateMap<Food, FoodListDto>()
              .ForMember(x => x.CategoryDisplay,
-                 src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null));
+                 src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null))
+              .ForMember(x => x.Orders, src => src.MapFrom(x => x.Items.Select(x => x.Order)));
 
         CreateMap<Food, FoodItemsDto>()
              .ForMember(x => x.CategoryDisplay,
