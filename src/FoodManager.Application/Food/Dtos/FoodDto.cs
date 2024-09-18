@@ -3,7 +3,7 @@ using FoodManager.Domain.Enums;
 #nullable disable
 namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
 {
-    public class FoodGetDto
+    public class FoodDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
