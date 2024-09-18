@@ -10,6 +10,6 @@ namespace FoodManager.Application.Users.Dtos
         public string Name { get; set; }
         public string RegistrationNumber { get; set; }
         public AddressGetDto Address { get; set; }
-        public ICollection<OrderRelatedsDto> Orders { get; set; }
+        public ICollection<OrdersRealatedFoodDto> Orders { get; set; }
     }
 }

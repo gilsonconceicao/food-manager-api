@@ -4,21 +4,23 @@ namespace FoodManager.Domain.Enums;
 
 public enum OrderStatus
 {
+    [Description("Criado")]
+    Created = 0,
     [Description("Solicitado")]
-    Requested = 0,
+    Requested = 1,
 
     [Description("Aguardando confirmação")]
-    AwaitingConfirmation = 1,
+    AwaitingConfirmation = 2,
     
     [Description("Em preparo")]
-    InPreparation = 2,
+    InPreparation = 3,
     
     [Description("Pronto")]
-    Done = 3,
+    Done = 4,
     
     [Description("Finalizado")]
-    Finished = 4,
+    Finished = 5,
 
     [Description("Cancelado")]
-    Canceled = 5
+    Canceled = 6
 }

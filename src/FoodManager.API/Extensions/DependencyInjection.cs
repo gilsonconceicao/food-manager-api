@@ -7,6 +7,7 @@ using FoodManager.Application.Orders.Commands.Validatons;
 using FoodManager.Application.Orders.Queries;
 using FoodManager.Application.Users.Commands;
 using FoodManager.Application.Users.Queries;
+using FoodManager.Domain.Enums;
 using FoodManager.Domain.Extensions;
 using FoodManager.Domain.Models;
 using MediatR;
@@ -30,6 +31,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<OrderDeleteCommand, bool>, OrderDeleteHandler>();
         services.AddTransient<IRequestHandler<UserCreateCommand, Guid>, UserCreateCommandHandler>();
         services.AddTransient<IRequestHandler<UserUpdateCommand, bool>, UserUpdateCommandHandler>();
+        services.AddTransient<IRequestHandler<UpdateStepOrderCommand, OrderStatus>, UpdateStepOrderHandler>();
 
         // #region Queries
         services.AddTransient<IRequestHandler<FoodGetListPaginationQuery, ListDataResponse<List<Food>>>, FoodGetListPaginationQueryHandler>();

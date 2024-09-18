@@ -3,8 +3,7 @@ using FoodManager.Domain.Enums.Triggers;
 using FoodManager.Domain.Models;
 using Stateless;
 
-namespace FoodManager.Application.Stateless;
-
+namespace FoodManager.Domain.StateManagement;
 public class OrderStateless
 {
     private StateMachine<OrderStatus, OrderTrigger> _machine;
