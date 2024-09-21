@@ -12,7 +12,6 @@ public class OrderStateless
     {
         _machine = new StateMachine<OrderStatus, OrderTrigger>(order.Status);
 
-        // Configuração dos estados e transições
         _machine.Configure(OrderStatus.Requested)
             .Permit(OrderTrigger.Process, OrderStatus.AwaitingConfirmation)
             .Permit(OrderTrigger.Cancel, OrderStatus.Canceled);

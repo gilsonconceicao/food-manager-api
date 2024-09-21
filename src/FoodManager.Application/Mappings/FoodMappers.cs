@@ -1,9 +1,9 @@
 using AutoMapper;
 using FoodManager.Application.Foods.Commands;
 using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
-using FoodManager.Domain.Extensions;
 using FoodManager.Domain.Models;
 using FoodManager.Application.Foods.Commands.Dtos;
+using FoodManager.Application.Utils;
 
 namespace FoodManager.Application.Mappings;
 
@@ -21,7 +21,7 @@ public class FoodMappers : Profile
 
         CreateMap<Food, FoodItemsDto>()
              .ForMember(x => x.CategoryDisplay,
-                 src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null))
+                 src => src.MapFrom(x => x.Category.HasValue ?  x.Category.GetDescription() : null))
              .ReverseMap();
     }
 }

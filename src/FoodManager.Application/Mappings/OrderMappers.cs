@@ -2,7 +2,7 @@ using AutoMapper;
 using FoodManager.Domain.Models;
 using FoodManager.Application.Orders.Dtos;
 using FoodManager.Application.Orders.Commands;
-using FoodManager.Domain.Extensions;
+using FoodManager.Application.Utils;
 
 namespace FoodManager.Application.Mappings;
 
