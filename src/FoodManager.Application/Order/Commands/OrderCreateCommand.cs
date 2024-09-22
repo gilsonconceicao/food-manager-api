@@ -3,6 +3,7 @@ using FluentValidation;
 using FoodManager.API.Enums;
 using FoodManager.Application.Common.Exceptions;
 using FoodManager.Application.Utils;
+using FoodManager.Domain.Enums;
 using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
 using FoodManager.Infrastructure.Migrations;
@@ -63,6 +64,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
                 UserId = user.Id,
                 RequestNumber = orderCount + 1,
                 CreatedAt = DateTime.UtcNow,
+                Status = OrderStatus.Created
             };
 
             await _context.Orders.AddAsync(order, cancellationToken);

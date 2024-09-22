@@ -19,6 +19,7 @@ using FoodManager.Application.Orders.Commands.Validatons;
 using FoodManager.Application.Users.Queries;
 using FoodManager.API.Extensions;
 using FoodManager.Application.Mappings;
+using Microsoft.OpenApi.Extensions;
 
 public class Startup
 {
@@ -83,6 +84,10 @@ public class Startup
                 Title = "Food-Manager-API",
                 Description = "Sisteme de gerencimaneto de comida",
             });
+
+
+
+            options.SchemaFilter<SchemeFilterSwashbuckle>(); 
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
         });

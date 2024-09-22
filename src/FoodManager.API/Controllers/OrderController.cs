@@ -5,6 +5,7 @@ using FoodManager.Application.Orders.Queries;
 using FoodManager.Domain.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using FoodManager.Domain.Enums;
 
 namespace FoodManager.API.Controllers;
 
@@ -78,6 +79,8 @@ public class OrderController : BaseController
     /// <summary>
     /// Método para remover um pedido da lista
     /// </summary>
+    /// <param name="Id"></param>
+    /// <param name="IsPermanent"></param>
     /// <returns>Order</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
@@ -89,6 +92,24 @@ public class OrderController : BaseController
         {
             OrderId = Id,
             IsPermanent = IsPermanent
+        });
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Atualizar etapa do pedido
+    /// </summary>
+    /// <returns>Order</returns>
+    /// <response code="200">200 Sucesso</response>
+    /// <response code="400">400 Erro</response>
+    [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
+    [HttpPut("{Id}/UpdateStep")]
+    public async Task<IActionResult> UpdateStepAsync([FromRoute] Guid Id, [FromBody] UpdateStepOrderDto model)
+    {
+        var result = await _mediator.Send(new UpdateStepOrderCommand
+        {
+            Id = Id, 
+            NewStatus = model.NewStatus
         });
         return Ok(result);
     }

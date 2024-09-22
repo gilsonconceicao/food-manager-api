@@ -35,6 +35,8 @@ namespace FoodManager.Application.Foods.Queries.FoodGetListPaginationQuery
                 var size = request.Size;
 
                 var queryData = _context.Foods
+                    .Include(x => x.Items)
+                    .ThenInclude(x => x.Order)
                     .Where(x => !x.IsDeleted); 
                     
                 var totalCount = await queryData.CountAsync(cancellationToken);

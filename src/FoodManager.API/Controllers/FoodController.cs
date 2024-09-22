@@ -33,15 +33,15 @@ public class FoodController : BaseController
     /// <summary>
     /// Consulta todas as comidas com paginação
     /// </summary>
-    [ProducesResponseType<PagedList<FoodGetDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedList<FoodDto>>(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetAllFoodsWithPaginationAsync([FromQuery] FoodGetListPaginationQuery query)
     {
         var result = await _mediator.Send(query);
         
-        var foodList = _mapper.Map<List<FoodListDto>>(result.Data);
+        var foodList = _mapper.Map<List<FoodDto>>(result.Data);
 
-        var listMappedFromPagination = new PagedList<FoodListDto>(
+        var listMappedFromPagination = new PagedList<FoodDto>(
             data: foodList, 
             count: result.Count ?? 0, 
             pageNumber: query.Page, 
@@ -54,12 +54,12 @@ public class FoodController : BaseController
     /// <summary>
     /// Obtem um regitro de comida por identifcador
     /// </summary>
-    [ProducesResponseType<FoodGetDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<FoodDto>(StatusCodes.Status200OK)]
     [HttpGet("{Id}")]
     public async Task<IActionResult> GetFoodByIdAsync(Guid Id)
     {
         var result = await _mediator.Send(new GetFoodByIdQuery(Id));
-        return Ok(_mapper.Map<FoodGetDto>(result));
+        return Ok(_mapper.Map<FoodDto>(result));
     }
 
     /// <summary>
