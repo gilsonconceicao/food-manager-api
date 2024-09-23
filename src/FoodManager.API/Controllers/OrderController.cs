@@ -104,12 +104,11 @@ public class OrderController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpPut("{Id}/UpdateStep")]
-    public async Task<IActionResult> UpdateStepAsync([FromRoute] Guid Id, [FromBody] UpdateStepOrderDto model)
+    public async Task<IActionResult> UpdateStepAsync([FromRoute] Guid Id)
     {
         var result = await _mediator.Send(new UpdateStepOrderCommand
         {
-            Id = Id, 
-            NewStatus = model.NewStatus
+            Id = Id
         });
         return Ok(result);
     }

@@ -12,6 +12,9 @@ public class OrderStateless
     {
         _machine = new StateMachine<OrderStatus, OrderTrigger>(order.Status);
 
+        _machine.Configure(OrderStatus.Created)
+            .Permit(OrderTrigger.Process, OrderStatus.Requested); 
+
         _machine.Configure(OrderStatus.Requested)
             .Permit(OrderTrigger.Process, OrderStatus.AwaitingConfirmation)
             .Permit(OrderTrigger.Cancel, OrderStatus.Canceled);

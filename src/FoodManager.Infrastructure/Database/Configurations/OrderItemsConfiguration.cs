@@ -8,15 +8,5 @@ public class OrderItemsConfiguration : IEntityTypeConfiguration<OrderItems>
     {
         builder
             .HasKey(fo => new { fo.FoodId, fo.OrderId });
-
-        // builder
-        //     .HasOne(fo => fo.Order)
-        //     .WithMany(o => o.FoodOrderRelations)
-        //     .HasForeignKey(fo => fo.OrderId);
-
-        // builder
-        //     .HasOne(fo => fo.Food)
-        //     .WithMany(f => f.FoodOrderRelations)
-        //     .HasForeignKey(fo => fo.FoodId);
     }
 }
