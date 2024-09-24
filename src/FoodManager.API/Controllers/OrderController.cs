@@ -6,6 +6,7 @@ using FoodManager.Domain.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using FoodManager.Domain.Enums;
+using FoodManager.Domain.Enums.Triggers;
 
 namespace FoodManager.API.Controllers;
 
@@ -41,7 +42,6 @@ public class OrderController : BaseController
     /// <summary>
     /// Método para obter a lista de pedidos
     /// </summary>
-    /// <returns>Order</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<List<OrderDto>>(StatusCodes.Status200OK)]
@@ -64,7 +64,6 @@ public class OrderController : BaseController
     /// <summary>
     /// Método para obter um pedido através do identificador 
     /// </summary>
-    /// <returns>Order</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<OrderDto>(StatusCodes.Status200OK)]
@@ -81,7 +80,6 @@ public class OrderController : BaseController
     /// </summary>
     /// <param name="Id"></param>
     /// <param name="IsPermanent"></param>
-    /// <returns>Order</returns>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
@@ -97,17 +95,15 @@ public class OrderController : BaseController
     }
 
     /// <summary>
-    /// Atualizar etapa do pedido
+    /// Processar pedido 
     /// </summary>
-    /// <returns>Order</returns>
-    /// <response code="200">200 Sucesso</response>
-    /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
-    [HttpPut("{Id}/UpdateStep")]
-    public async Task<IActionResult> UpdateStepAsync([FromRoute] Guid Id)
-    {
-        var result = await _mediator.Send(new UpdateStepOrderCommand
+    [HttpPut("{Id}/Process")]
+    public async Task<IActionResult> ConfirmAsync([FromRoute] Guid Id, [FromBody] ProcessStepDto model)
+    { 
+        var result = await _mediator.Send(new ExecuteTriggerCommand
         {
+            Trigger = model.OrderTrigger,
             Id = Id
         });
         return Ok(result);

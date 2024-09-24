@@ -1,6 +1,7 @@
 using FoodManager.API.Enums;
 using FoodManager.Application.Common.Exceptions;
 using FoodManager.Domain.Enums;
+using FoodManager.Domain.Enums.Triggers;
 using FoodManager.Domain.Models;
 using FoodManager.Domain.StateManagement;
 using FoodManager.Infrastructure.Database;
@@ -9,21 +10,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FoodManager.Application.Orders.Commands;
 
-public class UpdateStepOrderCommand : IRequest<OrderStatus>
+public class ExecuteTriggerCommand : IRequest<OrderStatus>
 {
     public Guid Id { get; set; }
-    public OrderStatus NewStatus { get; set; }
+    public OrderTrigger Trigger { get; set; }
 
 }
 
-public class UpdateStepOrderHandler : IRequestHandler<UpdateStepOrderCommand, OrderStatus>
+public class ExecuteTriggerCommandHandler : IRequestHandler<ExecuteTriggerCommand, OrderStatus>
 {
     private readonly DataBaseContext _context;
-    public UpdateStepOrderHandler(DataBaseContext database)
+    public ExecuteTriggerCommandHandler(DataBaseContext database)
     {
         _context = database;
     }
-    public async Task<OrderStatus> Handle(UpdateStepOrderCommand request, CancellationToken cancellationToken)
+    public async Task<OrderStatus> Handle(ExecuteTriggerCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -40,9 +41,27 @@ public class UpdateStepOrderHandler : IRequestHandler<UpdateStepOrderCommand, Or
                     }
                 };
 
-           var newStatusStateless = new OrderStateless(order); 
+            var stateless = new OrderStateless(order);
 
-            newStatusStateless.ProcessAsync();  
+            switch (request.Trigger)
+            {
+                case OrderTrigger.ConfirmOrder:
+                    await stateless.ConfirmOrderAsync();
+                    break;
+                case OrderTrigger.CheckHowDone:
+                    await stateless.CheckHowDoneAsync();
+                    break;
+                case OrderTrigger.Finish:
+                    await stateless.FinishedAsync();
+                    break;
+                case OrderTrigger.Cancel:
+                    await stateless.CancelAsync();
+                    break;
+                default:
+                    await stateless.ProcessAsync();
+                    break;
+            }
+
             await _context.SaveChangesAsync();
             return order.Status;
         }
