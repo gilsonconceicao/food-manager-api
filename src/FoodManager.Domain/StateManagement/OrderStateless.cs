@@ -34,30 +34,11 @@ namespace FoodManager.Domain.StateManagement
                 .Permit(OrderTrigger.Finish, OrderStatus.Finished);
         }
 
-        public async Task ProcessAsync()
-        {
-            await FireTriggerAsync(OrderTrigger.Process);
-        }
-
-        public async Task ConfirmOrderAsync()
-        {
-            await FireTriggerAsync(OrderTrigger.ConfirmOrder);
-        }
-
-        public async Task CancelAsync()
-        {
-            await FireTriggerAsync(OrderTrigger.Cancel);
-        }
-
-        public async Task CheckHowDoneAsync()
-        {
-            await FireTriggerAsync(OrderTrigger.CheckHowDone);
-        }
-
-        public async Task FinishedAsync()
-        {
-            await FireTriggerAsync(OrderTrigger.Finish);
-        }
+        public async Task ProcessAsync() => await FireTriggerAsync(OrderTrigger.Process);
+        public async Task ConfirmOrderAsync() => await FireTriggerAsync(OrderTrigger.ConfirmOrder);
+        public async Task CancelAsync() => await FireTriggerAsync(OrderTrigger.Cancel);
+        public async Task CheckHowDoneAsync() => await FireTriggerAsync(OrderTrigger.CheckHowDone);
+        public async Task FinishedAsync() => await FireTriggerAsync(OrderTrigger.Finish);
 
         private async Task FireTriggerAsync(OrderTrigger trigger)
         {
@@ -65,17 +46,12 @@ namespace FoodManager.Domain.StateManagement
             {
                 _machine.Fire(trigger);
                 _order.Status = _machine.State;
-                await SaveOrderAsync(_order);
+                await Task.CompletedTask;
             }
             else
             {
                 throw new InvalidOperationException($"Cannot process trigger: {trigger} in state: {_machine.State}");
             }
-        }
-
-        private Task SaveOrderAsync(Order order)
-        {
-            return Task.CompletedTask;
         }
     }
 }
