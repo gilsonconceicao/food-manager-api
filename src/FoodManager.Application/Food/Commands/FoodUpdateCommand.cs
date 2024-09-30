@@ -17,8 +17,7 @@ public class FoodUpdateCommand : IRequest<bool>
         string Description,
         bool IsAvailable,
         decimal Price,
-        FoodCategoryEnum Category,
-        string PreparationTime)
+        FoodCategoryEnum Category )
     {
         this.Id = Id;
         this.Name = Name;
@@ -27,7 +26,6 @@ public class FoodUpdateCommand : IRequest<bool>
         this.IsAvailable = IsAvailable;
         this.Price = Price;
         this.Category = Category;
-        this.PreparationTime = PreparationTime;
     }
     public Guid Id { get; set; }
     public string Name { get; set; }
@@ -36,7 +34,6 @@ public class FoodUpdateCommand : IRequest<bool>
     public bool IsAvailable { get; set; }
     public decimal Price { get; set; }
     public FoodCategoryEnum Category { get; set; }
-    public string PreparationTime { get; set; }
 }
 
 public class FoodUpdateHandler : IRequestHandler<FoodUpdateCommand, bool>

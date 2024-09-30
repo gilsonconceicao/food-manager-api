@@ -1,8 +1,8 @@
 namespace FoodManager.Application.Orders.Dtos
 {
-    #nullable disable
-    public class OrderCreateDto 
+#nullable disable
+    public class OrderCreateDto
     {
-        public List<Guid> FoodsIds { get; set; }
+        public List<OrderItemCreateDto> Foods { get; set; }
     }
 }

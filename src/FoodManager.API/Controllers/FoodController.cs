@@ -87,7 +87,6 @@ public class FoodController : BaseController
             Description: model.Description,
             IsAvailable: model.IsAvailable,
             Name: model.Name,
-            PreparationTime: model.PreparationTime,
             Price: model.Price,
             UrlImage: model.UrlImage
         ));

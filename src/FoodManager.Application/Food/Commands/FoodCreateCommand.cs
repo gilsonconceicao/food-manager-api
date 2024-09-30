@@ -19,7 +19,6 @@ public class FoodCreateCommand : IRequest<bool>
     public bool IsAvailable { get; set; }
     public decimal Price { get; set; }
     public FoodCategoryEnum Category { get; set; }
-    public string PreparationTime { get; set; }
 }
 
 public class FoodCreateHandler : IRequestHandler<FoodCreateCommand, bool>

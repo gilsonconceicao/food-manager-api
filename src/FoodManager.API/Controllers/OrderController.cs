@@ -34,7 +34,7 @@ public class OrderController : BaseController
         var result = await _mediator.Send(new OrderCreateCommand
         {
             UserId = UserId,
-            FoodsIds = model.FoodsIds
+            Foods = model.Foods
         });
         return Ok(result);
     }
@@ -100,7 +100,7 @@ public class OrderController : BaseController
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpPut("{Id}/Process")]
     public async Task<IActionResult> ConfirmAsync([FromRoute] Guid Id, [FromBody] ProcessStepDto model)
-    { 
+    {
         var result = await _mediator.Send(new ExecuteTriggerCommand
         {
             Trigger = model.OrderTrigger,

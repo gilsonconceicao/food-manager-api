@@ -2,11 +2,11 @@ using AutoMapper;
 using FluentValidation;
 using FoodManager.API.Enums;
 using FoodManager.Application.Common.Exceptions;
+using FoodManager.Application.Orders.Dtos;
 using FoodManager.Application.Utils;
 using FoodManager.Domain.Enums;
 using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
-using FoodManager.Infrastructure.Migrations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +15,7 @@ namespace FoodManager.Application.Orders.Commands;
 public class OrderCreateCommand : IRequest<bool>
 {
     public Guid UserId { get; set; }
-    public List<Guid> FoodsIds { get; set; }
+    public List<OrderItemCreateDto> Foods { get; set; }
 }
 
 public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
@@ -69,12 +69,14 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
 
             await _context.Orders.AddAsync(order, cancellationToken);
 
+            var foodIdsRequest = request.Foods.Select(x => x.FoodId).ToList(); 
+
             var getFoodIncludeIds = await _context.Foods
-                .Where(x => request.FoodsIds.Contains(x.Id))
+                .Where(x => foodIdsRequest.Contains(x.Id))
                 .Select(x => x.Id)
                 .ToListAsync();
 
-            var missingFoodIds = request.FoodsIds.Except(getFoodIncludeIds).ToList();
+            var missingFoodIds = foodIdsRequest.Except(getFoodIncludeIds).ToList();
 
             if (missingFoodIds.Any())
             {
@@ -90,12 +92,13 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
                 };
             };
 
-            foreach (var foodId in request.FoodsIds)
+            foreach (var item in request.Foods)
             {
                 var orderFoodRelation = new OrderItems
                 {
                     OrderId = order.Id,
-                    FoodId = foodId
+                    FoodId = item.FoodId,
+                    Quantity = item.Quantity
                 };
 
                 _context.Set<OrderItems>().Add(orderFoodRelation);
