@@ -17,7 +17,8 @@ public class FoodMappers : Profile
         CreateMap<Food, FoodDto>()
              .ForMember(x => x.CategoryDisplay,
                  src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null))
-              .ForMember(x => x.Orders, src => src.MapFrom(x => x.Items.Select(x => x.Order)));
+              .ForMember(x => x.Orders, src => src.MapFrom(x => x.Items.Select(x => x.Order)))
+              .ForMember(x => x.Url, src => src.MapFrom(x => x.UrlImage));
 
         CreateMap<Food, FoodItemsDto>()
              .ForMember(x => x.CategoryDisplay,

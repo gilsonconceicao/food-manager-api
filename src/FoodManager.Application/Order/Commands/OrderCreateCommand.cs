@@ -98,7 +98,8 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
                 {
                     OrderId = order.Id,
                     FoodId = item.FoodId,
-                    Quantity = item.Quantity
+                    Quantity = item.Quantity ?? null, 
+                    Observations = item.Observations ?? null
                 };
 
                 _context.Set<OrderItems>().Add(orderFoodRelation);

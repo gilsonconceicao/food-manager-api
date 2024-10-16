@@ -5,5 +5,6 @@ namespace FoodManager.Application.Orders.Dtos;
 public class OrderItemCreateDto
 {
     public Guid FoodId { get; set; }
-    public int Quantity { get; set; }
+    public int? Quantity { get; set; }
+    public string? Observations { get; set; }
 }

@@ -13,8 +13,9 @@ public class OrderItems
     public User? User { get; set; }
     public Guid? UserId { get; set; }
 
-    public decimal Price { get; set; }
-    public int Quantity { get; set; }
-    public decimal Discount { get; set; }
+    public decimal? Price { get; set; }
+    public int? Quantity { get; set; }
+    public string? Observations { get; set; }
+    public decimal? Discount { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

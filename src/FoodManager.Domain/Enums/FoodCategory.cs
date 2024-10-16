@@ -26,6 +26,36 @@ namespace FoodManager.Domain.Enums
         Snack = 6, 
         
         [Description("Doce")]
-        Sweet = 7
+        Sweet = 7,
+
+        [Description("Fruta")]
+        Fruit = 8,
+
+        [Description("Massa")]
+        Pasta = 9,
+
+        [Description("Pizza")]
+        Pizza = 10,
+
+        [Description("Sushi")]
+        Sushi = 11,
+
+        [Description("Carne")]
+        Meat = 12,
+
+        [Description("Peixe")]
+        Fish = 13,
+
+        [Description("Mariscos")]
+        Seafood = 14,
+
+        [Description("Fast Food")]
+        FastFood = 15,
+
+        [Description("Vegetariano")]
+        Vegetarian = 16,
+
+        [Description("Vegano")]
+        Vegan = 17
     }
 }
