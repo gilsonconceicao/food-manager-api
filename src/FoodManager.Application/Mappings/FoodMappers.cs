@@ -4,6 +4,7 @@ using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
 using FoodManager.Domain.Models;
 using FoodManager.Application.Foods.Commands.Dtos;
 using FoodManager.Application.Utils;
+using FoodManager.Domain.Enums;
 
 namespace FoodManager.Application.Mappings;
 
@@ -15,14 +16,18 @@ public class FoodMappers : Profile
         CreateMap<FoodCreateDto, Food>();
 
         CreateMap<Food, FoodDto>()
-             .ForMember(x => x.CategoryDisplay,
-                 src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null))
+              .ForMember(x => x.CategoryDisplay,
+                    src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null))
+              .ForMember(
+                    x => x.Category,
+                    src => src.MapFrom(x => x.Category.HasValue ? Enum.GetName(typeof(FoodCategoryEnum), x.Category.GetValueOrDefault()) : null)
+                )
               .ForMember(x => x.Orders, src => src.MapFrom(x => x.Items.Select(x => x.Order)))
               .ForMember(x => x.Url, src => src.MapFrom(x => x.UrlImage));
 
         CreateMap<Food, FoodItemsDto>()
              .ForMember(x => x.CategoryDisplay,
-                 src => src.MapFrom(x => x.Category.HasValue ?  x.Category.GetDescription() : null))
+                 src => src.MapFrom(x => x.Category.HasValue ? x.Category.GetDescription() : null))
              .ReverseMap();
     }
 }
