@@ -20,6 +20,8 @@ using FoodManager.Application.Users.Queries;
 using FoodManager.API.Extensions;
 using FoodManager.Application.Mappings;
 using Microsoft.OpenApi.Extensions;
+using Microsoft.AspNetCore.Authentication;
+using FoodManager.API.Firebase;
 
 public class Startup
 {
@@ -35,6 +37,9 @@ public class Startup
         string connectionString = _configuration.GetConnectionString("DefaultConnection")!;
         services.AddEndpointsApiExplorer();
 
+        services.AddSingleton<FirebaseAuthService>();
+        var firebaseService = new FirebaseService();
+        
         // mediatR to CQRS of application
         services.AddMediatR(Assembly.GetExecutingAssembly());
 
@@ -84,12 +89,19 @@ public class Startup
                 Title = "Food-Manager-API",
                 Description = "Sisteme de gerencimaneto de comida",
             });
-
-
-
-            options.SchemaFilter<SchemeFilterSwashbuckle>(); 
+            options.SchemaFilter<SchemeFilterSwashbuckle>();
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+        });
+
+        services.AddAuthentication("Bearer")
+            .AddScheme<AuthenticationSchemeOptions, FirebaseAuthHandler>("Bearer", options => { });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("FirebaseAuthentication", policy => policy
+                .RequireAuthenticatedUser()
+            );
         });
 
         var postgreSql = GetPostgreSql(services);
@@ -137,8 +149,6 @@ public class Startup
             policy.AllowAnyMethod();
         });
         app.UseAuthentication();
-
-
         app.UseAuthorization();
 
 

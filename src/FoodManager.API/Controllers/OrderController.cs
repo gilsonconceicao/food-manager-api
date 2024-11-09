@@ -5,8 +5,7 @@ using FoodManager.Application.Orders.Queries;
 using FoodManager.Domain.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using FoodManager.Domain.Enums;
-using FoodManager.Domain.Enums.Triggers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FoodManager.API.Controllers;
 
@@ -46,6 +45,7 @@ public class OrderController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<List<OrderDto>>(StatusCodes.Status200OK)]
     [HttpGet]
+    [Authorize(Policy = "FirebaseAuthentication")] 
     public async Task<IActionResult> OrderGetListAsync([FromQuery] OrderPaginationListQuery query)
     {
         var result = await _mediator.Send(query);

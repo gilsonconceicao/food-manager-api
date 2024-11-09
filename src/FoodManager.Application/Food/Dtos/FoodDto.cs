@@ -1,5 +1,4 @@
 using FoodManager.Application.Orders.Dtos;
-using FoodManager.Domain.Enums;
 #nullable disable
 namespace FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery
 {
