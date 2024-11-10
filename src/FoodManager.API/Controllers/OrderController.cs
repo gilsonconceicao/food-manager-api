@@ -6,19 +6,27 @@ using FoodManager.Domain.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using FoodManager.API.Extensions;
+using FirebaseAdmin.Auth;
+using FoodManager.API.Firebase;
+using FoodManager.API.Services;
 
 namespace FoodManager.API.Controllers;
 
 public class OrderController : BaseController
 {
+    private readonly ITokenService _tokenService;
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
 
     public OrderController(IMediator mediator,
-    IMapper mapper)
+    IMapper mapper,
+    ITokenService tokenService)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _tokenService = tokenService;
+
     }
 
     /// <summary>
@@ -27,13 +35,13 @@ public class OrderController : BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<bool>(StatusCodes.Status201Created)]
-    [HttpPost("{UserId}")]
-    [Authorize(Policy = "FirebaseAuthentication")] 
-    public async Task<IActionResult> OrderCreateAsync([FromRoute] Guid UserId, [FromBody] OrderCreateDto model)
+    [HttpPost]
+    [Authorize(Policy = "FirebaseAuthentication")]
+    public async Task<IActionResult> OrderCreateAsync([FromBody] OrderCreateDto model)
     {
+        var decodedToken = await _tokenService.VerifyTokenFromHeaderAsync(Request);
         var result = await _mediator.Send(new OrderCreateCommand
         {
-            UserId = UserId,
             Foods = model.Foods
         });
         return Ok(result);
@@ -46,7 +54,7 @@ public class OrderController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<List<OrderDto>>(StatusCodes.Status200OK)]
     [HttpGet]
-    [Authorize(Policy = "FirebaseAuthentication")] 
+    [Authorize(Policy = "FirebaseAuthentication")]
     public async Task<IActionResult> OrderGetListAsync([FromQuery] OrderPaginationListQuery query)
     {
         var result = await _mediator.Send(query);
@@ -69,7 +77,7 @@ public class OrderController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<OrderDto>(StatusCodes.Status200OK)]
     [HttpGet("{Id}")]
-    [Authorize(Policy = "FirebaseAuthentication")] 
+    [Authorize(Policy = "FirebaseAuthentication")]
     public async Task<IActionResult> OrderGetByIdAsync(Guid Id)
     {
         var result = await _mediator.Send(new OrderGetByIdQuery(Id));
@@ -86,7 +94,7 @@ public class OrderController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpDelete("{Id}")]
-    [Authorize(Policy = "FirebaseAuthentication")] 
+    [Authorize(Policy = "FirebaseAuthentication")]
     public async Task<IActionResult> OrderDeleteByIdAsync(Guid Id, [FromQuery] bool IsPermanent)
     {
         var result = await _mediator.Send(new OrderDeleteCommand
@@ -102,7 +110,7 @@ public class OrderController : BaseController
     /// </summary>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpPut("{Id}/Process")]
-    [Authorize(Policy = "FirebaseAuthentication")] 
+    [Authorize(Policy = "FirebaseAuthentication")]
     public async Task<IActionResult> ConfirmAsync([FromRoute] Guid Id, [FromBody] ProcessStepDto model)
     {
         var result = await _mediator.Send(new ExecuteTriggerCommand

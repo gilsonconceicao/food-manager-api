@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AutoMapper;
 using FluentValidation;
 using FoodManager.API.Enums;
@@ -8,13 +9,14 @@ using FoodManager.Domain.Enums;
 using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 #nullable disable
 namespace FoodManager.Application.Orders.Commands;
 public class OrderCreateCommand : IRequest<bool>
 {
-    public Guid UserId { get; set; }
+    // public Guid UserId { get; set; }
     public List<OrderItemCreateDto> Foods { get; set; }
 }
 
@@ -25,8 +27,12 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
     private readonly IMapper _mapper;
 
 
-    public OrderCreateHandler(DataBaseContext context,
-    IMapper mapper, IValidator<OrderCreateCommand> validator)
+    public OrderCreateHandler(
+        DataBaseContext context,
+        IMapper mapper,
+        IValidator<OrderCreateCommand> validator,
+        IHttpContextAccessor httpContextAccessor
+    )
     {
         _context = context;
         _mapper = mapper;
@@ -42,10 +48,9 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
             if (!validationResult.IsValid)
                 ErrorUtils.InvalidFieldsError(validationResult);
 
-
             var user = _context.Users
                 .Where(user => !user.IsDeleted)
-                .FirstOrDefault(user => user.Id == request.UserId)
+                .FirstOrDefault(user => user.Id == Guid.Parse(""))
                 ?? throw new HttpResponseException
                 {
                     Status = 404,
@@ -69,7 +74,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
 
             await _context.Orders.AddAsync(order, cancellationToken);
 
-            var foodIdsRequest = request.Foods.Select(x => x.FoodId).ToList(); 
+            var foodIdsRequest = request.Foods.Select(x => x.FoodId).ToList();
 
             var getFoodIncludeIds = await _context.Foods
                 .Where(x => foodIdsRequest.Contains(x.Id))
@@ -98,7 +103,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
                 {
                     OrderId = order.Id,
                     FoodId = item.FoodId,
-                    Quantity = item.Quantity ?? null, 
+                    Quantity = item.Quantity ?? null,
                     Observations = item.Observations ?? null
                 };
 

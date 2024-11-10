@@ -8,10 +8,18 @@ public class FirebaseService
     {
         if (FirebaseApp.DefaultInstance == null)
         {
-            FirebaseApp.Create(new AppOptions()
+            try
             {
-                Credential = GoogleCredential.FromFile(@"firebasesettings.json")
-            });
+                FirebaseApp.Create(new AppOptions()
+                {
+                    Credential = GoogleCredential.FromFile(@"firebasesettings.json")
+                });
+                Console.WriteLine("Sucesso ao ler arquivo.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
     }
 }
