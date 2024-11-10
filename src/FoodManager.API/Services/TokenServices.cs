@@ -17,7 +17,6 @@ namespace FoodManager.API.Services
         {
             _firebaseAuthService = firebaseAuthService;
         }
-
         public async Task<UserInfoResponse> VerifyTokenFromHeaderAsync(HttpRequest request)
         {
             var authorizationHeader = request.Headers["Authorization"].ToString();
@@ -36,16 +35,27 @@ namespace FoodManager.API.Services
                 throw new UnauthorizedAccessException("Token inválido.");
             }
 
-            var userInfoResponse = new UserInfoResponse
+            try
             {
-                UserId = decodedToken.Uid,
-                CurrentToken = idToken,
-                Name = decodedToken.Claims.FirstOrDefault(x => x.Key == "email").Value.ToString()!,
-                Email = decodedToken.Claims.FirstOrDefault(x => x.Key == "name").Value.ToString()!,
-            };
+                var emailClaim = decodedToken.Claims.FirstOrDefault(x => x.Key == "email").Value?.ToString();
+                var nameClaim = decodedToken.Claims.FirstOrDefault(x => x.Key == "name").Value?.ToString();
 
-            return userInfoResponse;
+                var userInfoResponse = new UserInfoResponse
+                {
+                    UserId = decodedToken.Uid,
+                    CurrentToken = idToken,
+                    Name = nameClaim ?? "", 
+                    Email = emailClaim ?? ""
+                };
+                return userInfoResponse;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao processar o token: {ex.Message}");
+                throw new UnauthorizedAccessException("Erro ao processar o token.", ex); // Lança a exceção para ser tratada no ponto de chamada
+            }
         }
+
     }
     public class UserInfoResponse
     {

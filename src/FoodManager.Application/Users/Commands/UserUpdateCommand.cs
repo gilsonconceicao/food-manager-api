@@ -15,6 +15,7 @@ public class UserUpdateCommand : IRequest<bool>
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
+    public string Email { get; set; }
     public AddressUpdateDto? Address { get; set; }
 }
 
@@ -56,33 +57,35 @@ public class UserUpdateCommandHandler : IRequestHandler<UserUpdateCommand, bool>
                     Value = new
                     {
                         Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                        Message = $"Usuário não encontrado", 
+                        Message = $"Usuário não encontrado",
                         Resource = request.Id
                     }
                 };
             }
 
-            if (user.Address == null && request.Address != null) 
+            if (user.Address == null && request.Address != null)
             {
-                Address newAddress = _mapper.Map<Address>(request.Address); 
+                Address newAddress = _mapper.Map<Address>(request.Address);
                 newAddress.UserId = user.Id;
                 _context.Address.Add(newAddress);
-            } else if (request.Address != null) 
+            }
+            else if (request.Address != null)
             {
-                user.Address.ZipCode = request.Address.ZipCode; 
-                user.Address.City = request.Address.City; 
+                user.Address.ZipCode = request.Address.ZipCode;
+                user.Address.City = request.Address.City;
                 user.Address.Number = request.Address.Number;
                 user.Address.State = request.Address.State;
                 user.Address.Street = request.Address.Street;
-            }; 
+            };
 
             user.Name = request.Name;
+            user.Email = request.Email;
             await _context.SaveChangesAsync();
             return true;
         }
         catch (HttpResponseException)
-        { 
-            throw; 
+        {
+            throw;
         }
         catch (Exception ex)
         {

@@ -36,7 +36,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<FoodUpdateCommand, bool>, FoodUpdateHandler>();
         services.AddTransient<IRequestHandler<OrderCreateCommand, bool>, OrderCreateHandler>();
         services.AddTransient<IRequestHandler<OrderDeleteCommand, bool>, OrderDeleteHandler>();
-        services.AddTransient<IRequestHandler<UserCreateCommand, Guid>, UserCreateCommandHandler>();
+        services.AddTransient<IRequestHandler<UserCreateCommand, User>, UserCreateCommandHandler>();
         services.AddTransient<IRequestHandler<UserUpdateCommand, bool>, UserUpdateCommandHandler>();
         services.AddTransient<IRequestHandler<ExecuteTriggerCommand, OrderStatus>, ExecuteTriggerCommandHandler>();
 

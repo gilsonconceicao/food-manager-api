@@ -12,14 +12,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FoodManager.Application.Users.Commands;
 #nullable disable
-public class UserCreateCommand : IRequest<Guid>
+public class UserCreateCommand : IRequest<User>
 {
     public string Name { get; set; }
     public string RegistrationNumber { get; set; }
+    public string Email { get; set; }
+    public string FirebaseUserId { get; set; }
     public AddressCreateDto? Address { get; set; }
 }
 
-public class UserCreateCommandHandler : IRequestHandler<UserCreateCommand, Guid>
+public class UserCreateCommandHandler : IRequestHandler<UserCreateCommand, User>
 {
     private readonly DataBaseContext _context;
     private readonly IValidator<UserCreateCommand> _validator;
@@ -35,7 +37,7 @@ public class UserCreateCommandHandler : IRequestHandler<UserCreateCommand, Guid>
         this._mapper = mapper;
     }
 
-    public async Task<Guid> Handle(UserCreateCommand request, CancellationToken cancellationToken)
+    public async Task<User> Handle(UserCreateCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -43,25 +45,6 @@ public class UserCreateCommandHandler : IRequestHandler<UserCreateCommand, Guid>
 
             if (!validationResult.IsValid)
                 ErrorUtils.InvalidFieldsError(validationResult);
-
-            var userByRegistrationNumber = _context.Users
-                .Include(x => x.Address)
-                .Where(x => !x.IsDeleted)
-                .FirstOrDefault(x => x.RegistrationNumber == request.RegistrationNumber.RemoveSpecialCharacters());
-
-            if (userByRegistrationNumber != null)
-            {
-                throw new HttpResponseException
-                {
-                    Status = 400,
-                    Value = new
-                    {
-                        Code = CodeErrorEnum.INVALID_FORM_FIELDS.ToString(),
-                        Message = $"CPF informado já existe", 
-                        Resource = request.RegistrationNumber
-                    }
-                };
-            }
 
             User user = _mapper.Map<User>(request);
             user.RegistrationNumber = user.RegistrationNumber.RemoveSpecialCharacters();
@@ -72,11 +55,11 @@ public class UserCreateCommandHandler : IRequestHandler<UserCreateCommand, Guid>
 
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
-            return user.Id;
+            return user;
         }
         catch (HttpResponseException)
-        { 
-            throw; 
+        {
+            throw;
         }
         catch (Exception ex)
         {
