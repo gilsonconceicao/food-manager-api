@@ -36,7 +36,7 @@ public class OrderController : BaseController
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<bool>(StatusCodes.Status201Created)]
     [HttpPost]
-    [Authorize(Policy = "FirebaseAuthentication")]
+    [Authorize(Policy = "Auth")]
     public async Task<IActionResult> OrderCreateAsync([FromBody] OrderCreateDto model)
     {
         var decodedToken = await _tokenService.VerifyTokenFromHeaderAsync(Request);
@@ -54,7 +54,7 @@ public class OrderController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<List<OrderDto>>(StatusCodes.Status200OK)]
     [HttpGet]
-    [Authorize(Policy = "FirebaseAuthentication")]
+    [Authorize(Policy = "Auth")]
     public async Task<IActionResult> OrderGetListAsync([FromQuery] OrderPaginationListQuery query)
     {
         var result = await _mediator.Send(query);
@@ -77,7 +77,7 @@ public class OrderController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<OrderDto>(StatusCodes.Status200OK)]
     [HttpGet("{Id}")]
-    [Authorize(Policy = "FirebaseAuthentication")]
+    [Authorize(Policy = "Auth")]
     public async Task<IActionResult> OrderGetByIdAsync(Guid Id)
     {
         var result = await _mediator.Send(new OrderGetByIdQuery(Id));
@@ -94,7 +94,7 @@ public class OrderController : BaseController
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpDelete("{Id}")]
-    [Authorize(Policy = "FirebaseAuthentication")]
+    [Authorize(Policy = "Auth")]
     public async Task<IActionResult> OrderDeleteByIdAsync(Guid Id, [FromQuery] bool IsPermanent)
     {
         var result = await _mediator.Send(new OrderDeleteCommand
@@ -110,7 +110,7 @@ public class OrderController : BaseController
     /// </summary>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpPut("{Id}/Process")]
-    [Authorize(Policy = "FirebaseAuthentication")]
+    [Authorize(Policy = "Auth")]
     public async Task<IActionResult> ConfirmAsync([FromRoute] Guid Id, [FromBody] ProcessStepDto model)
     {
         var result = await _mediator.Send(new ExecuteTriggerCommand

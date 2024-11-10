@@ -1,4 +1,6 @@
 using FluentValidation;
+using FoodManager.API.Firebase;
+using FoodManager.API.Services;
 using FoodManager.Application.Foods.Commands;
 using FoodManager.Application.Foods.Queries.FoodGetListPaginationQuery;
 using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
@@ -19,6 +21,11 @@ public static class MyConfigServiceCollectionExtensions
         this IServiceCollection services
     )
     {
+        // firebase 
+        var firebaseService = new FirebaseService();
+        services.AddSingleton<FirebaseAuthService>();
+        services.AddScoped<ITokenService, TokenService>();
+
         // #region FluentValidations
         services.AddValidatorsFromAssemblyContaining<FoodCreateValidations>();
         services.AddValidatorsFromAssemblyContaining<OrderCreateValidations>();

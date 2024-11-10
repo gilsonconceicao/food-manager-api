@@ -38,10 +38,6 @@ public class Startup
         string connectionString = _configuration.GetConnectionString("DefaultConnection")!;
         services.AddEndpointsApiExplorer();
 
-        var firebaseService = new FirebaseService();
-        services.AddSingleton<FirebaseAuthService>();
-        services.AddScoped<ITokenService, TokenService>();
-
         // mediatR to CQRS of application
         services.AddMediatR(Assembly.GetExecutingAssembly());
 
@@ -127,10 +123,11 @@ public class Startup
 
         services.AddAuthentication("Bearer")
             .AddScheme<AuthenticationSchemeOptions, FirebaseAuthHandler>("Bearer", options => { });
+
         services.AddHttpContextAccessor();
         services.AddAuthorization(options =>
         {
-            options.AddPolicy("FirebaseAuthentication", policy => policy
+            options.AddPolicy("Auth", policy => policy
                 .RequireAuthenticatedUser()
             );
         });
