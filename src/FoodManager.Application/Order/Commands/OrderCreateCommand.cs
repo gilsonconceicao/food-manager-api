@@ -24,18 +24,13 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
 {
     private readonly DataBaseContext _context;
     private readonly IValidator<OrderCreateCommand> _validator;
-    private readonly IMapper _mapper;
-
 
     public OrderCreateHandler(
         DataBaseContext context,
-        IMapper mapper,
-        IValidator<OrderCreateCommand> validator,
-        IHttpContextAccessor httpContextAccessor
+        IValidator<OrderCreateCommand> validator
     )
     {
         _context = context;
-        _mapper = mapper;
         _validator = validator;
     }
 
