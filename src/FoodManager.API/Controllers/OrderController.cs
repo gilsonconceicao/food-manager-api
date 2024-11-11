@@ -35,13 +35,13 @@ public class OrderController : BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<bool>(StatusCodes.Status201Created)]
-    [HttpPost]
-    [Authorize(Policy = "Auth")]
-    public async Task<IActionResult> OrderCreateAsync([FromBody] OrderCreateDto model)
+    [HttpPost("{UserId}")]
+    [Authorize(Policy = "FirebaseAuthentication")] 
+    public async Task<IActionResult> OrderCreateAsync([FromRoute] Guid UserId, [FromBody] OrderCreateDto model)
     {
-        var decodedToken = await _tokenService.VerifyTokenFromHeaderAsync(Request);
         var result = await _mediator.Send(new OrderCreateCommand
         {
+            UserId = UserId,
             Foods = model.Foods
         });
         return Ok(result);
