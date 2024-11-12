@@ -74,6 +74,21 @@ public class UserController : BaseController
     }
 
     /// <summary>
+    /// Método utilizado para validar se o usuário é master
+    /// </summary>
+    /// <returns>Usuários</returns>
+    [HttpGet("VerifyUserIsMaster/{FirebaseUserId}")]
+    [Authorize(Policy = "Auth")]
+    public async Task<IActionResult> VerifyUserIsMasterAsync(string FirebaseUserId)
+    {
+        var result = await _mediator.Send(new VerifyUserIsMasterQuery
+        {
+            FirebaseUserId = FirebaseUserId
+        });
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Método utilizado para obter usuário por CPF
     /// </summary>
     /// <returns>Usuários</returns>
