@@ -1,5 +1,6 @@
 
 
+using FoodManager.API.Services;
 using FoodManager.Application.Common.Exceptions;
 using FoodManager.Domain.Models;
 using FoodManager.Infrastructure.Database;
@@ -9,28 +10,32 @@ using Microsoft.EntityFrameworkCore;
 namespace FoodManager.Application.Carts.Queries
 {
     #nullable disable
-    public class CartGetListQuery : IRequest<List<Cart>> 
-    {
-        public string UserId { get; set; }
-    }
+    public class CartGetListQuery : IRequest<List<Cart>> {}
 
     public class CartGetListQueryHandler : IRequestHandler<CartGetListQuery, List<Cart>>
     {
         private readonly DataBaseContext _context;
+        private readonly IHttpUserService _httpUserService;
         
-        public CartGetListQueryHandler(DataBaseContext context)
+        public CartGetListQueryHandler(
+            DataBaseContext context,
+            IHttpUserService httpUserService
+        )
         {
             _context = context;
+            _httpUserService = httpUserService;
         }
 
         public async Task<List<Cart>> Handle(CartGetListQuery request, CancellationToken cancellationToken)
         {
+            var user = await _httpUserService.VerifyTokenAsync();
             try
             {
                 var carts = await _context.Carts
                     .Where(c => !c.IsDeleted)
-                    .Where(c => c.UserId == request.UserId)
+                    .Where(c => c.UserId == user.UserId)
                     .ToListAsync();
+                    
                 return carts;
             }
             catch (Exception ex)

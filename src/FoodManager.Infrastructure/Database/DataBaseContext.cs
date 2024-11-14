@@ -6,6 +6,7 @@ namespace FoodManager.Infrastructure.Database
 {
     public class DataBaseContext : DbContext
     {
+        
         public DataBaseContext(DbContextOptions options) : base(options)
         { }
 
@@ -22,6 +23,27 @@ namespace FoodManager.Infrastructure.Database
             modelBuilder.ApplyConfiguration(new OrderItemsConfiguration());
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(modelBuilder);
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var entriesData = ChangeTracker.Entries<BaseEntity>();
+
+                foreach (var entry in entriesData)
+                {
+
+                }
+
+
+                var result = await base.SaveChangesAsync(cancellationToken);
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

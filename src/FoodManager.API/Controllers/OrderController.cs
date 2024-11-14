@@ -12,13 +12,13 @@ namespace FoodManager.API.Controllers;
 
 public class OrderController : BaseController
 {
-    private readonly ITokenService _tokenService;
+    private readonly IHttpUserService _tokenService;
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
 
     public OrderController(IMediator mediator,
     IMapper mapper,
-    ITokenService tokenService)
+    IHttpUserService tokenService)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

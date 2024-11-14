@@ -12,11 +12,11 @@ namespace FoodManager.API.Controllers;
 public class CartController : BaseController
 {
     private readonly IMediator _mediator;
-    private readonly ITokenService _tokenService;
+    private readonly IHttpUserService _tokenService;
 
     public CartController(
         IMediator mediator,
-        ITokenService tokenService)
+        IHttpUserService tokenService)
     {
         _mediator = mediator;
         _tokenService = tokenService;
@@ -29,12 +29,7 @@ public class CartController : BaseController
     [Authorize(Policy = "Auth")]
     public async Task<ActionResult> GetAllAsync()
     {
-        var user = await _tokenService.VerifyTokenFromHeaderAsync(Request);
-
-        var result = await _mediator.Send(new CartGetListQuery 
-        { 
-            UserId = user.UserId,
-        });
+        var result = await _mediator.Send(new CartGetListQuery { });
         return Ok(result);
     }
 
@@ -45,7 +40,7 @@ public class CartController : BaseController
     [Authorize(Policy = "Auth")]
     public async Task<ActionResult> AddCartAsync([FromBody] CartCreateCommand request)
     {
-        var user = await _tokenService.VerifyTokenFromHeaderAsync(Request);
+        var user = await _tokenService.VerifyTokenAsync();
         var result = await _mediator.Send(new CartCreateCommand
         {
             ItemId = request.ItemId,

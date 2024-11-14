@@ -46,7 +46,7 @@ public class CreateUpdateCommandHandler : IRequestHandler<CreateUpdateCommand, b
             if (request.Quantity != null)
                 cart.Quantity = request.Quantity;
                 
-            cart.UpdateAt = DateTime.UtcNow;
+            cart.UpdatedAt = DateTime.UtcNow;
                 
             await _context.SaveChangesAsync();
 

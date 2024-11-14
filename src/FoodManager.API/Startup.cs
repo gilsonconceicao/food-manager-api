@@ -1,28 +1,15 @@
 using System.Net.Mime;
 using System.Reflection;
-using FluentValidation;
 using FoodManager.Application.Common.Exceptions;
-using FoodManager.Application.Orders.Commands;
-using FoodManager.Application.Foods.Commands;
-using FoodManager.Application.Foods.Queries.GetAllWithPaginationFoodQuery;
-using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
-using FoodManager.Domain.Extensions;
 using FoodManager.Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
-using FoodManager.Application.Orders.Queries;
-using FoodManager.Domain.Models;
-using FoodManager.Application.Orders.Commands.Validatons;
-using FoodManager.Application.Users.Queries;
 using FoodManager.API.Extensions;
-using FoodManager.Application.Mappings;
-using Microsoft.OpenApi.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using FoodManager.API.Firebase;
-using FoodManager.API.Services;
 
 public class Startup
 {

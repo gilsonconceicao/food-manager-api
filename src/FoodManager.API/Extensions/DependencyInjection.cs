@@ -27,7 +27,7 @@ public static class MyConfigServiceCollectionExtensions
         // region Firebase 
         var firebaseService = new FirebaseService();
         services.AddSingleton<FirebaseAuthService>();
-        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IHttpUserService, HttpUserService>();
         // #endregion
 
         // #region FluentValidations
