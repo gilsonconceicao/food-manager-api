@@ -1,4 +1,5 @@
 using System.Reflection;
+using FoodManager.API.Services;
 using FoodManager.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,9 +7,11 @@ namespace FoodManager.Infrastructure.Database
 {
     public class DataBaseContext : DbContext
     {
-        
-        public DataBaseContext(DbContextOptions options) : base(options)
-        { }
+        private readonly IHttpUserService _httpUserService;
+        public DataBaseContext(DbContextOptions options, IHttpUserService httpUserService) : base(options)
+        {
+            _httpUserService = httpUserService;
+        }
 
         public DbSet<Food> Foods { get; set; }
         public DbSet<OrderItems> Items { get; set; }
@@ -30,10 +33,23 @@ namespace FoodManager.Infrastructure.Database
             try
             {
                 var entriesData = ChangeTracker.Entries<BaseEntity>();
-
+                var currentUser = _httpUserService.VerifyTokenAsync();
                 foreach (var entry in entriesData)
                 {
+                    if (currentUser is null)
+                    {
+                        throw new InvalidOperationException("Erro ao tentar realizar alterações sem operador vinculado.");
+                    }
 
+                    switch (entry.State)
+                    {
+                        case EntityState.Added:
+                        
+                        break;
+                        case EntityState.Modified:
+                        
+                        break;
+                    }
                 }
 
 
