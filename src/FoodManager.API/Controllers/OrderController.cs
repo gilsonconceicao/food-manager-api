@@ -36,7 +36,7 @@ public class OrderController : BaseController
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<bool>(StatusCodes.Status201Created)]
     [HttpPost("{UserId}")]
-    [Authorize(Policy = "FirebaseAuthentication")] 
+    [Authorize(Policy = "Auth")] 
     public async Task<IActionResult> OrderCreateAsync([FromRoute] Guid UserId, [FromBody] OrderCreateDto model)
     {
         var result = await _mediator.Send(new OrderCreateCommand
