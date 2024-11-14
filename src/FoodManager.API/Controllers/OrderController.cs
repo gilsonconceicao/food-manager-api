@@ -6,9 +6,6 @@ using FoodManager.Domain.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using FoodManager.API.Extensions;
-using FirebaseAdmin.Auth;
-using FoodManager.API.Firebase;
 using FoodManager.API.Services;
 
 namespace FoodManager.API.Controllers;
