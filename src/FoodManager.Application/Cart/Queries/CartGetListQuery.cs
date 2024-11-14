@@ -8,7 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FoodManager.Application.Carts.Queries
 {
-    public class CartGetListQuery : IRequest<List<Cart>> { }
+    #nullable disable
+    public class CartGetListQuery : IRequest<List<Cart>> 
+    {
+        public string UserId { get; set; }
+    }
 
     public class CartGetListQueryHandler : IRequestHandler<CartGetListQuery, List<Cart>>
     {
@@ -25,6 +29,7 @@ namespace FoodManager.Application.Carts.Queries
             {
                 var carts = await _context.Carts
                     .Where(c => !c.IsDeleted)
+                    .Where(c => c.UserId == request.UserId)
                     .ToListAsync();
                 return carts;
             }

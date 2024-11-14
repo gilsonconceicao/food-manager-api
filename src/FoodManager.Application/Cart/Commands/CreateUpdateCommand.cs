@@ -13,7 +13,6 @@ public class CreateUpdateCommand : IRequest<bool>
     public Guid CartId { get; set; }
     public Guid ItemId { get; set; }
     public int? Quantity { get; set; }
-    public string? Resource { get; set; }
 }
 
 public class CreateUpdateCommandHandler : IRequestHandler<CreateUpdateCommand, bool>
@@ -46,10 +45,9 @@ public class CreateUpdateCommandHandler : IRequestHandler<CreateUpdateCommand, b
 
             if (request.Quantity != null)
                 cart.Quantity = request.Quantity;
-
-            if (request.Resource != null)
-                cart.Resource = request.Resource;
-
+                
+            cart.UpdateAt = DateTime.UtcNow;
+                
             await _context.SaveChangesAsync();
 
             return true;

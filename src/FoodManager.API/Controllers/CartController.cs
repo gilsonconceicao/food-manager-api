@@ -1,4 +1,5 @@
 using FoodManager.API.Controllers;
+using FoodManager.API.Services;
 using FoodManager.Application.Carts.Commands;
 using FoodManager.Application.Carts.Dtos;
 using FoodManager.Application.Carts.Queries;
@@ -11,10 +12,14 @@ namespace FoodManager.API.Controllers;
 public class CartController : BaseController
 {
     private readonly IMediator _mediator;
+    private readonly ITokenService _tokenService;
 
-    public CartController(IMediator mediator)
+    public CartController(
+        IMediator mediator,
+        ITokenService tokenService)
     {
         _mediator = mediator;
+        _tokenService = tokenService;
     }
 
     /// <summary>
@@ -24,7 +29,12 @@ public class CartController : BaseController
     [Authorize(Policy = "Auth")]
     public async Task<ActionResult> GetAllAsync()
     {
-        var result = await _mediator.Send(new CartGetListQuery { });
+        var user = await _tokenService.VerifyTokenFromHeaderAsync(Request);
+
+        var result = await _mediator.Send(new CartGetListQuery 
+        { 
+            UserId = user.UserId,
+        });
         return Ok(result);
     }
 
@@ -35,11 +45,12 @@ public class CartController : BaseController
     [Authorize(Policy = "Auth")]
     public async Task<ActionResult> AddCartAsync([FromBody] CartCreateCommand request)
     {
+        var user = await _tokenService.VerifyTokenFromHeaderAsync(Request);
         var result = await _mediator.Send(new CartCreateCommand
         {
             ItemId = request.ItemId,
             Quantity = request.Quantity,
-            Resource = request.Resource,
+            UserId = user.UserId
         });
         return Ok(result);
     }
@@ -55,7 +66,6 @@ public class CartController : BaseController
         {
             CartId = CartId,
             Quantity = request.Quantity,
-            Resource = request.Resource,
         });
         return Ok(result);
     }

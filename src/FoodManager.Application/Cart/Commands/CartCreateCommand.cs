@@ -7,12 +7,12 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace FoodManager.Application.Carts.Commands;
-
+#nullable disable 
 public class CartCreateCommand : IRequest<bool>
 {
+    public string UserId { get; set; }
     public Guid ItemId { get; set; }
     public int? Quantity { get; set; }
-    public string? Resource { get; set; }
 }
 
 public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
@@ -45,7 +45,7 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
                         }
                     };
 
-            var newCart = _CartFactory.CreateCart(request.ItemId, request.Quantity, request.Resource);
+            var newCart = _CartFactory.CreateCart(request.UserId, request.ItemId, request.Quantity);
             _context.Carts.Add(newCart);
             await _context.SaveChangesAsync();
             return true;

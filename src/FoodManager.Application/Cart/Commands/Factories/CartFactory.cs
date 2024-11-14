@@ -4,7 +4,7 @@ namespace FoodManager.Application.Carts.Commands.Factories;
 
 public class CartFactory : ICartFactory
 {
-    public Cart CreateCart(Guid itemId, int? quantity, string? resource)
+    public Cart CreateCart(string UserId, Guid itemId, int? quantity)
     {
         return new Cart
         {
@@ -12,7 +12,8 @@ public class CartFactory : ICartFactory
             CreatedAt = DateTime.UtcNow,
             ItemId = itemId,
             Quantity = quantity,
-            Resource = resource
+            UserId = UserId, 
+            IsDeleted = false
         };
     }
 }
