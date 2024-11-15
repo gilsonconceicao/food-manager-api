@@ -77,7 +77,7 @@ public class FoodController : BaseController
     /// Atualiza um registro de comida por identifcador 
     /// </summary>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
-    [HttpPut("{Id}")]
+    [HttpPatch("{Id}")]
     public async Task<IActionResult> UpdateFoodAsync(Guid Id, [FromBody] FoodUpdateDto model)
     {
         var result = await _mediator.Send(new FoodUpdateCommand

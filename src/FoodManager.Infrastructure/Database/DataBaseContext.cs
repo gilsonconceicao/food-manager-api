@@ -33,7 +33,7 @@ namespace FoodManager.Infrastructure.Database
             try
             {
                 var entriesData = ChangeTracker.Entries<BaseEntity>();
-                var currentUser = _httpUserService.VerifyTokenAsync();
+                var currentUser = await _httpUserService.VerifyTokenAsync();
                 foreach (var entry in entriesData)
                 {
                     if (currentUser is null)
@@ -41,14 +41,22 @@ namespace FoodManager.Infrastructure.Database
                         throw new InvalidOperationException("Erro ao tentar realizar alterações sem operador vinculado.");
                     }
 
+                    var entity = entry.Entity; 
+
                     switch (entry.State)
                     {
                         case EntityState.Added:
-                        
-                        break;
+                            entity.CreatedAt = DateTime.UtcNow;
+                            entity.CreatedByUserName = currentUser.Name;
+                            entity.CreatedByUserId = currentUser.UserId;
+                            entity.UpdatedByUserId = null;
+                            entity.UpdatedByUserName = null;
+                            break;
                         case EntityState.Modified:
-                        
-                        break;
+                            entity.UpdatedByUserId = currentUser.Name;
+                            entity.UpdatedByUserName = currentUser.UserId;
+                            entity.UpdatedAt = DateTime.UtcNow;
+                            break;
                     }
                 }
 
