@@ -81,7 +81,7 @@ public class FoodUpdateHandler : IRequestHandler<FoodUpdateCommand, bool>
 
             _context.Foods.Update(getFoodById);
             _context.Entry(getFoodById).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return true;
         }
