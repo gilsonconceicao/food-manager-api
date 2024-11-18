@@ -6,22 +6,19 @@ using FoodManager.Domain.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using FoodManager.API.Extensions;
-using FirebaseAdmin.Auth;
-using FoodManager.API.Firebase;
 using FoodManager.API.Services;
 
 namespace FoodManager.API.Controllers;
 
 public class OrderController : BaseController
 {
-    private readonly ITokenService _tokenService;
+    private readonly IHttpUserService _tokenService;
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
 
     public OrderController(IMediator mediator,
     IMapper mapper,
-    ITokenService tokenService)
+    IHttpUserService tokenService)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -36,8 +33,8 @@ public class OrderController : BaseController
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<bool>(StatusCodes.Status201Created)]
     [HttpPost("{UserId}")]
-    [Authorize(Policy = "FirebaseAuthentication")] 
-    public async Task<IActionResult> OrderCreateAsync([FromRoute] Guid UserId, [FromBody] OrderCreateDto model)
+    [Authorize(Policy = "Auth")] 
+    public async Task<IActionResult> OrderCreateAsync([FromRoute] string UserId, [FromBody] OrderCreateDto model)
     {
         var result = await _mediator.Send(new OrderCreateCommand
         {

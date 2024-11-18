@@ -17,11 +17,9 @@ public class UserMappers : Profile
         CreateMap<User, GetUserDto>()
             .ReverseMap();
         CreateMap<CreatedByDto, User>()
-            .ForMember(x => x.Name, src => src.MapFrom(x => x.UserName))
-            .ForMember(x => x.Id, src => src.MapFrom(x => x.UserId))
+            .ForMember(x => x.CreatedByUserName, src => src.MapFrom(x => x.UserName))
+            .ForMember(x => x.CreatedByUserId, src => src.MapFrom(x => x.UserId))
             .ForMember(x => x.RegistrationNumber, src => src.MapFrom(x => x.UserRegistrationNumber))
             .ReverseMap();
-
-
     }
 }

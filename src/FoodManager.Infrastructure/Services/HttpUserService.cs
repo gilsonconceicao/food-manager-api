@@ -1,25 +1,29 @@
 using FoodManager.API.Firebase;
+using Microsoft.AspNetCore.Http;
 
 #nullable disable
 
 namespace FoodManager.API.Services
 {
-    public interface ITokenService
+    public interface IHttpUserService
     {
-        Task<UserInfoResponse> VerifyTokenFromHeaderAsync(HttpRequest request);
+        Task<UserInfoResponse> getAuthenticatedUser();
     }
 
-    public class TokenService : ITokenService
+    public class HttpUserService : IHttpUserService
     {
         private readonly FirebaseAuthService _firebaseAuthService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TokenService(FirebaseAuthService firebaseAuthService)
+        public HttpUserService(FirebaseAuthService firebaseAuthService, IHttpContextAccessor httpContextAccessor)
         {
             _firebaseAuthService = firebaseAuthService;
+            _httpContextAccessor = httpContextAccessor;
         }
-        public async Task<UserInfoResponse> VerifyTokenFromHeaderAsync(HttpRequest request)
+
+        public async Task<UserInfoResponse> getAuthenticatedUser()
         {
-            var authorizationHeader = request.Headers["Authorization"].ToString();
+            var authorizationHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
 
             if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
             {
@@ -40,22 +44,20 @@ namespace FoodManager.API.Services
                 var emailClaim = decodedToken.Claims.FirstOrDefault(x => x.Key == "email").Value?.ToString();
                 var nameClaim = decodedToken.Claims.FirstOrDefault(x => x.Key == "name").Value?.ToString();
 
-                var userInfoResponse = new UserInfoResponse
+                return new UserInfoResponse
                 {
                     UserId = decodedToken.Uid,
                     CurrentToken = idToken,
-                    Name = nameClaim ?? "", 
+                    Name = nameClaim ?? "",
                     Email = emailClaim ?? ""
                 };
-                return userInfoResponse;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Erro ao processar o token: {ex.Message}");
-                throw new UnauthorizedAccessException("Erro ao processar o token.", ex); // Lança a exceção para ser tratada no ponto de chamada
+                throw new UnauthorizedAccessException("Erro ao processar o token.", ex);
             }
         }
-
     }
     public class UserInfoResponse
     {

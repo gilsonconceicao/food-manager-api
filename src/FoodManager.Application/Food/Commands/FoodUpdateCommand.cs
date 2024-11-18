@@ -17,7 +17,7 @@ public class FoodUpdateCommand : IRequest<bool>
         string Description,
         bool IsAvailable,
         decimal Price,
-        FoodCategoryEnum Category )
+        FoodCategoryEnum Category)
     {
         this.Id = Id;
         this.Name = Name;
@@ -28,12 +28,12 @@ public class FoodUpdateCommand : IRequest<bool>
         this.Category = Category;
     }
     public Guid Id { get; set; }
-    public string Name { get; set; }
-    public string UrlImage { get; set; }
-    public string Description { get; set; }
-    public bool IsAvailable { get; set; }
-    public decimal Price { get; set; }
-    public FoodCategoryEnum Category { get; set; }
+    public string? Name { get; set; }
+    public string? UrlImage { get; set; }
+    public string? Description { get; set; }
+    public bool? IsAvailable { get; set; }
+    public decimal? Price { get; set; }
+    public FoodCategoryEnum? Category { get; set; }
 }
 
 public class FoodUpdateHandler : IRequestHandler<FoodUpdateCommand, bool>
@@ -62,16 +62,26 @@ public class FoodUpdateHandler : IRequestHandler<FoodUpdateCommand, bool>
                     }
                 };
 
-    
-            getFoodById.Name = request.Name;
-            getFoodById.Price = request.Price;
-            getFoodById.Category = request.Category;
-            getFoodById.Description = request.Description;
-            getFoodById.UrlImage = request.UrlImage;
+
+            if (request.Name != null)
+                getFoodById.Name = request.Name;
+
+            if (request.Price != null)
+                getFoodById.Price = (decimal)request.Price;
+
+            if (request.Category != null)
+                getFoodById.Category = request.Category;
+
+            if (request.Description != null)
+                getFoodById.Description = request.Description;
+
+            if (request.UrlImage != null)
+                getFoodById.UrlImage = request.UrlImage;
+
 
             _context.Foods.Update(getFoodById);
             _context.Entry(getFoodById).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return true;
         }

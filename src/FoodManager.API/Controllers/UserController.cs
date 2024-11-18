@@ -14,13 +14,13 @@ namespace FoodManager.API.Controllers;
 public class UserController : BaseController
 {
     private readonly IMediator _mediator;
-    private readonly ITokenService _tokenService;
+    private readonly IHttpUserService _tokenService;
     private readonly IMapper _mapper;
 
     public UserController(
         IMediator mediator,
         IMapper mapper,
-        ITokenService tokenService
+        IHttpUserService tokenService
     )
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
@@ -119,7 +119,7 @@ public class UserController : BaseController
     [Authorize(Policy = "Auth")]
     public async Task<IActionResult> CreateAsync([FromBody] UserCreateCommand query)
     {
-        var decodedToken = await _tokenService.VerifyTokenFromHeaderAsync(Request);
+        var decodedToken = await _tokenService.getAuthenticatedUser();
 
         var result = await _mediator.Send(new UserCreateCommand
         {

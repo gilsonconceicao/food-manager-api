@@ -1,6 +1,9 @@
 using FluentValidation;
 using FoodManager.API.Firebase;
 using FoodManager.API.Services;
+using FoodManager.Application.Carts.Commands;
+using FoodManager.Application.Carts.Commands.Factories;
+using FoodManager.Application.Carts.Queries;
 using FoodManager.Application.Foods.Commands;
 using FoodManager.Application.Foods.Queries.FoodGetListPaginationQuery;
 using FoodManager.Application.Foods.Queries.GetFoodByIdQuery;
@@ -21,14 +24,16 @@ public static class MyConfigServiceCollectionExtensions
         this IServiceCollection services
     )
     {
-        // firebase 
+        // region Firebase 
         var firebaseService = new FirebaseService();
         services.AddSingleton<FirebaseAuthService>();
-        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IHttpUserService, HttpUserService>();
+        // #endregion
 
         // #region FluentValidations
         services.AddValidatorsFromAssemblyContaining<FoodCreateValidations>();
         services.AddValidatorsFromAssemblyContaining<OrderCreateValidations>();
+        // #endregion
 
         // #region Commands
         services.AddTransient<IRequestHandler<FoodCreateCommand, bool>, FoodCreateHandler>();
@@ -39,6 +44,10 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<UserCreateCommand, User>, UserCreateCommandHandler>();
         services.AddTransient<IRequestHandler<UserUpdateCommand, bool>, UserUpdateCommandHandler>();
         services.AddTransient<IRequestHandler<ExecuteTriggerCommand, OrderStatus>, ExecuteTriggerCommandHandler>();
+        services.AddTransient<IRequestHandler<CartCreateCommand, bool>, CartCreateCommandHandler>();
+        services.AddTransient<IRequestHandler<CreateUpdateCommand, bool>, CreateUpdateCommandHandler>();
+        services.AddTransient<IRequestHandler<CartDeleteCommand, bool>, CartDeleteCommandHandler>();
+        // #endregion
 
         // #region Queries
         services.AddTransient<IRequestHandler<FoodGetListPaginationQuery, ListDataResponse<List<Food>>>, FoodGetListPaginationQueryHandler>();
@@ -49,7 +58,12 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<UserGetByIdQuery, User>, UserGetByIdQueryHandler>();
         services.AddTransient<IRequestHandler<UserGetByRegistrationNumberQuery, User>, UserGetByRegistrationNumberHandler>();
         services.AddTransient<IRequestHandler<VerifyUserIsMasterQuery, bool>, VerifyUserIsMasterQueryHandler>();
+        services.AddTransient<IRequestHandler<CartGetListQuery, List<Cart>>, CartGetListQueryHandler>();
+        // #endregion
 
+        // #region Factories
+        services.AddScoped<ICartFactory, CartFactory>();
+        // #endregion
         return services;
     }
 }
