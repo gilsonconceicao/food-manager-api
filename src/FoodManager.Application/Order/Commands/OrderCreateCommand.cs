@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FoodManager.Application.Orders.Commands;
 public class OrderCreateCommand : IRequest<bool>
 {
-    public Guid UserId { get; set; }
+    public string UserId { get; set; }
     public List<OrderItemCreateDto> Foods { get; set; }
 }
 
@@ -44,7 +44,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
 
             var user = _context.Users
                 .Where(user => !user.IsDeleted)
-                .FirstOrDefault(user => user.Id == request.UserId)
+                .FirstOrDefault(user => user.FirebaseUserId == request.UserId)
                 ?? throw new HttpResponseException
                 {
                     Status = 404,

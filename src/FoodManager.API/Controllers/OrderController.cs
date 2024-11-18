@@ -34,7 +34,7 @@ public class OrderController : BaseController
     [ProducesResponseType<bool>(StatusCodes.Status201Created)]
     [HttpPost("{UserId}")]
     [Authorize(Policy = "Auth")] 
-    public async Task<IActionResult> OrderCreateAsync([FromRoute] Guid UserId, [FromBody] OrderCreateDto model)
+    public async Task<IActionResult> OrderCreateAsync([FromRoute] string UserId, [FromBody] OrderCreateDto model)
     {
         var result = await _mediator.Send(new OrderCreateCommand
         {
