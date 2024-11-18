@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodManager.API", "FoodManager.API\FoodManager.API.csproj", "{63DD45D0-E984-4772-9A9B-072029FEA88E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{63DD45D0-E984-4772-9A9B-072029FEA88E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodManager.Application", "FoodManager.Application\FoodManager.Application.csproj", "{8A6DAA00-AC46-4F97-A84C-5B8207FC60A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{8A6DAA00-AC46-4F97-A84C-5B8207FC60A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodManager.Infrastructure", "FoodManager.Infrastructure\FoodManager.Infrastructure.csproj", "{2849B762-B778-4422-AADF-E1A4A2A00545}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{2849B762-B778-4422-AADF-E1A4A2A00545}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodManager.Domain", "FoodManager.Domain\FoodManager.Domain.csproj", "{16BD379E-BC16-4426-8407-83E60E435586}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{16BD379E-BC16-4426-8407-83E60E435586}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
