@@ -11,6 +11,7 @@ public static class MapperAssembly
         services.AddAutoMapper(typeof(UserMappers).Assembly);
         services.AddAutoMapper(typeof(OrderItemsMapper).Assembly);
         services.AddAutoMapper(typeof(AddressMappers).Assembly);
+        services.AddAutoMapper(typeof(CartMappers).Assembly);
 
         return services;
     }

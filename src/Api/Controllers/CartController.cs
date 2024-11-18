@@ -3,6 +3,7 @@ using Api.Services;
 using Application.Carts.Commands;
 using Application.Carts.Dtos;
 using Application.Carts.Queries;
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,13 +14,17 @@ public class CartController : BaseController
 {
     private readonly IMediator _mediator;
     private readonly IHttpUserService _tokenService;
+    private readonly IMapper _mapper;
+
 
     public CartController(
         IMediator mediator,
-        IHttpUserService tokenService)
+        IHttpUserService tokenService,
+        IMapper mapper)
     {
         _mediator = mediator;
         _tokenService = tokenService;
+        _mapper = mapper;
     }
 
     /// <summary>
@@ -30,7 +35,7 @@ public class CartController : BaseController
     public async Task<ActionResult> GetAllAsync()
     {
         var result = await _mediator.Send(new CartGetListQuery { });
-        return Ok(result);
+        return Ok(_mapper.Map<List<CartDto>>(result));
     }
 
     /// <summary>
@@ -40,7 +45,6 @@ public class CartController : BaseController
     [Authorize(Policy = "Auth")]
     public async Task<ActionResult> AddCartAsync([FromBody] CartCreateCommand request)
     {
-        var user = await _tokenService.getAuthenticatedUser();
         var result = await _mediator.Send(new CartCreateCommand
         {
             ItemId = request.ItemId,
