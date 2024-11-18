@@ -13,7 +13,6 @@ namespace Api.Controllers;
 public class CartController : BaseController
 {
     private readonly IMediator _mediator;
-    private readonly IHttpUserService _tokenService;
     private readonly IMapper _mapper;
 
 
@@ -23,7 +22,6 @@ public class CartController : BaseController
         IMapper mapper)
     {
         _mediator = mediator;
-        _tokenService = tokenService;
         _mapper = mapper;
     }
 
