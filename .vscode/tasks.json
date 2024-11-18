@@ -7,7 +7,7 @@
 			"type": "process",
 			"args": [
 				"build",
-				"${workspaceFolder}/src/FoodManager.API/FoodManager.API.csproj",
+				"${workspaceFolder}/src/Api/Api.csproj",
 				"/property:GenerateFullPaths=true",
 				"/consoleloggerparameters:NoSummary"
 			],
@@ -21,7 +21,7 @@
 				"watch",
 				"run",
 				"--project",
-				"${workspaceFolder}/src/FoodManager.API/FoodManager.API.csproj"
+				"${workspaceFolder}/src/Api/Api.csproj"
 			],
 			"problemMatcher": "$msCompile"
 		}
