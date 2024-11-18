@@ -7,7 +7,7 @@ namespace FoodManager.API.Services
 {
     public interface IHttpUserService
     {
-        Task<UserInfoResponse> VerifyTokenAsync();
+        Task<UserInfoResponse> getAuthenticatedUser();
     }
 
     public class HttpUserService : IHttpUserService
@@ -21,7 +21,7 @@ namespace FoodManager.API.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<UserInfoResponse> VerifyTokenAsync()
+        public async Task<UserInfoResponse> getAuthenticatedUser()
         {
             var authorizationHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
 

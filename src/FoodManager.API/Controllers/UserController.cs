@@ -119,7 +119,7 @@ public class UserController : BaseController
     [Authorize(Policy = "Auth")]
     public async Task<IActionResult> CreateAsync([FromBody] UserCreateCommand query)
     {
-        var decodedToken = await _tokenService.VerifyTokenAsync();
+        var decodedToken = await _tokenService.getAuthenticatedUser();
 
         var result = await _mediator.Send(new UserCreateCommand
         {

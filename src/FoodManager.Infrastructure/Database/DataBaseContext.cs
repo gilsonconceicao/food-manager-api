@@ -33,7 +33,7 @@ namespace FoodManager.Infrastructure.Database
             try
             {
                 var entriesData = ChangeTracker.Entries<BaseEntity>();
-                var currentUser = await _httpUserService.VerifyTokenAsync();
+                var currentUser = await _httpUserService.getAuthenticatedUser();
                 foreach (var entry in entriesData)
                 {
                     if (currentUser is null)

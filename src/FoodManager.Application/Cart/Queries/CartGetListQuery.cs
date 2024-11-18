@@ -28,12 +28,12 @@ namespace FoodManager.Application.Carts.Queries
 
         public async Task<List<Cart>> Handle(CartGetListQuery request, CancellationToken cancellationToken)
         {
-            var user = await _httpUserService.VerifyTokenAsync();
+            var user = await _httpUserService.getAuthenticatedUser();
             try
             {
                 var carts = await _context.Carts
                     .Where(c => !c.IsDeleted)
-                    .Where(c => c.UserId == user.UserId)
+                    .Where(c => c.CreatedByUserId == user.UserId)
                     .ToListAsync();
                     
                 return carts;

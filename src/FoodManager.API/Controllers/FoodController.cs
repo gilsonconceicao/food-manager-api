@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using FoodManager.Domain.Extensions;
 using FoodManager.Application.Foods.Queries.FoodGetListPaginationQuery;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FoodManager.API.Controllers;
 public class FoodController : BaseController
@@ -38,13 +39,13 @@ public class FoodController : BaseController
     public async Task<IActionResult> GetAllFoodsWithPaginationAsync([FromQuery] FoodGetListPaginationQuery query)
     {
         var result = await _mediator.Send(query);
-        
+
         var foodList = _mapper.Map<List<FoodDto>>(result.Data);
 
         var listMappedFromPagination = new PagedList<FoodDto>(
-            data: foodList, 
-            count: result.Count ?? 0, 
-            pageNumber: query.Page, 
+            data: foodList,
+            count: result.Count ?? 0,
+            pageNumber: query.Page,
             pageSize: query.Size
         );
 
@@ -67,6 +68,7 @@ public class FoodController : BaseController
     /// </summary>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpDelete("{Id}")]
+    [Authorize(Policy = "Auth")]
     public async Task<IActionResult> DeleteFoodAsync(Guid Id)
     {
         var result = await _mediator.Send(new FoodDeleteCommand(Id));
@@ -78,6 +80,8 @@ public class FoodController : BaseController
     /// </summary>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpPatch("{Id}")]
+    [Authorize(Policy = "Auth")] 
+
     public async Task<IActionResult> UpdateFoodAsync(Guid Id, [FromBody] FoodUpdateDto model)
     {
         var result = await _mediator.Send(new FoodUpdateCommand
