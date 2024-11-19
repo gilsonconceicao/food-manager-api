@@ -27,15 +27,7 @@ public class UserGetByIdQueryHandler : IRequestHandler<UserGetByIdQuery, User>
             .Include(x => x.Orders)
             .Where(x => !x.IsDeleted)
             .FirstOrDefaultAsync(x => x.Id == request.Id)
-            ?? throw new HttpResponseException
-            {
-                Status = 404,
-                Value = new
-                {
-                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                    Message = "Usuário não encontrada ou não existe",
-                }
-            };
+            ?? throw new NotFoundException("Usuário não encontrada ou não existe.");
 
         return user;
     }

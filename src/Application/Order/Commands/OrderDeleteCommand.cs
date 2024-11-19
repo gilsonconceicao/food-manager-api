@@ -22,41 +22,21 @@ namespace Application.Orders.Commands
 
         public async Task<bool> Handle(OrderDeleteCommand request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var order = await _context.Orders
-                    .Where(o => !o.IsDeleted)
-                    .FirstOrDefaultAsync(x => x.Id == request.OrderId)
-                    ?? throw new HttpResponseException
-                    {
-                        Status = 404,
-                        Value = new
-                        {
-                            Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                            Message = "Pedido não encontrada ou não existe",
-                        }
-                    };
+            var order = await _context.Orders
+                .Where(o => !o.IsDeleted)
+                .FirstOrDefaultAsync(x => x.Id == request.OrderId)
+                ?? throw new NotFoundException("Pedido não encontrado ou não existe.");
 
 
-                order.IsDeleted = true;
-                if (!!request.IsPermanent) 
-                {
-                    _context.Remove(order); 
-                }
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
+
+            order.IsDeleted = true;
+            if (!!request.IsPermanent)
             {
-                throw new HttpResponseException
-                {
-                    Status = 500,
-                    Value = new
-                    {
-                        Message = ex.Message,
-                    }
-                };
+                _context.Remove(order);
             }
+            await _context.SaveChangesAsync();
+            return true;
         }
+
     }
 }

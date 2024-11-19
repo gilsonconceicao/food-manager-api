@@ -1,8 +1,5 @@
-using System.Text.Json.Serialization;
 using AutoMapper;
 using FluentValidation;
-using Api.Enums;
-using Application.Common.Exceptions;
 using Application.Utils;
 using Domain.Enums;
 using Domain.Models;
@@ -37,27 +34,14 @@ public class FoodCreateHandler : IRequestHandler<FoodCreateCommand, bool>
     public async Task<bool> Handle(FoodCreateCommand request, CancellationToken cancellationToken)
     {
 
-        try
-        {
-            var validationResult = _validator.Validate(request);
+        var validationResult = _validator.Validate(request);
 
-            if (!validationResult.IsValid)
-                ErrorUtils.InvalidFieldsError(validationResult);
+        if (!validationResult.IsValid)
+            ErrorUtils.InvalidFieldsError(validationResult);
 
-
-            Food food = _mapper.Map<Food>(request);
-            await _context.Foods.AddAsync(food);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-        catch (HttpResponseException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message);
-        }
+        Food food = _mapper.Map<Food>(request);
+        await _context.Foods.AddAsync(food);
+        await _context.SaveChangesAsync();
+        return true;
     }
-
 }

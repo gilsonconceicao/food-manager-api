@@ -37,59 +37,48 @@ public class UserUpdateCommandHandler : IRequestHandler<UserUpdateCommand, bool>
 
     public async Task<bool> Handle(UserUpdateCommand request, CancellationToken cancellationToken)
     {
-        try
+        var validationResult = _validator.Validate(request);
+
+        if (!validationResult.IsValid)
+            ErrorUtils.InvalidFieldsError(validationResult);
+
+        var user = _context.Users
+            .Include(x => x.Address)
+            .Where(x => !x.IsDeleted)
+            .FirstOrDefault(x => x.Id == request.Id);
+
+        if (user == null)
         {
-            var validationResult = _validator.Validate(request);
-
-            if (!validationResult.IsValid)
-                ErrorUtils.InvalidFieldsError(validationResult);
-
-            var user = _context.Users
-                .Include(x => x.Address)
-                .Where(x => !x.IsDeleted)
-                .FirstOrDefault(x => x.Id == request.Id);
-
-            if (user == null)
+            throw new HttpResponseException
             {
-                throw new HttpResponseException
+                Status = 404,
+                Value = new
                 {
-                    Status = 404,
-                    Value = new
-                    {
-                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                        Message = $"Usuário não encontrado",
-                        Resource = request.Id
-                    }
-                };
-            }
-
-            if (user.Address == null && request.Address != null)
-            {
-                Address newAddress = _mapper.Map<Address>(request.Address);
-                newAddress.UserId = user.Id;
-                _context.Address.Add(newAddress);
-            }
-            else if (request.Address != null)
-            {
-                user.Address.ZipCode = request.Address.ZipCode;
-                user.Address.City = request.Address.City;
-                user.Address.Number = request.Address.Number;
-                user.Address.State = request.Address.State;
-                user.Address.Street = request.Address.Street;
+                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                    Message = $"Usuário não encontrado",
+                    Resource = request.Id
+                }
             };
+        }
 
-            user.Name = request.Name;
-            user.Email = request.Email;
-            await _context.SaveChangesAsync();
-            return true;
-        }
-        catch (HttpResponseException)
+        if (user.Address == null && request.Address != null)
         {
-            throw;
+            Address newAddress = _mapper.Map<Address>(request.Address);
+            newAddress.UserId = user.Id;
+            _context.Address.Add(newAddress);
         }
-        catch (Exception ex)
+        else if (request.Address != null)
         {
-            throw new Exception(ex.Message);
-        }
+            user.Address.ZipCode = request.Address.ZipCode;
+            user.Address.City = request.Address.City;
+            user.Address.Number = request.Address.Number;
+            user.Address.State = request.Address.State;
+            user.Address.Street = request.Address.Street;
+        };
+
+        user.Name = request.Name;
+        user.Email = request.Email;
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

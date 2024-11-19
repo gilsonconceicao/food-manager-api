@@ -8,7 +8,6 @@ using Domain.Extensions;
 using Domain.Models;
 using Infrastructure.Database;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Users.Commands;
 #nullable disable
@@ -39,31 +38,20 @@ public class UserCreateCommandHandler : IRequestHandler<UserCreateCommand, User>
 
     public async Task<User> Handle(UserCreateCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var validationResult = _validator.Validate(request);
+        var validationResult = _validator.Validate(request);
 
-            if (!validationResult.IsValid)
-                ErrorUtils.InvalidFieldsError(validationResult);
+        if (!validationResult.IsValid)
+            ErrorUtils.InvalidFieldsError(validationResult);
 
-            User user = _mapper.Map<User>(request);
-            user.RegistrationNumber = user.RegistrationNumber.RemoveSpecialCharacters();
-            if (request.Address != null)
-            {
-                user.Address.UserId = user.Id;
-            };
+        User user = _mapper.Map<User>(request);
+        user.RegistrationNumber = user.RegistrationNumber.RemoveSpecialCharacters();
+        if (request.Address != null)
+        {
+            user.Address.UserId = user.Id;
+        };
 
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
-            return user;
-        }
-        catch (HttpResponseException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message);
-        }
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+        return user;
     }
 }

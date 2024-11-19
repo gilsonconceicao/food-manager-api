@@ -1,7 +1,6 @@
 
 
 using AutoMapper;
-using Application.Common.Exceptions;
 using Domain.Extensions;
 using Domain.Models;
 using Infrastructure.Database;
@@ -29,41 +28,28 @@ namespace Application.Foods.Queries.FoodGetListPaginationQuery
 
         public async Task<ListDataResponse<List<Food>>> Handle(FoodGetListPaginationQuery request, CancellationToken cancellationToken)
         {
-            try
+            var page = request.Page;
+            var size = request.Size;
+
+            var queryData = _context.Foods
+                .Include(x => x.Items)
+                .ThenInclude(x => x.Order)
+                .Where(x => !x.IsDeleted)
+                .OrderBy(c => c.Name);
+
+            var totalCount = await queryData.CountAsync(cancellationToken);
+
+            var data = await queryData
+                .Skip((page) * size)
+                .Take(size)
+                .ToListAsync(cancellationToken);
+
+            return new ListDataResponse<List<Food>>
             {
-                var page = request.Page;
-                var size = request.Size;
-
-                var queryData = _context.Foods
-                    .Include(x => x.Items)
-                    .ThenInclude(x => x.Order)
-                    .Where(x => !x.IsDeleted)
-                    .OrderBy(c => c.Name); 
-                    
-                var totalCount = await queryData.CountAsync(cancellationToken);
-
-                var data = await queryData
-                    .Skip((page) * size)
-                    .Take(size)
-                    .ToListAsync(cancellationToken);
-
-                return new ListDataResponse<List<Food>>
-                {
-                    Count = totalCount,
-                    Data = data
-                };
-            }
-            catch (Exception ex)
-            {
-                throw new HttpResponseException
-                {
-                    Status = 500,
-                    Value = new
-                    {
-                        Message = ex.Message,
-                    }
-                };
-            }
+                Count = totalCount,
+                Data = data
+            };
         }
+
     }
 }

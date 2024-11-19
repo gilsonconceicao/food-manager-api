@@ -1,4 +1,3 @@
-using Api.Enums;
 using Application.Common.Exceptions;
 using Domain.Enums;
 using Infrastructure.Database;
@@ -6,7 +5,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Foods.Commands;
-
 
 public class FoodUpdateCommand : IRequest<bool>
 {
@@ -46,58 +44,33 @@ public class FoodUpdateHandler : IRequestHandler<FoodUpdateCommand, bool>
 
     public async Task<bool> Handle(FoodUpdateCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var getFoodById = await _context
-                .Foods
-                .Where(x => !x.IsDeleted)
-                .FirstOrDefaultAsync(x => x.Id == request.Id)
-                ?? throw new HttpResponseException
-                {
-                    Status = 404,
-                    Value = new
-                    {
-                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                        Message = "Comida não encontrada ou não existe",
-                    }
-                };
+        var getFoodById = await _context
+            .Foods
+            .Where(x => !x.IsDeleted)
+            .FirstOrDefaultAsync(x => x.Id == request.Id)
+            ?? throw new NotFoundException("Comida não encontrada ou não existe.");
 
 
-            if (request.Name != null)
-                getFoodById.Name = request.Name;
+        if (request.Name != null)
+            getFoodById.Name = request.Name;
 
-            if (request.Price != null)
-                getFoodById.Price = (decimal)request.Price;
+        if (request.Price != null)
+            getFoodById.Price = (decimal)request.Price;
 
-            if (request.Category != null)
-                getFoodById.Category = request.Category;
+        if (request.Category != null)
+            getFoodById.Category = request.Category;
 
-            if (request.Description != null)
-                getFoodById.Description = request.Description;
+        if (request.Description != null)
+            getFoodById.Description = request.Description;
 
-            if (request.UrlImage != null)
-                getFoodById.UrlImage = request.UrlImage;
+        if (request.UrlImage != null)
+            getFoodById.UrlImage = request.UrlImage;
 
 
-            _context.Foods.Update(getFoodById);
-            _context.Entry(getFoodById).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-            await _context.SaveChangesAsync();
+        _context.Foods.Update(getFoodById);
+        _context.Entry(getFoodById).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+        await _context.SaveChangesAsync();
 
-            return true;
-        }
-        catch (HttpResponseException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new HttpResponseException
-            {
-                Value = new
-                {
-                    Error = ex.Message,
-                }
-            };
-        }
+        return true;
     }
 }

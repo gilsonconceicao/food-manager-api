@@ -1,4 +1,3 @@
-using Api.Enums;
 using Application.Common.Exceptions;
 using Infrastructure.Database;
 using MediatR;
@@ -6,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Foods.Commands;
 
-public class FoodDeleteCommand : IRequest<bool> 
+public class FoodDeleteCommand : IRequest<bool>
 {
     public Guid Id { get; set; }
     public FoodDeleteCommand(Guid id)
@@ -26,39 +25,14 @@ public class FoodDeleteHandler : IRequestHandler<FoodDeleteCommand, bool>
 
     public async Task<bool> Handle(FoodDeleteCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var getFoodById = await _context
-                .Foods
-                .Where(x => !x.IsDeleted)
-                .FirstOrDefaultAsync(x => x.Id == request.Id)
-                ?? throw new HttpResponseException
-                {
-                    Status = 404,
-                    Value = new
-                    {
-                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                        Message = "Comida não encontrada ou não existe",
-                    }
-                };
+        var getFoodById = await _context
+            .Foods
+            .Where(x => !x.IsDeleted)
+            .FirstOrDefaultAsync(x => x.Id == request.Id)
+            ?? throw new NotFoundException("Comida não encontrada ou não existe.");
 
-            getFoodById.IsDeleted = true;
-            await _context.SaveChangesAsync();
-            return true;
-        }
-        catch (HttpResponseException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new HttpResponseException
-            {
-                Value = new
-                {
-                    Error = ex.Message,
-                }
-            };
-        }
+        getFoodById.IsDeleted = true;
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

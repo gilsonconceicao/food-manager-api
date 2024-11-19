@@ -58,7 +58,7 @@ public class CartController : BaseController
     [Authorize(Policy = "Auth")]
     public async Task<ActionResult> UpdateCartAsync([FromRoute] Guid CartId, [FromBody] CartCreateDto request)
     {
-        var result = await _mediator.Send(new CreateUpdateCommand
+        var result = await _mediator.Send(new CartUpdateCommand
         {
             CartId = CartId,
             Quantity = request.Quantity,

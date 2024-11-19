@@ -11,34 +11,53 @@ public class HttpResponseException : Exception
     public object Value { get; set; }
 }
 
-public class HttpResponseExceptionFilter : IActionFilter, IOrderedFilter
+public class NotFoundException : Exception
 {
-    public int Order { get; } = int.MaxValue - 10;
-    public void OnActionExecuting(ActionExecutingContext context) { }
-    public void OnActionExecuted(ActionExecutedContext context)
-    {
-        if (context.Exception != null)
-        {
-            if (context.Exception is HttpResponseException exception)
-            {
-                context.Result = new ObjectResult(exception.Value)
-                {
-                    StatusCode = exception.Status,
-                };
-            }
-            else
-            {
-                context.Result = new ObjectResult(new
-                {
-                    Message = "An unexpected error occurred.",
-                    Details = context.Exception.Message
-                })
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError,
-                };
-            }
+    public NotFoundException(string message) : base(message) { }
+}
 
-            context.ExceptionHandled = true;
+public class HttpResponseExceptionFilter : ExceptionFilterAttribute
+{
+    public override void OnException(ExceptionContext context)
+    {
+        if (context.Exception is HttpResponseException httpResponseException)
+        {
+            context.Result = new ObjectResult(httpResponseException.Value)
+            {
+                StatusCode = httpResponseException.Status,
+            };
         }
+        else if (context.Exception is NotFoundException notFoundException)
+        {
+            context.Result = new ObjectResult(new
+            {
+                Message = notFoundException.Message
+            })
+            {
+                StatusCode = StatusCodes.Status404NotFound,
+            };
+        }
+        else if (context.Exception is UnauthorizedAccessException unauthorizedAccessException)
+        {
+            context.Result = new UnauthorizedObjectResult(new
+            {
+                Message = "Usuário não autorizado a realizar esta solicitação."
+            })
+            {
+                StatusCode = StatusCodes.Status401Unauthorized, 
+            };
+        }
+        else
+        {
+            context.Result = new ObjectResult(new
+            {
+                Message = "An unexpected error occurred.",
+                Details = context.Exception.Message
+            })
+            {
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+
     }
 }

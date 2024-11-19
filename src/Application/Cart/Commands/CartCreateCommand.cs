@@ -34,34 +34,24 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
 
     public async Task<bool> Handle(CartCreateCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var user = await _httpUserService.getAuthenticatedUser();
+        var user = await _httpUserService.getAuthenticatedUser();
 
-            Food existsFoodRelated = await _context.Foods
-                    .FirstOrDefaultAsync(c => c.Id == request.ItemId)
-                    ?? throw new HttpResponseException
+        Food existsFoodRelated = await _context.Foods
+                .FirstOrDefaultAsync(c => c.Id == request.ItemId)
+                ?? throw new HttpResponseException
+                {
+                    Status = 404,
+                    Value = new
                     {
-                        Status = 404,
-                        Value = new
-                        {
-                            Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                            Message = "ID informado não possui nenhum recurso relacionado.",
-                        }
-                    };
+                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                        Message = "ID informado não possui nenhum recurso relacionado.",
+                    }
+                };
 
-            var newCart = _CartFactory.CreateCart(request.ItemId, request.Quantity);
-            _context.Carts.Add(newCart);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-        catch (HttpResponseException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.ToString());
-        }
+        var newCart = _CartFactory.CreateCart(request.ItemId, request.Quantity);
+        _context.Carts.Add(newCart);
+        await _context.SaveChangesAsync();
+        return true;
+
     }
 }

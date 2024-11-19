@@ -8,7 +8,6 @@ using Domain.Enums;
 using Domain.Models;
 using Infrastructure.Database;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 #nullable disable
@@ -35,85 +34,74 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
 
     public async Task<bool> Handle(OrderCreateCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var validationResult = _validator.Validate(request);
+        var validationResult = _validator.Validate(request);
 
-            if (!validationResult.IsValid)
-                ErrorUtils.InvalidFieldsError(validationResult);
+        if (!validationResult.IsValid)
+            ErrorUtils.InvalidFieldsError(validationResult);
 
-            var user = _context.Users
-                .Where(user => !user.IsDeleted)
-                .FirstOrDefault(user => user.FirebaseUserId == request.UserId)
-                ?? throw new HttpResponseException
-                {
-                    Status = 404,
-                    Value = new
-                    {
-                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                        Message = "Usuário não encontrado",
-                    }
-                };
-
-            var orderCount = await _context.Orders.CountAsync(cancellationToken);
-
-            Order order = new Order
+        var user = _context.Users
+            .Where(user => !user.IsDeleted)
+            .FirstOrDefault(user => user.FirebaseUserId == request.UserId)
+            ?? throw new HttpResponseException
             {
-                Id = Guid.NewGuid(),
-                UserId = user.Id,
-                RequestNumber = orderCount + 1,
-                CreatedAt = DateTime.UtcNow,
-                Status = OrderStatus.Created
+                Status = 404,
+                Value = new
+                {
+                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                    Message = "Usuário não encontrado",
+                }
             };
 
-            await _context.Orders.AddAsync(order, cancellationToken);
+        var orderCount = await _context.Orders.CountAsync(cancellationToken);
 
-            var foodIdsRequest = request.Foods.Select(x => x.FoodId).ToList();
+        Order order = new Order
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            RequestNumber = orderCount + 1,
+            CreatedAt = DateTime.UtcNow,
+            Status = OrderStatus.Created
+        };
 
-            var getFoodIncludeIds = await _context.Foods
-                .Where(x => foodIdsRequest.Contains(x.Id))
-                .Select(x => x.Id)
-                .ToListAsync();
+        await _context.Orders.AddAsync(order, cancellationToken);
 
-            var missingFoodIds = foodIdsRequest.Except(getFoodIncludeIds).ToList();
+        var foodIdsRequest = request.Foods.Select(x => x.FoodId).ToList();
 
-            if (missingFoodIds.Any())
+        var getFoodIncludeIds = await _context.Foods
+            .Where(x => foodIdsRequest.Contains(x.Id))
+            .Select(x => x.Id)
+            .ToListAsync();
+
+        var missingFoodIds = foodIdsRequest.Except(getFoodIncludeIds).ToList();
+
+        if (missingFoodIds.Any())
+        {
+            throw new HttpResponseException
             {
-                throw new HttpResponseException
+                Status = 404,
+                Value = new
                 {
-                    Status = 404,
-                    Value = new
-                    {
-                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                        Message = $"Comidas não foram encontradas",
-                        Resource = missingFoodIds
-                    }
-                };
+                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                    Message = $"Comidas não foram encontradas",
+                    Resource = missingFoodIds
+                }
+            };
+        };
+
+        foreach (var item in request.Foods)
+        {
+            var orderFoodRelation = new OrderItems
+            {
+                OrderId = order.Id,
+                FoodId = item.FoodId,
+                Quantity = item.Quantity ?? null,
+                Observations = item.Observations ?? null
             };
 
-            foreach (var item in request.Foods)
-            {
-                var orderFoodRelation = new OrderItems
-                {
-                    OrderId = order.Id,
-                    FoodId = item.FoodId,
-                    Quantity = item.Quantity ?? null,
-                    Observations = item.Observations ?? null
-                };
+            _context.Set<OrderItems>().Add(orderFoodRelation);
+        };
 
-                _context.Set<OrderItems>().Add(orderFoodRelation);
-            };
-
-            await _context.SaveChangesAsync();
-            return true;
-        }
-        catch (HttpResponseException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message, ex);
-        }
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

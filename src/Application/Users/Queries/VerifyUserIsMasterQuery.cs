@@ -28,15 +28,7 @@ public class VerifyUserIsMasterQueryHandler : IRequestHandler<VerifyUserIsMaster
             .Include(x => x.Orders)
             .Where(x => !x.IsDeleted)
             .FirstOrDefaultAsync(x => x.FirebaseUserId == request.FirebaseUserId)
-            ?? throw new HttpResponseException
-            {
-                Status = 404,
-                Value = new
-                {
-                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                    Message = "Usuário não encontrada ou não existe",
-                }
-            };
+            ?? throw new NotFoundException("Usuário não encontrada ou não existe.");
 
 
         if (EmailsRoot.Contains(user.Email))

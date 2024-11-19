@@ -32,15 +32,8 @@ public class OrderGetByIdHandler : IRequestHandler<OrderGetByIdQuery, Order>
             .ThenInclude(x => x.Food)
             .Where(x => !x.IsDeleted)
             .FirstOrDefaultAsync(x => x.Id == request.OrderId)
-            ?? throw new HttpResponseException
-            {
-                Status = 404,
-                Value = new
-                {
-                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                    Message = "Pedido não encontrada ou não existe",
-                }
-            };
+            ?? throw new NotFoundException("Pedido não encontrado ou não existe.");
+
 
         return order;
     }
