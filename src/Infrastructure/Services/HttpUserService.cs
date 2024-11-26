@@ -1,4 +1,5 @@
 using Api.Firebase;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Http;
 
 #nullable disable
@@ -7,11 +8,13 @@ namespace Api.Services
 {
     public interface IHttpUserService
     {
-        Task<UserInfoResponse> getAuthenticatedUser();
+        Task<UserInfoResponse> GetAuthenticatedUser();
+        Task<UserRecord> GetUserByUserIdAsync(string userId);
     }
 
     public class HttpUserService : IHttpUserService
     {
+
         private readonly FirebaseAuthService _firebaseAuthService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -21,7 +24,7 @@ namespace Api.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<UserInfoResponse> getAuthenticatedUser()
+        public async Task<UserInfoResponse> GetAuthenticatedUser()
         {
             var authorizationHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
 
@@ -58,7 +61,13 @@ namespace Api.Services
                 throw new UnauthorizedAccessException("Erro ao processar o token.", ex);
             }
         }
-    }
+   
+        public async Task<UserRecord> GetUserByUserIdAsync(string userId)
+        {
+            UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(userId);
+            return userRecord;
+        }
+   }
     public class UserInfoResponse
     {
         public string UserId { get; set; }

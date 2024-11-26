@@ -33,7 +33,7 @@ namespace Infrastructure.Database
             try
             {
                 var entriesData = ChangeTracker.Entries<BaseEntity>();
-                var currentUser = await _httpUserService.getAuthenticatedUser();
+                var currentUser = await _httpUserService.GetAuthenticatedUser();
                 foreach (var entry in entriesData)
                 {
                     if (currentUser is null)

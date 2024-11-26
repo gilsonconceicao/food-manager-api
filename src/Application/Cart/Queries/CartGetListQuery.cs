@@ -27,7 +27,7 @@ namespace Application.Carts.Queries
 
         public async Task<List<Cart>> Handle(CartGetListQuery request, CancellationToken cancellationToken)
         {
-            var user = await _httpUserService.getAuthenticatedUser();
+            var user = await _httpUserService.GetAuthenticatedUser();
             return await _context.Carts
                 .Where(c => !c.IsDeleted)
                 .Where(c => c.CreatedByUserId == user.UserId)

@@ -14,7 +14,7 @@ namespace Api.Controllers;
 public class UserController : BaseController
 {
     private readonly IMediator _mediator;
-    private readonly IHttpUserService _tokenService;
+    private readonly IHttpUserService _httpUserService;
     private readonly IMapper _mapper;
 
     public UserController(
@@ -25,7 +25,7 @@ public class UserController : BaseController
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _tokenService = tokenService ?? throw new ArgumentException(nameof(tokenService));
+        _httpUserService = tokenService ?? throw new ArgumentException(nameof(tokenService));
     }
 
     /// <summary>
@@ -119,7 +119,7 @@ public class UserController : BaseController
     [Authorize(Policy = "Auth")]
     public async Task<IActionResult> CreateAsync([FromBody] UserCreateCommand query)
     {
-        var decodedToken = await _tokenService.getAuthenticatedUser();
+        var decodedToken = await _httpUserService.GetAuthenticatedUser();
 
         var result = await _mediator.Send(new UserCreateCommand
         {

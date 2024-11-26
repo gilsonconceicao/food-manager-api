@@ -32,7 +32,7 @@ public class CartUpdateCommandHandler : IRequestHandler<CartUpdateCommand, bool>
 
     public async Task<bool> Handle(CartUpdateCommand request, CancellationToken cancellationToken)
     {
-        var user = await _httpUserService.getAuthenticatedUser();
+        var user = await _httpUserService.GetAuthenticatedUser();
 
         Cart cart = await _context.Carts
             .FirstOrDefaultAsync(c => c.Id == request.CartId && user.UserId == c.CreatedByUserId)

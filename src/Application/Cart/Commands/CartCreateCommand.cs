@@ -34,7 +34,7 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
 
     public async Task<bool> Handle(CartCreateCommand request, CancellationToken cancellationToken)
     {
-        var user = await _httpUserService.getAuthenticatedUser();
+        var user = await _httpUserService.GetAuthenticatedUser();
 
         Food existsFoodRelated = await _context.Foods
                 .FirstOrDefaultAsync(c => c.Id == request.ItemId)
