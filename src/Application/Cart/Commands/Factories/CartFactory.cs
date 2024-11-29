@@ -9,7 +9,7 @@ public class CartFactory : ICartFactory
         return new Cart
         {
             Id = Guid.NewGuid(),
-            ItemId = itemId,
+            FoodId = itemId,
             Quantity = quantity
         };
     }

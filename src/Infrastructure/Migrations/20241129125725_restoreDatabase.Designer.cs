@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20241114202635_add-column-userid-cart")]
-    partial class addcolumnuseridcart
+    [Migration("20241129125725_restoreDatabase")]
+    partial class restoreDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,34 +66,33 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("CreatedByUserId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedByUserName")
                         .HasColumnType("text");
 
+                    b.Property<Guid>("FoodId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
-
-                    b.Property<Guid>("ItemId")
-                        .HasColumnType("uuid");
 
                     b.Property<int?>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("UpdatedByUserId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("UpdatedByUserId")
+                        .HasColumnType("text");
 
                     b.Property<string>("UpdatedByUserName")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("FoodId");
 
                     b.ToTable("Carts");
                 });
@@ -110,8 +109,8 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("CreatedByUserId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedByUserName")
                         .HasColumnType("text");
@@ -131,11 +130,11 @@ namespace Infrastructure.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("UpdatedByUserId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("UpdatedByUserId")
+                        .HasColumnType("text");
 
                     b.Property<string>("UpdatedByUserName")
                         .HasColumnType("text");
@@ -157,8 +156,8 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("CreatedByUserId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedByUserName")
                         .HasColumnType("text");
@@ -172,11 +171,11 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("UpdatedByUserId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("UpdatedByUserId")
+                        .HasColumnType("text");
 
                     b.Property<string>("UpdatedByUserName")
                         .HasColumnType("text");
@@ -235,8 +234,8 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("CreatedByUserId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("text");
 
                     b.Property<string>("CreatedByUserName")
                         .HasColumnType("text");
@@ -256,11 +255,11 @@ namespace Infrastructure.Migrations
                     b.Property<string>("RegistrationNumber")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("UpdatedByUserId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("UpdatedByUserId")
+                        .HasColumnType("text");
 
                     b.Property<string>("UpdatedByUserName")
                         .HasColumnType("text");
@@ -277,6 +276,17 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("Domain.Models.Address", "UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Models.Cart", b =>
+                {
+                    b.HasOne("Domain.Models.Food", "Food")
+                        .WithMany()
+                        .HasForeignKey("FoodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Food");
                 });
 
             modelBuilder.Entity("Domain.Models.Order", b =>

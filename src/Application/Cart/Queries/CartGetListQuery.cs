@@ -29,6 +29,7 @@ namespace Application.Carts.Queries
         {
             var user = await _httpUserService.GetAuthenticatedUser();
             return await _context.Carts
+                .Include(x => x.Food)
                 .Where(c => !c.IsDeleted)
                 .Where(c => c.CreatedByUserId == user.UserId)
                 .ToListAsync();
