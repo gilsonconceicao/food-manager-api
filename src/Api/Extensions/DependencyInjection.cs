@@ -16,14 +16,22 @@ using Domain.Enums;
 using Domain.Extensions;
 using Domain.Models;
 using MediatR;
+using Integrations.Settings;
+using Domain.Interfaces;
+using Integrations.MercadoPago;
 
 namespace Api.Extensions;
 public static class MyConfigServiceCollectionExtensions
 {
     public static IServiceCollection AddDependencyInjections(
-        this IServiceCollection services
+        this IServiceCollection services,
+        IConfiguration configuration
     )
     {
+
+        // configure 
+        services.Configure<MercadoPagoSettings>(configuration.GetSection("MercadoPago"));
+
         // region Firebase 
         var firebaseService = new FirebaseService();
         services.AddSingleton<FirebaseAuthService>();
@@ -63,6 +71,12 @@ public static class MyConfigServiceCollectionExtensions
 
         // #region Factories
         services.AddScoped<ICartFactory, CartFactory>();
+        // #endregion
+
+        // #region Integrations
+        services.AddSingleton<IPixCommunication, PixCommunication>();
+        services.AddSingleton<IMercadoPagoClient, MercadoPagoClient>();
+
         // #endregion
         return services;
     }
