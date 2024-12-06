@@ -1,6 +1,8 @@
+using MercadoPago.Resource.Preference;
+
 namespace Domain.Interfaces; 
 
-public interface IPixCommunication 
+public interface IPaymentCommunication 
 {
-    Task CreatePixAsync();
+    Task<Preference> CreatePixAsync();
 }

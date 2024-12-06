@@ -9,34 +9,30 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Domain.Interfaces;
+using Application.Payment.Commands;
 
 namespace Api.Controllers;
 
 public class PaymentController : BaseController
 {
     private readonly IMediator _mediator;
-    private readonly IHttpUserService _httpUserService;
-    private readonly IMapper _mapper;
-    private readonly IPixCommunication _pixCommunication; 
 
-    public PaymentController(
-        IMediator mediator,
-        IMapper mapper,
-        IHttpUserService tokenService,
-        IPixCommunication pixCommunication
-    )
+    public PaymentController(IMediator mediator)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _httpUserService = tokenService ?? throw new ArgumentException(nameof(tokenService));
-                _pixCommunication = pixCommunication ?? throw new ArgumentException(nameof(pixCommunication));
     }
 
-    [HttpGet]
-    public IActionResult GetAlgo() 
+    /// <summary>
+    /// Método para obter um pedido através do identificador 
+    /// </summary>
+    /// <response code="200">200 Sucesso</response>
+    /// <response code="400">400 Erro</response>
+    [ProducesResponseType<string>(StatusCodes.Status201Created)]
+    [HttpPost]
+    [Authorize(Policy = "Auth")]
+    public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentCommand createPaymentCommand)
     {
-        
-        return Ok(_pixCommunication.CreatePixAsync());
+        var result = await _mediator.Send(createPaymentCommand);
+        return Ok(result);
     }
-
 }

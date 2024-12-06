@@ -19,16 +19,13 @@ using MediatR;
 using Integrations.Settings;
 using Domain.Interfaces;
 using Integrations.MercadoPago;
+using Application.Payment.Commands;
 
 namespace Api.Extensions;
 public static class MyConfigServiceCollectionExtensions
 {
-    public static IServiceCollection AddDependencyInjections(
-        this IServiceCollection services,
-        IConfiguration configuration
-    )
+    public static IServiceCollection AddDependencyInjections(this IServiceCollection services, IConfiguration configuration)
     {
-
         // configure 
         services.Configure<MercadoPagoSettings>(configuration.GetSection("MercadoPago"));
 
@@ -43,6 +40,12 @@ public static class MyConfigServiceCollectionExtensions
         services.AddValidatorsFromAssemblyContaining<OrderCreateValidations>();
         // #endregion
 
+
+        // #region Integrations
+        services.AddScoped<IPaymentCommunication, PaymentCommunication>();
+        services.AddScoped<IMercadoPagoClient, MercadoPagoClient>();
+        // #endregion
+
         // #region Commands
         services.AddTransient<IRequestHandler<FoodCreateCommand, bool>, FoodCreateHandler>();
         services.AddTransient<IRequestHandler<FoodDeleteCommand, bool>, FoodDeleteHandler>();
@@ -55,6 +58,8 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<CartCreateCommand, bool>, CartCreateCommandHandler>();
         services.AddTransient<IRequestHandler<CartUpdateCommand, bool>, CartUpdateCommandHandler>();
         services.AddTransient<IRequestHandler<CartDeleteCommand, bool>, CartDeleteCommandHandler>();
+        services.AddTransient<IRequestHandler<CreatePaymentCommand, string>, CreatePaymentCommandHandler>();
+
         // #endregion
 
         // #region Queries
@@ -71,12 +76,6 @@ public static class MyConfigServiceCollectionExtensions
 
         // #region Factories
         services.AddScoped<ICartFactory, CartFactory>();
-        // #endregion
-
-        // #region Integrations
-        services.AddSingleton<IPixCommunication, PixCommunication>();
-        services.AddSingleton<IMercadoPagoClient, MercadoPagoClient>();
-
         // #endregion
         return services;
     }

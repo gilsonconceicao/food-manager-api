@@ -15,10 +15,8 @@ public class CartController : BaseController
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
 
-
     public CartController(
         IMediator mediator,
-        IHttpUserService tokenService,
         IMapper mapper)
     {
         _mediator = mediator;
