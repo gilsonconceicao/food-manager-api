@@ -6,4 +6,5 @@ public class MercadoPagoSettings
     public string PublicKey { get; set; }
     public string BaseURL { get; set; }
     public string ClientId { get; set; }
+    public string ClientSecret { get; set; }
 }
