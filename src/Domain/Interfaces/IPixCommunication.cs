@@ -1,8 +1,16 @@
+using MercadoPago.Client.Preference;
 using MercadoPago.Resource.Preference;
 
-namespace Domain.Interfaces; 
+namespace Domain.Interfaces;
 
-public interface IPaymentCommunication 
+public interface IPaymentCommunication
 {
-    Task<Preference> CreatePixAsync();
+    Task<Preference> CreateCheckoutProAsync(
+        List<PreferenceItemRequest> items
+        // string payerName,
+        // string payerSurname,
+        // string payerEmail,
+        // string notificationUrl,
+        // string statementDescriptor
+    );
 }

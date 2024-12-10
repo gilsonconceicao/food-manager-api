@@ -1,4 +1,6 @@
+using Api.Services;
 using Domain.Interfaces;
+using Infrastructure.Database;
 using Integrations.Settings;
 using MercadoPago.Client.Common;
 using MercadoPago.Client.Preference;
@@ -10,74 +12,70 @@ namespace Integrations.MercadoPago;
 
 public class PaymentCommunication : IPaymentCommunication
 {
-    private readonly IMercadoPagoClient _mercadoPagoClient;
     private readonly MercadoPagoSettings _mercadoPagoSettings;
+    private readonly IHttpUserService _httpUserService;
+    private readonly DataBaseContext _context;
 
-    public PaymentCommunication(IOptions<MercadoPagoSettings> mercadoPagoSettings, IMercadoPagoClient mercadoPagoClient)
+
+    public PaymentCommunication(
+        IOptions<MercadoPagoSettings> mercadoPagoSettings,
+        IHttpUserService httpUserService,
+        DataBaseContext context
+    )
     {
         _mercadoPagoSettings = mercadoPagoSettings.Value;
-        _mercadoPagoClient = mercadoPagoClient;
+        _httpUserService = httpUserService;
+        _context = context;
     }
 
-    public async Task<Preference> CreatePixAsync()
+    public async Task<Preference> CreateCheckoutProAsync(
+        List<PreferenceItemRequest> items
+        // string payerName,
+        // string payerSurname,
+        // string payerEmail,
+        // string notificationUrl,
+        // string statementDescriptor
+    )
     {
-        _mercadoPagoClient.ConfigureAccessToken(_mercadoPagoSettings.AccessToken);
         MercadoPagoConfig.AccessToken = _mercadoPagoSettings.AccessToken;
 
         try
         {
+            var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
+            var user = _context
+                .Users
+                .FirstOrDefault(x => x.FirebaseUserId == userAuthenticated.UserId)
+                ?? throw new Exception("Item no carrinho  não encontrada ou não existe.");
+            
+            // Cria o objeto da preferência
             var request = new PreferenceRequest
             {
-                Items = new List<PreferenceItemRequest>
-                {
-                    new PreferenceItemRequest
-                    {
-                        Id = "item-ID-1234",
-                        Title = "Meu produto",
-                        CurrencyId = "BRL",
-                        PictureUrl = "https://www.mercadopago.com/org-img/MP3/home/logomp3.gif",
-                        Description = "Descrição do Item",
-                        CategoryId = "art",
-                        Quantity = 1,
-                        UnitPrice = 75.76m
-                    }
-                },
+                Items = items,
                 Payer = new PreferencePayerRequest
                 {
-                    Name = "Gilson",
-                    Surname = "Conceição Santos",
-                    Email = "gilsonconceicaosantos.jr@gmail.com",
-                    Phone = new PhoneRequest
-                    {
-                        AreaCode = "11",
-                        Number = "958667970"
-                    },
+                    Name = user.Name,
+                    Surname = user.Name,
+                    Email = user.Email,
                     Identification = new IdentificationRequest
                     {
                         Type = "CPF",
-                        Number = "54404459866"
-                    }
+                        Number = user.RegistrationNumber
+                    },
                 },
-                // BackUrls = new PreferenceBackUrlsRequest
-                // {
-                //     Success = "https://www.success.com",
-                //     Failure = "http://www.failure.com",
-                //     Pending = "http://www.pending.com"
-                // },
                 AutoReturn = "approved",
                 PaymentMethods = new PreferencePaymentMethodsRequest
                 {
                     ExcludedPaymentMethods = new List<PreferencePaymentMethodRequest>(),
-                    ExcludedPaymentTypes = new List<PreferencePaymentTypeRequest>(),
+                    ExcludedPaymentTypes = new List<PreferencePaymentTypeRequest>()
                 },
-                NotificationUrl = "https://webhook.site/87469150-e7c9-4024-b049-b216e97f6876",
-                StatementDescriptor = "Bolos caseiros e variedades",
-                ExternalReference = "Reference_1234",
+                StatementDescriptor = "Bolos e variedades da Cris",
+                ExternalReference = $"UserId-{user.Id}-{user.Email}",
                 Expires = true,
-                ExpirationDateFrom = DateTime.UtcNow,
+                ExpirationDateFrom =  DateTime.UtcNow,
                 ExpirationDateTo = DateTime.UtcNow.AddMinutes(10)
             };
 
+            // Cria a preferência usando o client
             var client = new PreferenceClient();
             Preference preference = await client.CreateAsync(request);
 
@@ -85,7 +83,8 @@ public class PaymentCommunication : IPaymentCommunication
         }
         catch (Exception ex)
         {
-            throw new Exception(ex.Message);
+            // Lançar uma exceção mais detalhada
+            throw new Exception($"Erro ao criar a preferência: {ex.Message}", ex);
         }
     }
 }
