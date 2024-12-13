@@ -1,7 +1,7 @@
 using Api.Services;
+using Application.Common.Exceptions;
 using Domain.Interfaces;
 using Infrastructure.Database;
-using Integrations.MercadoPago;
 using MediatR;
 using MercadoPago.Client.Preference;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +37,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
         
         var user = _context.Users.FirstOrDefault(x => x.CreatedByUserId == userAuthenticated.UserId)
-            ?? throw new Exception("Usuário não encontrado.");
+            ?? throw new NotFoundException("Usuário não encontrado.");
 
         var cartItems = _context.Carts
             .Include(ci => ci.Food)
@@ -45,9 +45,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             .ToList();
 
         if (!cartItems.Any())
-        {
-            throw new Exception("Nenhum item encontrado no carrinho para os IDs fornecidos.");
-        }
+            throw new NotFoundException("Nenhum item encontrado no carrinho para os IDs fornecidos.");
 
         var items = cartItems.Select(ci => new PreferenceItemRequest
         {
@@ -57,14 +55,13 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             PictureUrl = ci.Food.UrlImage,
             CategoryId = ci.Food.Category.ToString(),
             Quantity = ci.Quantity <= 0 ? 1 : ci.Quantity,
-            UnitPrice = ci.Food.Price,
+            UnitPrice = ci.Food.Price / 100,
             CurrencyId = "BRL",
             Warranty = false,
             EventDate = DateTime.UtcNow
         }).ToList();
 
         var preference = await _paymentCommunication.CreateCheckoutProAsync(items);
-
         return preference.InitPoint;
     }
 }

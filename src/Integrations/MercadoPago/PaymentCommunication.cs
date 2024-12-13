@@ -30,11 +30,6 @@ public class PaymentCommunication : IPaymentCommunication
 
     public async Task<Preference> CreateCheckoutProAsync(
         List<PreferenceItemRequest> items
-        // string payerName,
-        // string payerSurname,
-        // string payerEmail,
-        // string notificationUrl,
-        // string statementDescriptor
     )
     {
         MercadoPagoConfig.AccessToken = _mercadoPagoSettings.AccessToken;
@@ -46,7 +41,7 @@ public class PaymentCommunication : IPaymentCommunication
                 .Users
                 .FirstOrDefault(x => x.FirebaseUserId == userAuthenticated.UserId)
                 ?? throw new Exception("Item no carrinho  não encontrada ou não existe.");
-            
+
             // Cria o objeto da preferência
             var request = new PreferenceRequest
             {
@@ -68,10 +63,16 @@ public class PaymentCommunication : IPaymentCommunication
                     ExcludedPaymentMethods = new List<PreferencePaymentMethodRequest>(),
                     ExcludedPaymentTypes = new List<PreferencePaymentTypeRequest>()
                 },
+                BackUrls = new()
+                {
+                    Failure = "https://food-manager-one.vercel.app/comidas",
+                    Pending = "https://food-manager-one.vercel.app/comidas",
+                    Success = "https://food-manager-one.vercel.app/comidas"
+                },
                 StatementDescriptor = "Bolos e variedades da Cris",
                 ExternalReference = $"UserId-{user.Id}-{user.Email}",
                 Expires = true,
-                ExpirationDateFrom =  DateTime.UtcNow,
+                ExpirationDateFrom = DateTime.UtcNow,
                 ExpirationDateTo = DateTime.UtcNow.AddMinutes(10)
             };
 
