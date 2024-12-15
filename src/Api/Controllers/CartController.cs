@@ -35,7 +35,7 @@ public class CartController : BaseController
     }
 
     /// <summary>
-    /// Adiciona um novo item no carrinho
+    /// Adiciona ou atualiza um novo item no carrinho
     /// </summary>
     [HttpPost]
     [Authorize(Policy = "Auth")]
@@ -45,21 +45,6 @@ public class CartController : BaseController
         {
             ItemId = request.ItemId,
             Quantity = request.Quantity
-        });
-        return Ok(result);
-    }
-
-    /// <summary>
-    /// Atualiza um item no carrinho
-    /// </summary>
-    [HttpPut("{CartId}")]
-    [Authorize(Policy = "Auth")]
-    public async Task<ActionResult> UpdateCartAsync([FromRoute] Guid CartId, [FromBody] CartCreateDto request)
-    {
-        var result = await _mediator.Send(new CartUpdateCommand
-        {
-            CartId = CartId,
-            Quantity = request.Quantity,
         });
         return Ok(result);
     }
