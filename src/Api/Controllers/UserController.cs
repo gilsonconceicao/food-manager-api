@@ -20,12 +20,12 @@ public class UserController : BaseController
     public UserController(
         IMediator mediator,
         IMapper mapper,
-        IHttpUserService tokenService
+        IHttpUserService httpUserService
     )
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _httpUserService = tokenService ?? throw new ArgumentException(nameof(tokenService));
+        _httpUserService = httpUserService ?? throw new ArgumentException(nameof(httpUserService));
     }
 
     /// <summary>

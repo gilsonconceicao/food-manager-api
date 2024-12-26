@@ -48,8 +48,19 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
                     }
                 };
 
-        var newCart = _CartFactory.CreateCart(request.ItemId, request.Quantity);
-        _context.Carts.Add(newCart);
+
+        var getExistsItem = await _context.Carts.FirstOrDefaultAsync(x => request.ItemId == x.FoodId);
+        
+        if (getExistsItem is not null) 
+        {
+            _context.Carts.Update(getExistsItem);
+        } 
+        else 
+        {
+            var newCart = _CartFactory.CreateCart(request.ItemId, request.Quantity);
+            _context.Carts.Add(newCart);
+        }
+
         await _context.SaveChangesAsync();
         return true;
 

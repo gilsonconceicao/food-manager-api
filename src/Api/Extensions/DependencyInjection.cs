@@ -16,14 +16,19 @@ using Domain.Enums;
 using Domain.Extensions;
 using Domain.Models;
 using MediatR;
+using Integrations.Settings;
+using Domain.Interfaces;
+using Integrations.MercadoPago;
+using Application.Payment.Commands;
 
 namespace Api.Extensions;
 public static class MyConfigServiceCollectionExtensions
 {
-    public static IServiceCollection AddDependencyInjections(
-        this IServiceCollection services
-    )
+    public static IServiceCollection AddDependencyInjections(this IServiceCollection services, IConfiguration configuration)
     {
+        // configure 
+        services.Configure<MercadoPagoSettings>(configuration.GetSection("MercadoPago"));
+
         // region Firebase 
         var firebaseService = new FirebaseService();
         services.AddSingleton<FirebaseAuthService>();
@@ -33,6 +38,12 @@ public static class MyConfigServiceCollectionExtensions
         // #region FluentValidations
         services.AddValidatorsFromAssemblyContaining<FoodCreateValidations>();
         services.AddValidatorsFromAssemblyContaining<OrderCreateValidations>();
+        // #endregion
+
+
+        // #region Integrations
+        services.AddScoped<IPaymentCommunication, PaymentCommunication>();
+        services.AddScoped<IMercadoPagoClient, MercadoPagoClient>();
         // #endregion
 
         // #region Commands
@@ -47,6 +58,8 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<CartCreateCommand, bool>, CartCreateCommandHandler>();
         services.AddTransient<IRequestHandler<CartUpdateCommand, bool>, CartUpdateCommandHandler>();
         services.AddTransient<IRequestHandler<CartDeleteCommand, bool>, CartDeleteCommandHandler>();
+        services.AddTransient<IRequestHandler<CreatePaymentCommand, string>, CreatePaymentCommandHandler>();
+
         // #endregion
 
         // #region Queries

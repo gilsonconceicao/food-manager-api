@@ -37,7 +37,7 @@ public class Startup
             options.UseNpgsql(connectionString);
         });
 
-        services.AddDependencyInjections();
+        services.AddDependencyInjections(_configuration);
 
 
         // Add controllers with NewtonsoftJson for handling JSON serialization
