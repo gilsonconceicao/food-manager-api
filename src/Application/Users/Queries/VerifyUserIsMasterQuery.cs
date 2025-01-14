@@ -18,7 +18,7 @@ public class VerifyUserIsMasterQueryHandler : IRequestHandler<VerifyUserIsMaster
     private readonly DataBaseContext _context;
     private readonly IHttpUserService _httpUserService;
 
-    private readonly List<string> EmailsRoot = new List<string>() { "gilsonconceicaosantos.jr@gmail.com", "crislaureano01@gmail.com", "jamileoliver21@gmail.com" };
+    private readonly List<string> EmailsRoot = new List<string>() { "gilsonconceicaosantos.jr@gmail.com", "crislaureano01@gmail.com", "jamileoliver21@gmail.com"};
     public VerifyUserIsMasterQueryHandler(
         DataBaseContext context,
         IHttpUserService httpUserService)

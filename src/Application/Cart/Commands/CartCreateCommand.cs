@@ -49,7 +49,9 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
                 };
 
 
-        var getExistsItem = await _context.Carts.FirstOrDefaultAsync(x => request.ItemId == x.FoodId);
+        var getExistsItem = await _context.Carts
+            .FirstOrDefaultAsync(x => 
+                request.ItemId == x.FoodId && x.CreatedByUserId == user.UserId);
         
         if (getExistsItem is not null) 
         {
