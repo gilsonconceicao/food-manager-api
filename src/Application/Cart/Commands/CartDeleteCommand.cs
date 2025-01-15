@@ -27,8 +27,8 @@ public class CartDeleteCommandHandler : IRequestHandler<CartDeleteCommand, bool>
         Cart cart = await _context.Carts
             .FirstOrDefaultAsync(c => c.Id == request.CartId)
             ?? throw new NotFoundException("Item no carrinho  não encontrada ou não existe.");
-
-        cart.IsDeleted = true;
+            
+        _context.Remove(cart);
         await _context.SaveChangesAsync();
         return true;
     }
