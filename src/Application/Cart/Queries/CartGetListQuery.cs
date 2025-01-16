@@ -37,6 +37,7 @@ namespace Application.Carts.Queries
                 .Include(x => x.Food)
                 .Where(c => !c.IsDeleted)
                 .Where(c => c.CreatedByUserId == user.UserId)
+                .OrderBy(c => c.CreatedAt)
                 .ToListAsync(); 
 
             var titalItemss = queryData.Sum(x => x.Food.Price); 
@@ -47,7 +48,7 @@ namespace Application.Carts.Queries
                 Data = queryData.Select(x => _mapper.Map<CartDto>(x)).ToList(),
                 Summary = new SummaryCartDto
                 {
-                    TotalValue = queryData.Sum(x => x.Food.Price)
+                    TotalValue = queryData.Sum(x => x.Food.Price * x.Quantity) ?? 0
                 }
             };
         }

@@ -55,6 +55,7 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
         
         if (getExistsItem is not null) 
         {
+            getExistsItem.Quantity = request.Quantity;
             _context.Carts.Update(getExistsItem);
         } 
         else 
