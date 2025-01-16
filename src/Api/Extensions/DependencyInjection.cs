@@ -20,6 +20,7 @@ using Integrations.Settings;
 using Domain.Interfaces;
 using Integrations.MercadoPago;
 using Application.Payment.Commands;
+using Application.Carts.Dtos;
 
 namespace Api.Extensions;
 public static class MyConfigServiceCollectionExtensions
@@ -71,7 +72,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<UserGetByIdQuery, User>, UserGetByIdQueryHandler>();
         services.AddTransient<IRequestHandler<UserGetByRegistrationNumberQuery, User>, UserGetByRegistrationNumberHandler>();
         services.AddTransient<IRequestHandler<VerifyUserIsMasterQuery, bool>, VerifyUserIsMasterQueryHandler>();
-        services.AddTransient<IRequestHandler<CartGetListQuery, List<Cart>>, CartGetListQueryHandler>();
+        services.AddTransient<IRequestHandler<CartGetListQuery, CartListDto>, CartGetListQueryHandler>();
         // #endregion
 
         // #region Factories

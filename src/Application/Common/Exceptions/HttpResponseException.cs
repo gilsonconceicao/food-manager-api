@@ -52,7 +52,8 @@ public class HttpResponseExceptionFilter : ExceptionFilterAttribute
             context.Result = new ObjectResult(new
             {
                 Message = "An unexpected error occurred.",
-                Details = context.Exception.Message
+                Details = context.Exception.Message,
+                StackTrace = context.Exception.StackTrace
             })
             {
                 StatusCode = StatusCodes.Status500InternalServerError,

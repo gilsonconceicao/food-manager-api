@@ -12,7 +12,7 @@ namespace Application.Carts.Commands;
 public class CartCreateCommand : IRequest<bool>
 {
     public Guid ItemId { get; set; }
-    public int? Quantity { get; set; }
+    public int? Quantity { get; set; } = 1; 
 }
 
 public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>

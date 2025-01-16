@@ -31,7 +31,7 @@ public class CartController : BaseController
     public async Task<ActionResult> GetAllAsync()
     {
         var result = await _mediator.Send(new CartGetListQuery { });
-        return Ok(_mapper.Map<List<CartDto>>(result));
+        return Ok(result);
     }
 
     /// <summary>
