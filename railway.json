@@ -1,6 +1,6 @@
 {
     "build": {
-      "dockerfilePath": "Api/Dockerfile"
+      "dockerfilePath": "src/Api/Dockerfile"
     }
   }
   
