@@ -119,6 +119,9 @@ public class Startup
             );
         });
 
+        services.AddApplicationInsightsTelemetry();
+
+
         var postgreSql = GetPostgreSql(services);
         var logger = GetLogger(services);
 

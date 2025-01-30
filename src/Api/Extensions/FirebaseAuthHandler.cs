@@ -22,7 +22,7 @@ public class FirebaseAuthHandler : AuthenticationHandler<AuthenticationSchemeOpt
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         if (!Request.Headers.ContainsKey("Authorization"))
-            return AuthenticateResult.Fail("Token não fornecido");
+            return AuthenticateResult.NoResult(); 
 
         var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "").Trim();
 

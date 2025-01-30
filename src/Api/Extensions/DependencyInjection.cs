@@ -27,11 +27,14 @@ public static class MyConfigServiceCollectionExtensions
 {
     public static IServiceCollection AddDependencyInjections(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<FirebaseService>();
+
+
         // configure 
         services.Configure<MercadoPagoSettings>(configuration.GetSection("MercadoPago"));
 
         // region Firebase 
-        var firebaseService = new FirebaseService();
+        var firebaseService = new FirebaseService(configuration);
         services.AddSingleton<FirebaseAuthService>();
         services.AddScoped<IHttpUserService, HttpUserService>();
         // #endregion
