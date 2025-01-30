@@ -3,6 +3,5 @@ builder = "dockerfile"
 dockerfilePath = "./src/Api/Dockerfile"
 
 [deploy]
-startCommand = "./src/Api"
-restartPolicyType = "always"
-healthcheckPath = "/health"
+startCommand = "dotnet Api.dll"
+restartPolicyType = "never"
