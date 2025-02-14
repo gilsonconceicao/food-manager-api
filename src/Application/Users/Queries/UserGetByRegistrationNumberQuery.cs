@@ -27,7 +27,7 @@ public class UserGetByRegistrationNumberHandler : IRequestHandler<UserGetByRegis
             .Include(x => x.Address)
             .Include(x => x.Orders)
             .Where(x => !x.IsDeleted)
-            .FirstOrDefaultAsync(x => x.RegistrationNumber == request.RegistrationNumber.RemoveSpecialCharacters())
+            .FirstOrDefaultAsync(x => x.PhoneNumber == request.RegistrationNumber.RemoveSpecialCharacters())
             ?? throw new HttpResponseException
             {
                 Status = 404,

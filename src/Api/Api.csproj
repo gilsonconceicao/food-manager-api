@@ -9,7 +9,7 @@
     <CopyDocumentationFileToOutputDirectory>true</CopyDocumentationFileToOutputDirectory>
     <DockerfileContext>..\..</DockerfileContext>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 

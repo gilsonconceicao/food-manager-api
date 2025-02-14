@@ -8,7 +8,7 @@ namespace Application.Users.Dtos
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public string RegistrationNumber { get; set; }
+        public string PhoneNumber { get; set; }
         public AddressGetDto Address { get; set; }
         public ICollection<OrdersRealatedFoodDto> Orders { get; set; }
     }

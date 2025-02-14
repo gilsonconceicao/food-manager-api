@@ -14,7 +14,7 @@ public class User : BaseEntity
     public string FirebaseUserId { get; set; }
     
     [Column(TypeName = "varchar(11)")]
-    public string RegistrationNumber { get; set; }
+    public string PhoneNumber { get; set; }
     
     public Address Address { get; set; }
     public ICollection<Order> Orders { get; set; } 
