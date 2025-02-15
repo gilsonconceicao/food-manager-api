@@ -8,7 +8,7 @@ public class UserCreateValidation : AbstractValidator<UserCreateCommand>
 {
     public UserCreateValidation()
     {
-        RuleFor(x => x.RegistrationNumber)
+        RuleFor(x => x.PhoneNumber)
            .NotNull()
            .NotEmpty()
            .WithMessage("CPF é obrigatório")

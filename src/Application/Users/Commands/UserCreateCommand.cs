@@ -14,7 +14,7 @@ namespace Application.Users.Commands;
 public class UserCreateCommand : IRequest<User>
 {
     public string Name { get; set; }
-    public string RegistrationNumber { get; set; }
+    public string PhoneNumber { get; set; }
     public string Email { get; set; }
     public string FirebaseUserId { get; set; }
     public AddressCreateDto? Address { get; set; }
@@ -44,7 +44,7 @@ public class UserCreateCommandHandler : IRequestHandler<UserCreateCommand, User>
             ErrorUtils.InvalidFieldsError(validationResult);
 
         User user = _mapper.Map<User>(request);
-        user.RegistrationNumber = user.RegistrationNumber.RemoveSpecialCharacters();
+        user.PhoneNumber = user.PhoneNumber.RemoveSpecialCharacters();
         if (request.Address != null)
         {
             user.Address.UserId = user.Id;

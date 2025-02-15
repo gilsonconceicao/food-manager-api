@@ -54,7 +54,7 @@ public class PaymentCommunication : IPaymentCommunication
                     Identification = new IdentificationRequest
                     {
                         Type = "CPF",
-                        Number = user.RegistrationNumber
+                        Number = user.PhoneNumber
                     },
                 },
                 AutoReturn = "approved",
