@@ -16,12 +16,12 @@ public class VerifyUserIsMasterQuery : IRequest<bool>
 public class VerifyUserIsMasterQueryHandler : IRequestHandler<VerifyUserIsMasterQuery, bool>
 {
     private readonly DataBaseContext _context;
-    private readonly IHttpUserService _httpUserService;
+    private readonly ICurrentUser _httpUserService;
 
     private readonly List<string> EmailsRoot = new List<string>() { "gilsonconceicaosantos.jr@gmail.com", "crislaureano01@gmail.com", "jamileoliver21@gmail.com"};
     public VerifyUserIsMasterQueryHandler(
         DataBaseContext context,
-        IHttpUserService httpUserService)
+        ICurrentUser httpUserService)
     {
         _context = context;
         _httpUserService = httpUserService;
