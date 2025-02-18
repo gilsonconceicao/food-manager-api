@@ -13,13 +13,13 @@ namespace Integrations.MercadoPago;
 public class PaymentCommunication : IPaymentCommunication
 {
     private readonly MercadoPagoSettings _mercadoPagoSettings;
-    private readonly IHttpUserService _httpUserService;
+    private readonly ICurrentUser _httpUserService;
     private readonly DataBaseContext _context;
 
 
     public PaymentCommunication(
         IOptions<MercadoPagoSettings> mercadoPagoSettings,
-        IHttpUserService httpUserService,
+        ICurrentUser httpUserService,
         DataBaseContext context
     )
     {

@@ -6,19 +6,20 @@ using Microsoft.AspNetCore.Http;
 
 namespace Api.Services
 {
-    public interface IHttpUserService
+    public interface ICurrentUser
     {
+        Task<List<ExportedUserRecord>> GetExportedUserRecords();
         Task<UserInfoResponse> GetAuthenticatedUser();
         Task<UserRecord> GetUserByUserIdAsync(string userId);
     }
 
-    public class HttpUserService : IHttpUserService
+    public class HttpCurrentUser : ICurrentUser
     {
 
         private readonly FirebaseAuthService _firebaseAuthService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public HttpUserService(FirebaseAuthService firebaseAuthService, IHttpContextAccessor httpContextAccessor)
+        public HttpCurrentUser(FirebaseAuthService firebaseAuthService, IHttpContextAccessor httpContextAccessor)
         {
             _firebaseAuthService = firebaseAuthService;
             _httpContextAccessor = httpContextAccessor;
@@ -61,13 +62,27 @@ namespace Api.Services
                 throw new UnauthorizedAccessException("Erro ao processar o token.", ex);
             }
         }
-   
+
+        public async Task<List<ExportedUserRecord>> GetExportedUserRecords()
+        {
+            var enumerator = FirebaseAuth.DefaultInstance.ListUsersAsync(null).GetAsyncEnumerator();
+            var currentUsers = new List<ExportedUserRecord>();
+      
+            while (await enumerator.MoveNextAsync())
+            {
+                ExportedUserRecord user = enumerator.Current;
+                currentUsers.Add(user); 
+            }
+
+            return currentUsers; 
+        }
+
         public async Task<UserRecord> GetUserByUserIdAsync(string userId)
         {
             UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserAsync(userId);
             return userRecord;
         }
-   }
+    }
     public class UserInfoResponse
     {
         public string UserId { get; set; }

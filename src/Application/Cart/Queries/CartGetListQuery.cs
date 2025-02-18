@@ -15,12 +15,12 @@ namespace Application.Carts.Queries
     public class CartGetListQueryHandler : IRequestHandler<CartGetListQuery, CartListDto>
     {
         private readonly DataBaseContext _context;
-        private readonly IHttpUserService _httpUserService;
+        private readonly ICurrentUser _httpUserService;
         private readonly IMapper _mapper;
 
         public CartGetListQueryHandler(
             DataBaseContext context,
-            IHttpUserService httpUserService, 
+            ICurrentUser httpUserService, 
             IMapper mapper
         )
         {

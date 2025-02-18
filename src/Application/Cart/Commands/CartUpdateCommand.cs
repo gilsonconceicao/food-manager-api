@@ -19,11 +19,11 @@ public class CartUpdateCommand : IRequest<bool>
 public class CartUpdateCommandHandler : IRequestHandler<CartUpdateCommand, bool>
 {
     private readonly DataBaseContext _context;
-    private readonly IHttpUserService _httpUserService;
+    private readonly ICurrentUser _httpUserService;
 
     public CartUpdateCommandHandler(
         DataBaseContext context,
-        IHttpUserService httpUserService
+        ICurrentUser httpUserService
     )
     {
         _context = context;

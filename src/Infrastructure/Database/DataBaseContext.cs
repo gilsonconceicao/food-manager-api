@@ -7,8 +7,8 @@ namespace Infrastructure.Database
 {
     public class DataBaseContext : DbContext
     {
-        private readonly IHttpUserService _httpUserService;
-        public DataBaseContext(DbContextOptions options, IHttpUserService httpUserService) : base(options)
+        private readonly ICurrentUser _httpUserService;
+        public DataBaseContext(DbContextOptions options, ICurrentUser httpUserService) : base(options)
         {
             _httpUserService = httpUserService;
         }

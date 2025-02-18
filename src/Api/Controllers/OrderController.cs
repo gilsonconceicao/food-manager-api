@@ -12,13 +12,13 @@ namespace Api.Controllers;
 
 public class OrderController : BaseController
 {
-    private readonly IHttpUserService _tokenService;
+    private readonly ICurrentUser _tokenService;
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
 
     public OrderController(IMediator mediator,
     IMapper mapper,
-    IHttpUserService tokenService)
+    ICurrentUser tokenService)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

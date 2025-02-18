@@ -19,12 +19,12 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
 {
     private readonly DataBaseContext _context;
     private readonly ICartFactory _CartFactory;
-    private readonly IHttpUserService _httpUserService;
+    private readonly ICurrentUser _httpUserService;
 
     public CartCreateCommandHandler(
         DataBaseContext context,
         ICartFactory cartFactory,
-        IHttpUserService httpUserService
+        ICurrentUser httpUserService
     )
     {
         _context = context;
