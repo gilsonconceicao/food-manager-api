@@ -38,7 +38,7 @@ public class FirebaseAuthHandler : AuthenticationHandler<AuthenticationSchemeOpt
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, decodedToken.Uid),
-                new Claim(ClaimTypes.Name, decodedToken.Uid) // Exemplo: Use o UID como nome do usuário
+                new Claim(ClaimTypes.Name, decodedToken.Uid) 
             };
 
             var identity = new ClaimsIdentity(claims, Scheme.Name);

@@ -5,7 +5,7 @@ using Infrastructure.Database;
 using MediatR;
 using MercadoPago.Client.Preference;
 using Microsoft.EntityFrameworkCore;
-
+#nullable disable
 namespace Application.Payment.Commands;
 
 public class CreatePaymentCommand : IRequest<string>
