@@ -10,7 +10,7 @@ namespace Application.Payment.Commands;
 
 public class CreatePaymentCommand : IRequest<string>
 {
-    public List<Guid> Items { get; set; }
+    public List<Guid> CartIds { get; set; }
 
 }
 
@@ -41,7 +41,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
 
         var cartItems = _context.Carts
             .Include(ci => ci.Food)
-            .Where(ci => request.Items.Contains(ci.Id) && ci.CreatedByUserId == userAuthenticated.UserId)
+            .Where(x => request.CartIds.Contains(x.Id) && x.CreatedByUserId == userAuthenticated.UserId)
             .ToList();
 
         if (!cartItems.Any())
