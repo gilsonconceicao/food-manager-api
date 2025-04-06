@@ -12,7 +12,9 @@ namespace Application.Carts.Commands;
 public class CartCreateCommand : IRequest<bool>
 {
     public Guid ItemId { get; set; }
-    public int? Quantity { get; set; } = 1; 
+    public int? Quantity { get; set; } = 1;
+    public string? Observations { get; set; }
+
 }
 
 public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
@@ -50,17 +52,18 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
 
 
         var getExistsItem = await _context.Carts
-            .FirstOrDefaultAsync(x => 
+            .FirstOrDefaultAsync(x =>
                 request.ItemId == x.FoodId && x.CreatedByUserId == user.UserId);
-        
-        if (getExistsItem is not null) 
+
+        if (getExistsItem is not null)
         {
             getExistsItem.Quantity = request.Quantity;
+            getExistsItem.Observations = request.Observations;
             _context.Carts.Update(getExistsItem);
-        } 
-        else 
+        }
+        else
         {
-            var newCart = _CartFactory.CreateCart(request.ItemId, request.Quantity);
+            var newCart = _CartFactory.CreateCart(request.ItemId, request.Quantity, request.Observations);
             _context.Carts.Add(newCart);
         }
 

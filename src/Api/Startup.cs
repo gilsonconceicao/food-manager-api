@@ -28,7 +28,7 @@ public class Startup
         // mediatR to CQRS of application
         services.AddMediatR(Assembly.GetExecutingAssembly());
 
-        // mappers 
+        // mappers
         services.AddMappersConfigs();
 
         // database
@@ -76,7 +76,7 @@ public class Startup
             });
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
-                Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
+                Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n
                       Enter 'Bearer' [space] and then your token in the text input below.
                       \r\n\r\nExample: 'Bearer 12345abcdef'",
                 Name = "Authorization",
@@ -105,7 +105,6 @@ public class Startup
         });
             options.SchemaFilter<SchemeFilterSwashbuckle>();
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
         });
 
         services.AddAuthentication("Bearer")

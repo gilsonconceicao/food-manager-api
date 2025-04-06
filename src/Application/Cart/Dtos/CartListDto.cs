@@ -1,6 +1,6 @@
 using Domain.Models;
-
 namespace Application.Carts.Dtos; 
+#nullable disable
 
 public class CartListDto 
 {
