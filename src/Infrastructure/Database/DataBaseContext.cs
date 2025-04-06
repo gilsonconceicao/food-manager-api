@@ -8,6 +8,7 @@ namespace Infrastructure.Database
     public class DataBaseContext : DbContext
     {
         private readonly IHttpUserService _httpUserService;
+
         public DataBaseContext(DbContextOptions options, IHttpUserService httpUserService) : base(options)
         {
             _httpUserService = httpUserService;
@@ -21,6 +22,7 @@ namespace Infrastructure.Database
         public DbSet<Cart> Carts { get; set; }
 
         public async Task MigrateAsync() => await base.Database.MigrateAsync();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new OrderItemsConfiguration());
@@ -31,44 +33,41 @@ namespace Infrastructure.Database
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            var entriesData = ChangeTracker.Entries<BaseEntity>();
+            UserInfoResponse? currentUser = null;
+
             try
             {
-                var entriesData = ChangeTracker.Entries<BaseEntity>();
-                var currentUser = await _httpUserService.GetAuthenticatedUser();
-                foreach (var entry in entriesData)
-                {
-                    if (currentUser is null)
-                    {
-                        throw new InvalidOperationException("Erro ao tentar realizar alterações sem operador vinculado.");
-                    }
-
-                    var entity = entry.Entity; 
-
-                    switch (entry.State)
-                    {
-                        case EntityState.Added:
-                            entity.CreatedAt = DateTime.UtcNow;
-                            entity.CreatedByUserName = currentUser.Name;
-                            entity.CreatedByUserId = currentUser.UserId;
-                            entity.UpdatedByUserId = null;
-                            entity.UpdatedByUserName = null;
-                            break;
-                        case EntityState.Modified:
-                            entity.UpdatedByUserId = currentUser.Name;
-                            entity.UpdatedByUserName = currentUser.UserId;
-                            entity.UpdatedAt = DateTime.UtcNow;
-                            break;
-                    }
-                }
-
-
-                var result = await base.SaveChangesAsync(cancellationToken);
-                return result;
+                currentUser = await _httpUserService.GetAuthenticatedUser();
             }
-            catch (Exception)
+            catch
             {
-                throw;
+                
             }
+
+            foreach (var entry in entriesData)
+            {
+                var entity = entry.Entity;
+
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entity.CreatedAt = DateTime.UtcNow;
+                        entity.CreatedByUserName = currentUser?.Name;
+                        entity.CreatedByUserId = currentUser?.UserId;
+                        entity.UpdatedByUserId = null;
+                        entity.UpdatedByUserName = null;
+                        break;
+
+                    case EntityState.Modified:
+                        entity.UpdatedAt = DateTime.UtcNow;
+                        entity.UpdatedByUserId = currentUser?.UserId;
+                        entity.UpdatedByUserName = currentUser?.Name;
+                        break;
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
         }
     }
 }

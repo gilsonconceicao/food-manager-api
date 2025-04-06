@@ -18,6 +18,8 @@
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\Integrations\Integrations.csproj" />
+    <!-- <PackageReference Include="Hangfire" Version="1.8.18" /> -->
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.18" />
   </ItemGroup>
 
 </Project>

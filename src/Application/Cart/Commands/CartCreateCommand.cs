@@ -2,7 +2,9 @@ using Api.Enums;
 using Api.Services;
 using Application.Carts.Commands.Factories;
 using Application.Common.Exceptions;
+using Domain.Interfaces.Workflow;
 using Domain.Models;
+using Hangfire;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +52,7 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
                     }
                 };
 
+        Guid cartId = Guid.Empty;
 
         var getExistsItem = await _context.Carts
             .FirstOrDefaultAsync(x =>
@@ -59,15 +62,26 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
         {
             getExistsItem.Quantity = request.Quantity;
             getExistsItem.Observations = request.Observations;
+            cartId = getExistsItem.Id;
             _context.Carts.Update(getExistsItem);
         }
         else
         {
             var newCart = _CartFactory.CreateCart(request.ItemId, request.Quantity, request.Observations);
+            cartId = newCart.Id;
             _context.Carts.Add(newCart);
         }
 
         await _context.SaveChangesAsync();
+
+        if (cartId != Guid.Empty)
+        {
+            BackgroundJob.Schedule<ICartWorkflowJob>(
+                job => job.CheckCartQuantityAsync(cartId, cancellationToken),
+                TimeSpan.FromSeconds(30)
+            );
+        }
+
         return true;
 
     }

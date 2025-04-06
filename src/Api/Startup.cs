@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 using Api.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Api.Firebase;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 public class Startup
 {
@@ -24,13 +26,10 @@ public class Startup
     {
         string connectionString = _configuration.GetConnectionString("DefaultConnection")!;
         services.AddEndpointsApiExplorer();
-
         // mediatR to CQRS of application
         services.AddMediatR(Assembly.GetExecutingAssembly());
-
         // mappers
         services.AddMappersConfigs();
-
         // database
         services.AddDbContext<DataBaseContext>(options =>
         {
@@ -38,6 +37,20 @@ public class Startup
         });
 
         services.AddDependencyInjections(_configuration);
+
+        string connectionStringHangfire = _configuration.GetConnectionString("HangfireConnection")!;
+
+        // #region Hangfire
+        services.AddHangfire(configuration => configuration
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseColouredConsoleLogProvider()
+            .UsePostgreSqlStorage(connectionStringHangfire, new PostgreSqlStorageOptions
+            {
+                SchemaName = "hangfire"
+            }));
+        // #endregion
+
 
 
         // Add controllers with NewtonsoftJson for handling JSON serialization
@@ -118,6 +131,7 @@ public class Startup
             );
         });
 
+        services.AddHangfireServer();
         services.AddApplicationInsightsTelemetry();
 
 
@@ -168,6 +182,7 @@ public class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
+        app.UseHangfireDashboard();
 
         app.UseEndpoints(endpoints =>
         {
