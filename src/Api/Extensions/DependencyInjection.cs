@@ -21,9 +21,12 @@ using Integrations.MercadoPago;
 using Application.Payment.Commands;
 using Application.Carts.Dtos;
 using Domain.Interfaces.Workflow;
-using Api.Workflows.FoodWorkflowJob;
+using Api.Workflows.Workflows;
+using Domain.Interfaces.Workflow.Activities;
+using Integrations.SMTP;
 
 namespace Api.Extensions;
+
 public static class MyConfigServiceCollectionExtensions
 {
     public static IServiceCollection AddDependencyInjections(this IServiceCollection services, IConfiguration configuration)
@@ -76,9 +79,11 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<CartGetListQuery, CartListDto>, CartGetListQueryHandler>();
         // #endregion
 
+        services.AddScoped<ISmtpService, SmtpServices>();
 
         // #region Workflows
-        services.AddScoped<ICartWorkflowJob, FoodWorkflowJob>();
+        services.AddScoped<ICartWorkflowJob, CartWorkflowJob>();
+        services.AddScoped<ICartActivity, CartActivity>();
         // #endregion
 
         // #region Factories

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication;
 using Api.Firebase;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Api.Workflows.RecurringJobs;
 
 public class Startup
 {
@@ -182,7 +183,10 @@ public class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
+        RecurringJobsScheduler.Schedule();
+
         app.UseHangfireDashboard();
+        app.UseHangfireServer();
 
         app.UseEndpoints(endpoints =>
         {

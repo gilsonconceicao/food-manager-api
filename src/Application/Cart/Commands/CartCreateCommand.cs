@@ -2,9 +2,7 @@ using Api.Enums;
 using Api.Services;
 using Application.Carts.Commands.Factories;
 using Application.Common.Exceptions;
-using Domain.Interfaces.Workflow;
 using Domain.Models;
-using Hangfire;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -74,15 +72,6 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
 
         await _context.SaveChangesAsync();
 
-        if (cartId != Guid.Empty)
-        {
-            BackgroundJob.Schedule<ICartWorkflowJob>(
-                job => job.CheckCartQuantityAsync(cartId, cancellationToken),
-                TimeSpan.FromSeconds(30)
-            );
-        }
-
         return true;
-
     }
 }
