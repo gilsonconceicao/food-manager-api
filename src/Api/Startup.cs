@@ -10,6 +10,9 @@ using Newtonsoft.Json;
 using Api.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Api.Firebase;
+using Hangfire;
+using Hangfire.PostgreSql;
+using Api.Workflows.RecurringJobs;
 
 public class Startup
 {
@@ -24,13 +27,10 @@ public class Startup
     {
         string connectionString = _configuration.GetConnectionString("DefaultConnection")!;
         services.AddEndpointsApiExplorer();
-
         // mediatR to CQRS of application
         services.AddMediatR(Assembly.GetExecutingAssembly());
-
-        // mappers 
+        // mappers
         services.AddMappersConfigs();
-
         // database
         services.AddDbContext<DataBaseContext>(options =>
         {
@@ -38,6 +38,20 @@ public class Startup
         });
 
         services.AddDependencyInjections(_configuration);
+
+        string connectionStringHangfire = _configuration.GetConnectionString("HangfireConnection")!;
+
+        // #region Hangfire
+        services.AddHangfire(configuration => configuration
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseColouredConsoleLogProvider()
+            .UsePostgreSqlStorage(connectionStringHangfire, new PostgreSqlStorageOptions
+            {
+                SchemaName = "hangfire"
+            }));
+        // #endregion
+
 
 
         // Add controllers with NewtonsoftJson for handling JSON serialization
@@ -76,7 +90,7 @@ public class Startup
             });
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
-                Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
+                Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n
                       Enter 'Bearer' [space] and then your token in the text input below.
                       \r\n\r\nExample: 'Bearer 12345abcdef'",
                 Name = "Authorization",
@@ -105,7 +119,6 @@ public class Startup
         });
             options.SchemaFilter<SchemeFilterSwashbuckle>();
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
         });
 
         services.AddAuthentication("Bearer")
@@ -119,6 +132,7 @@ public class Startup
             );
         });
 
+        services.AddHangfireServer();
         services.AddApplicationInsightsTelemetry();
 
 
@@ -169,6 +183,10 @@ public class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
+        RecurringJobsScheduler.Schedule();
+
+        app.UseHangfireDashboard();
+        app.UseHangfireServer();
 
         app.UseEndpoints(endpoints =>
         {

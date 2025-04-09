@@ -1,7 +1,6 @@
 using Application.Foods.Commands;
 using Application.Foods.Commands.Dtos;
 using Application.Foods.Queries.GetAllWithPaginationFoodQuery;
-using Application.Foods.Queries.GetFoodByIdQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
@@ -50,17 +49,6 @@ public class FoodController : BaseController
         );
 
         return Ok(listMappedFromPagination);
-    }
-
-    /// <summary>
-    /// Obtem um regitro de comida por identifcador
-    /// </summary>
-    [ProducesResponseType<FoodDto>(StatusCodes.Status200OK)]
-    [HttpGet("{Id}")]
-    public async Task<IActionResult> GetFoodByIdAsync(Guid Id)
-    {
-        var result = await _mediator.Send(new GetFoodByIdQuery(Id));
-        return Ok(_mapper.Map<FoodDto>(result));
     }
 
     /// <summary>

@@ -41,11 +41,7 @@ public class CartController : BaseController
     [Authorize(Policy = "Auth")]
     public async Task<ActionResult> AddCartAsync([FromBody] CartCreateCommand request)
     {
-        var result = await _mediator.Send(new CartCreateCommand
-        {
-            ItemId = request.ItemId,
-            Quantity = request.Quantity
-        });
+        var result = await _mediator.Send(request);
         return Ok(result);
     }
 

@@ -40,9 +40,8 @@ public class PaymentCommunication : IPaymentCommunication
             var user = _context
                 .Users
                 .FirstOrDefault(x => x.FirebaseUserId == userAuthenticated.UserId)
-                ?? throw new Exception("Item no carrinho  não encontrada ou não existe.");
+                ?? throw new Exception("Item no carrinho não encontrado ou não existe.");
 
-            // Cria o objeto da preferência
             var request = new PreferenceRequest
             {
                 Items = items,
@@ -53,7 +52,7 @@ public class PaymentCommunication : IPaymentCommunication
                     Email = user.Email,
                     Identification = new IdentificationRequest
                     {
-                        Type = "CPF",
+                        Type = "PhoneNumber",
                         Number = user.PhoneNumber
                     },
                 },
@@ -76,7 +75,6 @@ public class PaymentCommunication : IPaymentCommunication
                 ExpirationDateTo = DateTime.UtcNow.AddMinutes(10)
             };
 
-            // Cria a preferência usando o client
             var client = new PreferenceClient();
             Preference preference = await client.CreateAsync(request);
 
@@ -84,8 +82,7 @@ public class PaymentCommunication : IPaymentCommunication
         }
         catch (Exception ex)
         {
-            // Lançar uma exceção mais detalhada
-            throw new Exception($"Erro ao criar a preferência: {ex.Message}", ex);
+            throw new Exception($"Erro no processo ao gerar o link de pagamento: {ex.Message}", ex);
         }
     }
 }

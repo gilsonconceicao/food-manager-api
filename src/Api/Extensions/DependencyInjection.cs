@@ -6,7 +6,6 @@ using Application.Carts.Commands.Factories;
 using Application.Carts.Queries;
 using Application.Foods.Commands;
 using Application.Foods.Queries.FoodGetListPaginationQuery;
-using Application.Foods.Queries.GetFoodByIdQuery;
 using Application.Orders.Commands;
 using Application.Orders.Commands.Validatons;
 using Application.Orders.Queries;
@@ -21,8 +20,12 @@ using Domain.Interfaces;
 using Integrations.MercadoPago;
 using Application.Payment.Commands;
 using Application.Carts.Dtos;
+using Api.Workflows.Workflows;
+using Integrations.SMTP;
+using Api.Workflows.JobSchedulerService;
 
 namespace Api.Extensions;
+
 public static class MyConfigServiceCollectionExtensions
 {
     public static IServiceCollection AddDependencyInjections(this IServiceCollection services, IConfiguration configuration)
@@ -60,7 +63,6 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<UserUpdateCommand, bool>, UserUpdateCommandHandler>();
         services.AddTransient<IRequestHandler<ExecuteTriggerCommand, OrderStatus>, ExecuteTriggerCommandHandler>();
         services.AddTransient<IRequestHandler<CartCreateCommand, bool>, CartCreateCommandHandler>();
-        services.AddTransient<IRequestHandler<CartUpdateCommand, bool>, CartUpdateCommandHandler>();
         services.AddTransient<IRequestHandler<CartDeleteCommand, bool>, CartDeleteCommandHandler>();
         services.AddTransient<IRequestHandler<MergeUsersFirebaseCommand, bool>, MergeUsersFirebaseCommandHandler>();
         services.AddTransient<IRequestHandler<CreatePaymentCommand, string>, CreatePaymentCommandHandler>();
@@ -69,7 +71,6 @@ public static class MyConfigServiceCollectionExtensions
 
         // #region Queries
         services.AddTransient<IRequestHandler<FoodGetListPaginationQuery, ListDataResponse<List<Food>>>, FoodGetListPaginationQueryHandler>();
-        services.AddTransient<IRequestHandler<GetFoodByIdQuery, Food>, GetFoodByIdHandler>();
         services.AddTransient<IRequestHandler<OrderPaginationListQuery, ListDataResponse<List<Order>>>, OrderPaginationListHandler>();
         services.AddTransient<IRequestHandler<OrderGetByIdQuery, Order>, OrderGetByIdHandler>();
         services.AddTransient<IRequestHandler<UserPaginationListQuery, ListDataResponse<List<User>>>, UserPaginationListQueryHandler>();
@@ -78,9 +79,18 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<CartGetListQuery, CartListDto>, CartGetListQueryHandler>();
         // #endregion
 
+        services.AddScoped<ISmtpService, SmtpServices>();
+
+        // #region Workflows, Jobs and Activities
+        services.AddScoped<IUserWorkflow, UserWorkflow>();
+        services.AddScoped<IUserActivity, UserActivity>();
+        services.AddScoped<IJobSchedulerService, JobSchedulerService>();
+        // #endregion
+
         // #region Factories
         services.AddScoped<ICartFactory, CartFactory>();
         // #endregion
+
         return services;
     }
 }
