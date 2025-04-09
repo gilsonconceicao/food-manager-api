@@ -87,26 +87,7 @@ public class UserController : BaseController
         });
         return Ok(result);
     }
-
-    // /// <summary>
-    // /// Método utilizado para obter usuário por CPF
-    // /// </summary>
-    // /// <returns>Usuários</returns>
-    // [ProducesResponseType(StatusCodes.Status404NotFound)]
-    // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    // [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    // [ProducesResponseType<User>(StatusCodes.Status200OK)]
-    // [HttpGet("DocumentNumber/{RegistrationNumber}")]
-    // [Authorize(Policy = "Auth")]
-    // public async Task<IActionResult> GetUserByRegistratioNumber([FromRoute] string RegistrationNumber)
-    // {
-    //     var result = await _mediator.Send(new UserGetByRegistrationNumberQuery
-    //     {
-    //         RegistrationNumber = RegistrationNumber
-    //     });
-    //     return Ok(_mapper.Map<GetUserDto>(result));
-    // }
-
+    
     /// <summary>
     /// Método utilizado para criar usuários
     /// </summary>

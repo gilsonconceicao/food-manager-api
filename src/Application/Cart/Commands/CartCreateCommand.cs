@@ -50,6 +50,7 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
                     }
                 };
 
+        Guid cartId = Guid.Empty;
 
         var getExistsItem = await _context.Carts
             .FirstOrDefaultAsync(x =>
@@ -59,16 +60,18 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
         {
             getExistsItem.Quantity = request.Quantity;
             getExistsItem.Observations = request.Observations;
+            cartId = getExistsItem.Id;
             _context.Carts.Update(getExistsItem);
         }
         else
         {
             var newCart = _CartFactory.CreateCart(request.ItemId, request.Quantity, request.Observations);
+            cartId = newCart.Id;
             _context.Carts.Add(newCart);
         }
 
         await _context.SaveChangesAsync();
-        return true;
 
+        return true;
     }
 }
