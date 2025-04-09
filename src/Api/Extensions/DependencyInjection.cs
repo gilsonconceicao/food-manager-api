@@ -39,7 +39,7 @@ public static class MyConfigServiceCollectionExtensions
         // region Firebase 
         var firebaseService = new FirebaseService(configuration);
         services.AddSingleton<FirebaseAuthService>();
-        services.AddScoped<IHttpUserService, HttpUserService>();
+        services.AddScoped<ICurrentUser, HttpCurrentUser>();
         // #endregion
 
         // #region FluentValidations
@@ -64,6 +64,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<ExecuteTriggerCommand, OrderStatus>, ExecuteTriggerCommandHandler>();
         services.AddTransient<IRequestHandler<CartCreateCommand, bool>, CartCreateCommandHandler>();
         services.AddTransient<IRequestHandler<CartDeleteCommand, bool>, CartDeleteCommandHandler>();
+        services.AddTransient<IRequestHandler<MergeUsersFirebaseCommand, bool>, MergeUsersFirebaseCommandHandler>();
         services.AddTransient<IRequestHandler<CreatePaymentCommand, string>, CreatePaymentCommandHandler>();
 
         // #endregion

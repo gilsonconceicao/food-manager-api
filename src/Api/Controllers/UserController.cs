@@ -8,19 +8,20 @@ using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Application.Carts.Commands;
 
 namespace Api.Controllers;
 
 public class UserController : BaseController
 {
     private readonly IMediator _mediator;
-    private readonly IHttpUserService _httpUserService;
+    private readonly ICurrentUser _httpUserService;
     private readonly IMapper _mapper;
 
     public UserController(
         IMediator mediator,
         IMapper mapper,
-        IHttpUserService httpUserService
+        ICurrentUser httpUserService
     )
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
@@ -52,6 +53,18 @@ public class UserController : BaseController
         );
 
         return Ok(listMappedFromPagination);
+    }
+
+    /// <summary>
+    /// Método utilizado para simcronizar os usuários
+    /// </summary>
+    /// <returns>Usuários</returns>
+    [HttpPost("MergeUsers")]
+    [Authorize(Policy = "Auth")]
+    public async Task<IActionResult> MergeUsersAsync()
+    {
+        await _mediator.Send(new MergeUsersFirebaseCommand{});
+        return NoContent();
     }
 
     /// <summary>
@@ -87,7 +100,8 @@ public class UserController : BaseController
         });
         return Ok(result);
     }
-    
+
+
     /// <summary>
     /// Método utilizado para criar usuários
     /// </summary>

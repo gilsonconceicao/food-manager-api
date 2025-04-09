@@ -16,12 +16,12 @@ public class CreatePaymentCommand : IRequest<string>
 
 public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand, string>
 {
-    private readonly IHttpUserService _httpUserService;
+    private readonly ICurrentUser _httpUserService;
     private readonly DataBaseContext _context;
     private readonly IPaymentCommunication _paymentCommunication;
 
     public CreatePaymentCommandHandler(
-        IHttpUserService httpUserService,
+        ICurrentUser httpUserService,
         DataBaseContext context,
         IPaymentCommunication paymentCommunication
     )
