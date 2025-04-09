@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CopyDocumentationFileToOutputDirectory>true</CopyDocumentationFileToOutputDirectory>
     <Nullable>enable</Nullable>
   </PropertyGroup>

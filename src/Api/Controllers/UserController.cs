@@ -15,18 +15,15 @@ namespace Api.Controllers;
 public class UserController : BaseController
 {
     private readonly IMediator _mediator;
-    private readonly ICurrentUser _httpUserService;
     private readonly IMapper _mapper;
 
     public UserController(
         IMediator mediator,
-        IMapper mapper,
-        ICurrentUser httpUserService
+        IMapper mapper
     )
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _httpUserService = httpUserService ?? throw new ArgumentException(nameof(httpUserService));
     }
 
     /// <summary>
@@ -97,32 +94,6 @@ public class UserController : BaseController
         var result = await _mediator.Send(new VerifyUserIsMasterQuery
         {
             FirebaseUserId = FirebaseUserId
-        });
-        return Ok(result);
-    }
-
-
-    /// <summary>
-    /// Método utilizado para criar usuários
-    /// </summary>
-    /// <returns>Usuários</returns>
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType<Guid>(StatusCodes.Status201Created)]
-    [HttpPost]
-    [Authorize(Policy = "Auth")]
-    public async Task<IActionResult> CreateAsync([FromBody] UserCreateCommand query)
-    {
-        var decodedToken = await _httpUserService.GetAuthenticatedUser();
-
-        var result = await _mediator.Send(new UserCreateCommand
-        {
-            Address = query.Address,
-            Email = query.Email,
-            FirebaseUserId = decodedToken.UserId,
-            Name = query.Name,
-            PhoneNumber = query.PhoneNumber
         });
         return Ok(result);
     }

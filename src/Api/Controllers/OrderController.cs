@@ -12,17 +12,13 @@ namespace Api.Controllers;
 
 public class OrderController : BaseController
 {
-    private readonly ICurrentUser _tokenService;
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
 
-    public OrderController(IMediator mediator,
-    IMapper mapper,
-    ICurrentUser tokenService)
+    public OrderController(IMediator mediator, IMapper mapper)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _tokenService = tokenService;
 
     }
 
@@ -33,7 +29,7 @@ public class OrderController : BaseController
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<bool>(StatusCodes.Status201Created)]
     [HttpPost("{UserId}")]
-    [Authorize(Policy = "Auth")] 
+    [Authorize(Policy = "Auth")]
     public async Task<IActionResult> OrderCreateAsync([FromRoute] string UserId, [FromBody] OrderCreateDto model)
     {
         var result = await _mediator.Send(new OrderCreateCommand
