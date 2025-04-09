@@ -20,10 +20,9 @@ using Domain.Interfaces;
 using Integrations.MercadoPago;
 using Application.Payment.Commands;
 using Application.Carts.Dtos;
-using Domain.Interfaces.Workflow;
 using Api.Workflows.Workflows;
-using Domain.Interfaces.Workflow.Activities;
 using Integrations.SMTP;
+using Api.Workflows.JobSchedulerService;
 
 namespace Api.Extensions;
 
@@ -81,9 +80,10 @@ public static class MyConfigServiceCollectionExtensions
 
         services.AddScoped<ISmtpService, SmtpServices>();
 
-        // #region Workflows
-        services.AddScoped<ICartWorkflowJob, CartWorkflowJob>();
-        services.AddScoped<ICartActivity, CartActivity>();
+        // #region Workflows, Jobs and Activities
+        services.AddScoped<IUserWorkflow, UserWorkflow>();
+        services.AddScoped<IUserActivity, UserActivity>();
+        services.AddScoped<IJobSchedulerService, JobSchedulerService>();
         // #endregion
 
         // #region Factories
