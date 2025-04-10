@@ -6,7 +6,7 @@ using FirebaseAdmin.Auth;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-
+#nullable disable
 namespace Application.Carts.Commands;
 
 public class MergeUsersFirebaseCommand : IRequest<bool>

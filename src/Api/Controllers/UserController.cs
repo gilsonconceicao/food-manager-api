@@ -53,18 +53,6 @@ public class UserController : BaseController
     }
 
     /// <summary>
-    /// Método utilizado para simcronizar os usuários
-    /// </summary>
-    /// <returns>Usuários</returns>
-    [HttpPost("MergeUsers")]
-    [Authorize(Policy = "Auth")]
-    public async Task<IActionResult> MergeUsersAsync()
-    {
-        await _mediator.Send(new MergeUsersFirebaseCommand{});
-        return NoContent();
-    }
-
-    /// <summary>
     /// Método utilizado para obter usuário por identificador
     /// </summary>
     /// <returns>Usuários</returns>
