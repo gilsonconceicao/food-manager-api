@@ -4,31 +4,40 @@ using AutoMapper;
 using Domain.Models;
 using FirebaseAdmin.Auth;
 using Infrastructure.Database;
+using Integrations.Settings;
+using Integrations.SMTP;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 #nullable disable
 namespace Application.Carts.Commands;
 
 public class MergeUsersFirebaseCommand : IRequest<bool>
 {
-    
+
 }
 
 public class MergeUsersFirebaseCommandHandler : IRequestHandler<MergeUsersFirebaseCommand, bool>
 {
     private readonly DataBaseContext _context;
+    private readonly ISmtpService _smtpService;
     private readonly ICurrentUser _httpUserService;
     private readonly IMapper _mapper;
-
+    private readonly SmtpServicesSettings _smtpServicesSetting;
     public MergeUsersFirebaseCommandHandler(
         DataBaseContext context,
         ICurrentUser httpUserService,
-        IMapper mapper
+        IMapper mapper,
+        ISmtpService smtpService,
+        IOptions<SmtpServicesSettings> smtpSettins
     )
     {
         _context = context;
         _httpUserService = httpUserService;
         _mapper = mapper;
+        _smtpService = smtpService;
+        _smtpServicesSetting = smtpSettins.Value;
     }
 
     public async Task<bool> Handle(MergeUsersFirebaseCommand request, CancellationToken cancellationToken)
@@ -50,6 +59,29 @@ public class MergeUsersFirebaseCommandHandler : IRequestHandler<MergeUsersFireba
 
         await _context.Users.AddRangeAsync(usersMapped);
         await _context.SaveChangesAsync();
+
+        var notifyAdministrators = _smtpServicesSetting.NotifyAdministrators;
+
+        if (!notifyAdministrators.IsNullOrEmpty())
+        {
+            var listEmails = notifyAdministrators
+                .Split()
+                .Where(x => x != "#")
+                .ToList();
+
+            foreach (var emailTo in listEmails)
+            {
+                await _smtpService.SendEmailAsync(
+                    from: _smtpServicesSetting.NetworkCredentialUserName, 
+                    to: emailTo, 
+                    subject: "📊 Relatório Diário - Usuários sincronizados", 
+                    body: EmailTemplates.DailyReportMergeUsersHtml(DateTime.Now, usersMapped)
+                );
+            }
+        }
+
+
+
         return true;
     }
 }

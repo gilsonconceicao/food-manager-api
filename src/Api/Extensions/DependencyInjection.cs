@@ -35,6 +35,7 @@ public static class MyConfigServiceCollectionExtensions
 
         // configure 
         services.Configure<MercadoPagoSettings>(configuration.GetSection("MercadoPago"));
+        services.Configure<SmtpServicesSettings>(configuration.GetSection("SmtpServicesSettings"));
 
         // region Firebase 
         var firebaseService = new FirebaseService(configuration);
@@ -82,8 +83,8 @@ public static class MyConfigServiceCollectionExtensions
         services.AddScoped<ISmtpService, SmtpServices>();
 
         // #region Workflows, Jobs and Activities
-        services.AddScoped<IUserWorkflow, UserWorkflow>();
-        services.AddScoped<IUserActivity, UserActivity>();
+        services.AddScoped<IProcessMergeUsersFirebaseActivity, ProcessMergeUsersFirebaseActivity>();
+        services.AddScoped<IMergeUsersWorkflow, MergeUsersWorkflow>();
         services.AddScoped<IJobSchedulerService, JobSchedulerService>();
         // #endregion
 

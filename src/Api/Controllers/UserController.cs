@@ -87,6 +87,20 @@ public class UserController : BaseController
     }
 
     /// <summary>
+    /// Método utilizado para validar se o usuário é master
+    /// </summary>
+    /// <returns>Usuários</returns>
+    [HttpGet("teste")]
+    public async Task<IActionResult> Teste()
+    {
+        var listEmails = "email1.jr@gmail.com # email2@gmail.com"
+            .Split()
+            .Where(x => x != "#")
+            .ToList(); 
+        return Ok(listEmails);
+    }
+
+    /// <summary>
     /// Método utilizado para atualizar um usuário
     /// </summary>
     /// <returns>Usuários</returns>
