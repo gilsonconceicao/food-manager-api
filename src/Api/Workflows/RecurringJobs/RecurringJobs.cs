@@ -1,11 +1,12 @@
 using Api.Workflows.Workflows;
+using Domain.Extensions;
 using Hangfire;
 
 namespace Api.Workflows.RecurringJobs;
 
 public static class RecurringJobsScheduler
 {
-    private const string DailyAtMidnight = "00 12 * * *";
+    private const string DailyAtMidnight = "00 20 * * *";
 
     public static void Schedule()
     {
@@ -15,7 +16,7 @@ public static class RecurringJobsScheduler
             cronExpression: DailyAtMidnight,
             new RecurringJobOptions
             {
-                TimeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo")
+                TimeZone = GenericExtenstions.GetBrazilTimeZone()
             }
         );
     }

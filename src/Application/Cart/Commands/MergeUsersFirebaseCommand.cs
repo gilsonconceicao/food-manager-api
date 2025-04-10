@@ -8,6 +8,7 @@ using Integrations.Settings;
 using Integrations.SMTP;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 #nullable disable
@@ -25,12 +26,15 @@ public class MergeUsersFirebaseCommandHandler : IRequestHandler<MergeUsersFireba
     private readonly ICurrentUser _httpUserService;
     private readonly IMapper _mapper;
     private readonly SmtpServicesSettings _smtpServicesSetting;
+    private readonly IConfiguration _config;
+
     public MergeUsersFirebaseCommandHandler(
         DataBaseContext context,
         ICurrentUser httpUserService,
         IMapper mapper,
         ISmtpService smtpService,
-        IOptions<SmtpServicesSettings> smtpSettins
+        IOptions<SmtpServicesSettings> smtpSettins,
+        IConfiguration configuration
     )
     {
         _context = context;
@@ -38,15 +42,20 @@ public class MergeUsersFirebaseCommandHandler : IRequestHandler<MergeUsersFireba
         _mapper = mapper;
         _smtpService = smtpService;
         _smtpServicesSetting = smtpSettins.Value;
+        _config = configuration;
     }
 
     public async Task<bool> Handle(MergeUsersFirebaseCommand request, CancellationToken cancellationToken)
     {
-        var exportedUsers = await _httpUserService.GetExportedUserRecords();
-        var currentUsers = await _context.Users.ToListAsync();
-        var usersMapped = new List<User>();
+        var firebaeUsers = await _httpUserService.GetExportedUserRecords();
+        var currentUsers = await _context.Users
+            .Include(u => u.Orders)
+            .ToListAsync();
 
-        foreach (var user in exportedUsers)
+        var usersMapped = new List<User>();
+        var envDisplay = _config.GetValue<string>("EnvDisplay");
+
+        foreach (var user in firebaeUsers)
         {
             var userExists = currentUsers.FirstOrDefault(x => x.FirebaseUserId == user.Uid);
             if (userExists == null)
@@ -60,26 +69,18 @@ public class MergeUsersFirebaseCommandHandler : IRequestHandler<MergeUsersFireba
         await _context.Users.AddRangeAsync(usersMapped);
         await _context.SaveChangesAsync();
 
-        var notifyAdministrators = _smtpServicesSetting.NotifyAdministrators;
 
-        if (!notifyAdministrators.IsNullOrEmpty())
+        var rootUsers = currentUsers.Where(u => u.IsRoot == true).ToList();
+        foreach (var admin in rootUsers)
         {
-            var listEmails = notifyAdministrators
-                .Split()
-                .Where(x => x != "#")
-                .ToList();
+            await _smtpService.SendEmailAsync(
+               from: _smtpServicesSetting.NetworkCredentialUserName,
+               to: admin.Email,
+               subject: "📊 Relatório Diário - Usuários sincronizados",
+               body: EmailTemplates.DailyReportMergeUsersHtml(admin, DateTime.Now, usersMapped, envDisplay)
+           );
 
-            foreach (var emailTo in listEmails)
-            {
-                await _smtpService.SendEmailAsync(
-                    from: _smtpServicesSetting.NetworkCredentialUserName, 
-                    to: emailTo, 
-                    subject: "📊 Relatório Diário - Usuários sincronizados", 
-                    body: EmailTemplates.DailyReportMergeUsersHtml(DateTime.Now, usersMapped)
-                );
-            }
         }
-
 
 
         return true;

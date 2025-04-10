@@ -18,4 +18,5 @@ public class User : BaseEntity
     
     public Address Address { get; set; }
     public ICollection<Order> Orders { get; set; } 
+    public bool IsRoot {get; set; }
 }

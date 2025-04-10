@@ -4,7 +4,7 @@ using System.Text;
 
 public static class EmailTemplates
 {
-    public static string DailyReportMergeUsersHtml(DateTime data, List<User> users)
+    public static string DailyReportMergeUsersHtml(User admin, DateTime data, List<User> users, string envDisplay)
     {
         var sb = new StringBuilder();
 
@@ -21,16 +21,13 @@ public static class EmailTemplates
         {
             foreach (var user in users)
             {
-                var nomeMes = user.CreatedAt.ToString("MMMM", new CultureInfo("pt-BR"));
-                var diaCadastro = user.CreatedAt.Date == DateTime.Today
-                    ? "Hoje"
-                    : $"{user.CreatedAt:dd} de {nomeMes} de {user.CreatedAt:yyyy}";
-
                 sb.Append($@"
                 <div style='border-left: 4px solid #2e86de; padding-left: 15px; margin-bottom: 20px;'>
                     <p><strong>👤 Nome:</strong> {user.Name}</p>
                     <p><strong>📧 Email:</strong> <span style='color: #2c3e50;'>{user.Email}</span></p>
-                    <p><strong>🆔 ID:</strong> {user.CreatedByUserId ?? "-"}</p>
+                    <p><strong>📞 Número de telefone:</strong> {user.PhoneNumber ?? "Não informado"}</p>
+                    <p><strong>📦 Quantidade de pedidos:</strong> {user.Orders.Count()}</p>
+                    <p><strong>🆔 ID:</strong> {user.Id.ToString() ?? "-"}</p>
                 </div>
                 <hr>");
             }
@@ -47,12 +44,13 @@ public static class EmailTemplates
 
     <div style='max-width: 700px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
         <div style='background-color: #2e86de; color: white; padding: 30px 40px;'>
-            <h1 style='margin: 0; font-size: 28px;'>👋 Olá, Gilson!</h1>
-            <p style='margin: 5px 0 0;'>Aqui está o relatório dos usuários sincronizados em <strong>{data:dd/MM/yyyy}</strong>.</p>
+            <h1 style='margin: 0; font-size: 28px;'>👋 Olá, {admin.Name}!</h1>
+            <p style='margin: 5px 0 0;'>Aqui está o relatório dos usuários sincronizados em {envDisplay}.</p>
         </div>
 
         <div style='padding: 30px 40px;'>
             <h2 style='color: #2e86de; font-size: 20px; margin-bottom: 20px;'>📋 Detalhes dos Usuários</h2>
+            <p>Data: <strong>{data:dd/MM/yyyy}</strong></p>
             {sb}
             <p style='color: #888; font-size: 13px; margin-top: 40px;'>Este é um e-mail automático. Não é necessário respondê-lo.</p>
         </div>

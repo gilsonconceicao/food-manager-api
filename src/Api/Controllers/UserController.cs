@@ -9,6 +9,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Application.Carts.Commands;
+using Integrations.Settings;
+using Microsoft.Extensions.Options;
 
 namespace Api.Controllers;
 
@@ -16,14 +18,17 @@ public class UserController : BaseController
 {
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
-
+    private readonly SmtpServicesSettings _smtpServicesSetting;
     public UserController(
         IMediator mediator,
-        IMapper mapper
+        IMapper mapper,
+        IOptions<SmtpServicesSettings> smtpSettins
     )
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _smtpServicesSetting = smtpSettins.Value;
+
     }
 
     /// <summary>
@@ -85,21 +90,7 @@ public class UserController : BaseController
         });
         return Ok(result);
     }
-
-    /// <summary>
-    /// Método utilizado para validar se o usuário é master
-    /// </summary>
-    /// <returns>Usuários</returns>
-    [HttpGet("teste")]
-    public async Task<IActionResult> Teste()
-    {
-        var listEmails = "email1.jr@gmail.com # email2@gmail.com"
-            .Split()
-            .Where(x => x != "#")
-            .ToList(); 
-        return Ok(listEmails);
-    }
-
+    
     /// <summary>
     /// Método utilizado para atualizar um usuário
     /// </summary>
