@@ -75,6 +75,19 @@ public class UserController : BaseController
     /// Método utilizado para validar se o usuário é master
     /// </summary>
     /// <returns>Usuários</returns>
+    [HttpGet("Teste")]
+    [Authorize(Policy = "Auth")]
+    public async Task<IActionResult> MergeFirebaseUsers()
+    {
+        var result = await _mediator.Send(new MergeUsersFirebaseCommand
+        {
+        });
+        return Ok(result);
+    }
+    /// <summary>
+    /// Método utilizado para validar se o usuário é master
+    /// </summary>
+    /// <returns>Usuários</returns>
     [HttpGet("VerifyUserIsMaster/{FirebaseUserId}")]
     [Authorize(Policy = "Auth")]
     public async Task<IActionResult> VerifyUserIsMasterAsync(string FirebaseUserId)
