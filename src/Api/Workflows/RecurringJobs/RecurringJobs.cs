@@ -6,7 +6,7 @@ namespace Api.Workflows.RecurringJobs;
 
 public static class RecurringJobsScheduler
 {
-    private const string DailyAtMidnight = "00 20 * * *";
+    private const string DailyAtMidnight = "00 10 * * *";
 
     public static void Schedule()
     {

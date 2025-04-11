@@ -23,11 +23,11 @@ public static class EmailTemplates
             {
                 sb.Append($@"
                 <div style='border-left: 4px solid #2e86de; padding-left: 15px; margin-bottom: 20px;'>
-                    <p><strong>👤 Nome:</strong> {user.Name}</p>
-                    <p><strong>📧 Email:</strong> <span style='color: #2c3e50;'>{user.Email}</span></p>
-                    <p><strong>📞 Número de telefone:</strong> {user.PhoneNumber ?? "Não informado"}</p>
-                    <p><strong>📦 Quantidade de pedidos:</strong> {user.Orders.Count()}</p>
-                    <p><strong>🆔 ID:</strong> {user.Id.ToString() ?? "-"}</p>
+                    <p><strong>👤 Nome:</strong> {user?.Name}</p>
+                    <p><strong>📧 Email:</strong> <span style='color: #2c3e50;'>{user?.Email}</span></p>
+                    <p><strong>📞 Número de telefone:</strong> {user?.PhoneNumber ?? "Não informado"}</p>
+                    <p><strong>📦 Quantidade de pedidos:</strong> {(user?.Orders?.Count() ?? 0)}</p>
+                    <p><strong>🆔 ID:</strong> {user?.Id.ToString()}</p>
                 </div>
                 <hr>");
             }

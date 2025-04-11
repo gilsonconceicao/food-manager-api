@@ -69,7 +69,6 @@ public class MergeUsersFirebaseCommandHandler : IRequestHandler<MergeUsersFireba
         await _context.Users.AddRangeAsync(usersMapped);
         await _context.SaveChangesAsync();
 
-
         var rootUsers = currentUsers.Where(u => u.IsRoot == true).ToList();
         foreach (var admin in rootUsers)
         {
@@ -79,9 +78,7 @@ public class MergeUsersFirebaseCommandHandler : IRequestHandler<MergeUsersFireba
                subject: "📊 Relatório Diário - Usuários sincronizados",
                body: EmailTemplates.DailyReportMergeUsersHtml(admin, DateTime.Now, usersMapped, envDisplay)
            );
-
         }
-
 
         return true;
     }
