@@ -5,25 +5,25 @@ namespace Domain.Enums;
 public enum OrderStatus
 {
     /// <summary>
-    /// Criado
-    /// </summary>
-    [Description("Criado")]
-    Created = 0,
-
-    /// <summary>
     /// Solicitado
     /// </summary>
     [Description("Solicitado")]
-    Requested = 1,
+    Created = 0,
 
     /// <summary>
-    /// Aguardando confirmação
+    /// Aguardando pagamento
     /// </summary>
-    [Description("Aguardando confirmação")]
-    AwaitingConfirmation = 2,
+    [Description("Aguardando pagamento")]
+    AwaitingPayment = 1,
 
     /// <summary>
-    /// Em preparo
+    /// Pago
+    /// </summary>
+    [Description("Pago")]
+    Paid = 2,
+
+    /// <summary>
+    /// Em preparo"
     /// </summary>
     [Description("Em preparo")]
     InPreparation = 3,
@@ -35,14 +35,20 @@ public enum OrderStatus
     Done = 4,
 
     /// <summary>
+    /// Enviando
+    /// </summary>
+    [Description("Enviando")]
+    Delivery = 5,
+
+    /// <summary>
     /// Finalizado
     /// </summary>
     [Description("Finalizado")]
-    Finished = 5,
+    Finished = 6,
 
     /// <summary>
     /// Cancelado
     /// </summary>
     [Description("Cancelado")]
-    Canceled = 6
+    Canceled = 7
 }

@@ -6,18 +6,28 @@ namespace Api.Workflows.RecurringJobs;
 
 public static class RecurringJobsScheduler
 {
-    private const string DailyAtMidnight = "00 10 * * *";
-
     public static void Schedule()
     {
         RecurringJob.AddOrUpdate<MergeUsersWorkflow>(
             recurringJobId: "merge-users-firebase-async",
             methodCall: process => process.MergeFirebaseUsersAsync(),
-            cronExpression: DailyAtMidnight,
-            new RecurringJobOptions
-            {
-                TimeZone = GenericExtenstions.GetBrazilTimeZone()
-            }
+            cronExpression: "0 10 * * *",
+            AddRecurringJobOptions()
         );
+
+        // RecurringJob.AddOrUpdate<PaymentStatusCheckWorkflow>(
+        //     "check-pending-payments",
+        //     job => job.CheckPendingPaymentsAsync(),
+        //     "*/2 * * * *",
+        //     AddRecurringJobOptions()
+        // );
+    }
+
+    private static RecurringJobOptions AddRecurringJobOptions()
+    {
+        return new RecurringJobOptions
+        {
+            TimeZone = GenericExtenstions.GetBrazilTimeZone()
+        };
     }
 }

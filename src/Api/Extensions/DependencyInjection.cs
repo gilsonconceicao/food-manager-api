@@ -52,6 +52,7 @@ public static class MyConfigServiceCollectionExtensions
         // #region Integrations
         services.AddScoped<IPaymentCommunication, PaymentCommunication>();
         services.AddScoped<IMercadoPagoClient, MercadoPagoClient>();
+        services.AddHttpClient<IMercadoPagoClient, MercadoPagoClient>();
         // #endregion
 
         // #region Commands
@@ -62,7 +63,6 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<OrderDeleteCommand, bool>, OrderDeleteHandler>();
         services.AddTransient<IRequestHandler<UserCreateCommand, User>, UserCreateCommandHandler>();
         services.AddTransient<IRequestHandler<UserUpdateCommand, bool>, UserUpdateCommandHandler>();
-        services.AddTransient<IRequestHandler<ExecuteTriggerCommand, OrderStatus>, ExecuteTriggerCommandHandler>();
         services.AddTransient<IRequestHandler<CartCreateCommand, bool>, CartCreateCommandHandler>();
         services.AddTransient<IRequestHandler<CartDeleteCommand, bool>, CartDeleteCommandHandler>();
         services.AddTransient<IRequestHandler<MergeUsersFirebaseCommand, bool>, MergeUsersFirebaseCommandHandler>();

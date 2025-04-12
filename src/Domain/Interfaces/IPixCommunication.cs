@@ -5,7 +5,6 @@ namespace Domain.Interfaces;
 
 public interface IPaymentCommunication
 {
-    Task<Preference> CreateCheckoutProAsync(
-        List<PreferenceItemRequest> items
-    );
+    Task<Preference> CreateCheckoutProAsync(List<PreferenceItemRequest> items);
+    Task VerifyPendingAsync();
 }

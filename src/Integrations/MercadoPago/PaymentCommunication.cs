@@ -1,4 +1,5 @@
 using Api.Services;
+using Domain.Enums;
 using Domain.Interfaces;
 using Infrastructure.Database;
 using Integrations.Settings;
@@ -6,6 +7,7 @@ using MercadoPago.Client.Common;
 using MercadoPago.Client.Preference;
 using MercadoPago.Config;
 using MercadoPago.Resource.Preference;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Integrations.MercadoPago;
@@ -15,17 +17,20 @@ public class PaymentCommunication : IPaymentCommunication
     private readonly MercadoPagoSettings _mercadoPagoSettings;
     private readonly ICurrentUser _httpUserService;
     private readonly DataBaseContext _context;
+    private readonly IMercadoPagoClient _mercadoPagoClient;
 
 
     public PaymentCommunication(
         IOptions<MercadoPagoSettings> mercadoPagoSettings,
         ICurrentUser httpUserService,
-        DataBaseContext context
+        DataBaseContext context,
+        IMercadoPagoClient mercadoPagoClient
     )
     {
         _mercadoPagoSettings = mercadoPagoSettings.Value;
         _httpUserService = httpUserService;
         _context = context;
+        _mercadoPagoClient = mercadoPagoClient; 
     }
 
     public async Task<Preference> CreateCheckoutProAsync(
@@ -84,5 +89,25 @@ public class PaymentCommunication : IPaymentCommunication
         {
             throw new Exception($"Erro no processo ao gerar o link de pagamento: {ex.Message}", ex);
         }
+    }
+
+    public async Task VerifyPendingAsync()
+    {
+        var ordersPending = await _context.Orders
+            .Where(o => o.Status == OrderStatus.AwaitingPayment)
+            .ToListAsync();
+
+        foreach (var order in ordersPending)
+        {
+            var status = await _mercadoPagoClient.GetPaymentStatusAsync("");
+            
+            if (status == "approved")
+            {
+                order.Status = OrderStatus.Paid;
+                _context.Orders.Update(order);
+            }
+        }
+
+        await _context.SaveChangesAsync();
     }
 }

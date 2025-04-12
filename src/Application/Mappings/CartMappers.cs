@@ -13,8 +13,6 @@ public class CartMappers : Profile
 {
     public CartMappers()
     {
-        CreateMap<Cart, CartDto>()
-           .ForMember(x => x.ItemId, src => src.MapFrom(x => x.FoodId))
-           .ReverseMap();
+        CreateMap<Cart, CartDto>().ReverseMap();
     }
 }
