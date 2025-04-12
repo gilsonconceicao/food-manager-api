@@ -37,10 +37,6 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
         var userId = userAuthenticated.UserId;
 
-        var user = await _context.Users
-            .FirstOrDefaultAsync(x => x.CreatedByUserId == userId, cancellationToken)
-            ?? throw new NotFoundException("Usuário não encontrado.");
-
         var orders = await _context.Orders
             .Include(o => o.Items)
                 .ThenInclude(i => i.Food)

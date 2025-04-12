@@ -15,12 +15,12 @@ public static class RecurringJobsScheduler
             AddRecurringJobOptions()
         );
 
-        // RecurringJob.AddOrUpdate<PaymentStatusCheckWorkflow>(
-        //     "check-pending-payments",
-        //     job => job.CheckPendingPaymentsAsync(),
-        //     "*/2 * * * *",
-        //     AddRecurringJobOptions()
-        // );
+        RecurringJob.AddOrUpdate<PaymentStatusCheckWorkflow>(
+            "check-pending-payments",
+            job => job.CheckPendingPaymentsAsync(),
+            "0 * * * *",
+            AddRecurringJobOptions()
+        );
     }
 
     private static RecurringJobOptions AddRecurringJobOptions()
