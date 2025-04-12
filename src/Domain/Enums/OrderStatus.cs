@@ -5,50 +5,44 @@ namespace Domain.Enums;
 public enum OrderStatus
 {
     /// <summary>
-    /// Solicitado
-    /// </summary>
-    [Description("Solicitado")]
-    Created = 0,
-
-    /// <summary>
     /// Aguardando pagamento
     /// </summary>
     [Description("Aguardando pagamento")]
-    AwaitingPayment = 1,
+    AwaitingPayment = 0,
 
     /// <summary>
     /// Pago
     /// </summary>
     [Description("Pago")]
-    Paid = 2,
+    Paid = 1,
 
     /// <summary>
     /// Em preparo"
     /// </summary>
     [Description("Em preparo")]
-    InPreparation = 3,
+    InPreparation = 2,
 
     /// <summary>
     /// Pronto
     /// </summary>
     [Description("Pronto")]
-    Done = 4,
+    Done = 3,
 
     /// <summary>
     /// Enviando
     /// </summary>
     [Description("Enviando")]
-    Delivery = 5,
+    Delivery = 4,
 
     /// <summary>
     /// Finalizado
     /// </summary>
     [Description("Finalizado")]
-    Finished = 6,
+    Finished = 5,
 
     /// <summary>
     /// Cancelado
     /// </summary>
     [Description("Cancelado")]
-    Canceled = 7
+    Canceled = 6
 }

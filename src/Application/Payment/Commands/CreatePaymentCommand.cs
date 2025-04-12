@@ -1,5 +1,6 @@
 using Api.Services;
 using Application.Common.Exceptions;
+using Domain.Enums;
 using Domain.Interfaces;
 using Infrastructure.Database;
 using MediatR;
@@ -10,7 +11,7 @@ namespace Application.Payment.Commands;
 
 public class CreatePaymentCommand : IRequest<string>
 {
-    public List<Guid> CartIds { get; set; }
+    public List<Guid> OrderIds { get; set; }
 
 }
 
@@ -33,35 +34,50 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
 
     public async Task<string> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
     {
-
         var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
-        
-        var user = _context.Users.FirstOrDefault(x => x.CreatedByUserId == userAuthenticated.UserId)
+        var userId = userAuthenticated.UserId;
+
+        var user = await _context.Users
+            .FirstOrDefaultAsync(x => x.CreatedByUserId == userId, cancellationToken)
             ?? throw new NotFoundException("Usuário não encontrado.");
 
-        var cartItems = _context.Carts
-            .Include(ci => ci.Food)
-            .Where(x => request.CartIds.Contains(x.Id) && x.CreatedByUserId == userAuthenticated.UserId)
+        var orders = await _context.Orders
+            .Include(o => o.Items)
+                .ThenInclude(i => i.Food)
+            .Where(o =>
+                request.OrderIds.Contains(o.Id) &&
+                o.CreatedByUserId == userId &&
+                o.Status == OrderStatus.AwaitingPayment
+            )
+            .ToListAsync(cancellationToken);
+
+        if (!orders.Any())
+            throw new NotFoundException("Nenhum pedido aguardando aprovação encontrado.");
+
+        var allItems = orders
+            .SelectMany(or => or.Items)
+            .Select(item => new PreferenceItemRequest
+            {
+                Id = $"{item.OrderId}-{item.FoodId}",
+                Title = $"Pedido #{item.Order.RequestNumber} - {item.Food.Name}",
+                Description = $"Item do pedido - {item.Food.Description}",
+                PictureUrl = item.Food.UrlImage,
+                CategoryId = item.Food.Category.ToString(),
+                Quantity = item.Quantity <= 0 ? 1 : item.Quantity,
+                UnitPrice = item.Food.Price / 100m,
+                CurrencyId = "BRL"
+            })
             .ToList();
 
-        if (!cartItems.Any())
-            throw new NotFoundException("Nenhum item encontrado no carrinho para os IDs fornecidos.");
+        var preference = await _paymentCommunication.CreateCheckoutProAsync(allItems);
 
-        var items = cartItems.Select(ci => new PreferenceItemRequest
+        foreach (var order in orders)
         {
-            Id = ci.Id.ToString(),
-            Title = ci.Food.Name,
-            Description = ci.Food.Description,
-            PictureUrl = ci.Food.UrlImage,
-            CategoryId = ci.Food.Category.ToString(),
-            Quantity = ci.Quantity <= 0 ? 1 : ci.Quantity,
-            UnitPrice = ci.Food.Price / 100,
-            CurrencyId = "BRL",
-            Warranty = false,
-            EventDate = DateTime.UtcNow
-        }).ToList();
+            order.PaymentId = preference.Id;
+        }
 
-        var preference = await _paymentCommunication.CreateCheckoutProAsync(items);
+        await _context.SaveChangesAsync(cancellationToken);
+
         return preference.InitPoint;
     }
 }

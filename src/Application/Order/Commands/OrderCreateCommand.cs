@@ -60,7 +60,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
             UserId = user.Id,
             RequestNumber = orderCount + 1,
             CreatedAt = DateTime.UtcNow,
-            Status = OrderStatus.Created
+            Status = OrderStatus.AwaitingPayment
         };
 
         await _context.Orders.AddAsync(order, cancellationToken);
