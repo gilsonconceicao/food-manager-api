@@ -7,4 +7,6 @@ public interface IPaymentCommunication
 {
     Task<Preference> CreateCheckoutProAsync(List<PreferenceItemRequest> items);
     Task VerifyPendingAsync();
+    Task ProcessPaymentWebhookAsync(string paymentId);
+
 }
