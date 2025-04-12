@@ -95,7 +95,7 @@ public class PaymentCommunication : IPaymentCommunication
     public async Task VerifyPendingAsync()
     {
         var ordersPending = await _context.Orders
-            .Where(o => o.Status == OrderStatus.AwaitingPayment)
+            .Where(o => o.Status == OrderStatus.AwaitingPayment && !string.IsNullOrEmpty(o.PaymentId))
             .ToListAsync();
 
         foreach (var order in ordersPending)
