@@ -7,6 +7,8 @@ namespace Application.Orders.Dtos;
 public class OrderDto
 {
     public Guid Id { get; set; }
+    public string ExternalPaymentId { get; set; }
+    public string PaymentId { get; set; }
     public int OrderNumber { get; set; }
     public OrderStatus Status { get; set; }
     public string StatusDisplay { get; set; }

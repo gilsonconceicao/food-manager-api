@@ -44,5 +44,16 @@ public enum OrderStatus
     /// Cancelado
     /// </summary>
     [Description("Cancelado")]
-    Canceled = 6
+    Canceled = 6,
+    /// <summary>
+    /// Falha no pagamento
+    /// </summary>
+    [Description("Falha no pagamento")]
+    PaymentFailed = 7,
+
+    /// <summary>
+    /// Pagamento expirado por tempo limite excedido.
+    /// </summary>
+    [Description("Pagamento expirado por tempo limite")]
+    Expired = 8
 }

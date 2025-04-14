@@ -1,7 +1,9 @@
-using System.Text.Json;
 using Api.Services;
 using Domain.Enums;
+using Domain.Extensions;
 using Domain.Interfaces;
+using Domain.Models;
+using Hangfire;
 using Infrastructure.Database;
 using Integrations.Settings;
 using MercadoPago.Client.Common;
@@ -20,7 +22,7 @@ public class PaymentCommunication : IPaymentCommunication
     private readonly ICurrentUser _httpUserService;
     private readonly DataBaseContext _context;
     private readonly IMercadoPagoClient _mercadoPagoClient;
-     private readonly ILogger<PaymentCommunication> _logger;
+    private readonly ILogger<PaymentCommunication> _logger;
 
 
     public PaymentCommunication(
@@ -78,11 +80,12 @@ public class PaymentCommunication : IPaymentCommunication
                     Pending = "https://food-manager-one.vercel.app/comidas",
                     Success = "https://food-manager-one.vercel.app/comidas"
                 },
+                NotificationUrl = "https://f956-2804-7f0-455-136d-6cf5-e386-f166-7e5b.ngrok-free.app/webhooks/mercadopago",
                 StatementDescriptor = "Bolos e variedades da Cris",
-                ExternalReference = $"UserId-{user.Id}-{user.Email}",
+                ExternalReference = Guid.NewGuid().ToString(),
                 Expires = true,
                 ExpirationDateFrom = DateTime.UtcNow,
-                ExpirationDateTo = DateTime.UtcNow.AddMinutes(10)
+                ExpirationDateTo = DateTime.UtcNow.AddMinutes(5)
             };
 
             var client = new PreferenceClient();
@@ -96,71 +99,99 @@ public class PaymentCommunication : IPaymentCommunication
         }
     }
 
-    public async Task VerifyPendingAsync()
+    public async Task<PaymentWebhookResult> ProcessPaymentWebhookAsync(string paymentId)
+{
+    try
     {
-        var ordersPending = await _context.Orders
-            .Where(o => o.Status == OrderStatus.AwaitingPayment && !string.IsNullOrEmpty(o.PaymentId))
-            .ToListAsync();
+        var payment = await _mercadoPagoClient.GetPaymentByIdAsync(paymentId);
 
-        if (!ordersPending.Any())
+        _logger.LogInformation($"Processando webhook para PaymentId: {paymentId}");
+
+        if (payment == null)
         {
-            _logger.LogInformation("Nenhum pedido pendente com PaymentId encontrado.");
+            _logger.LogWarning($"Pagamento não encontrado para ID: {paymentId}");
+            return PaymentWebhookResult.Fail("Pagamento não encontrado.");
+        }
+
+        var externalReference = payment.ExternalReference;
+        bool isApproved = payment.Status == "approved";
+
+        _logger.LogInformation($"Pagamento localizado: PreferenceId {externalReference}, Status {payment.Status}");
+
+        var order = await _context.Orders
+            .FirstOrDefaultAsync(o => o.ExternalPaymentId == externalReference);
+
+        if (order == null)
+        {
+            _logger.LogWarning($"Pedido não encontrado para referência: {externalReference}");
+            return PaymentWebhookResult.Fail("Pedido não encontrado.");
+        }
+
+        if (order.ExpirationDateTo.HasValue && order.ExpirationDateTo < DateTime.UtcNow)
+        {
+            _logger.LogWarning($"Pagamento recebido fora do prazo para Order {order.Id}, PaymentId: {paymentId}. Ignorado.");
+
+            order.Status = OrderStatus.Expired;
+            order.FailureReason = "O link de pagamento expirou. Por favor, gere um novo.";
+            await _context.SaveChangesAsync();
+
+            return PaymentWebhookResult.Fail("Pagamento fora do prazo.");
+        }
+
+        if (!isApproved)
+        {
+            order.Status = OrderStatus.Canceled;
+            order.FailureReason = !string.IsNullOrWhiteSpace(payment.StatusDetail)
+                ? StringExtensions.RemoveSpecialCharacters(payment.StatusDetail)
+                : "Não conseguimos processar seu pagamento. Você pode tentar novamente em instantes ou até mesmo, utilizar outro método.";
+            await _context.SaveChangesAsync();
+
+            return PaymentWebhookResult.Fail(order.FailureReason);
+        }
+
+        order.Status = OrderStatus.Paid;
+        await _context.SaveChangesAsync();
+
+        return PaymentWebhookResult.Ok(order);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Erro ao processar webhook para PaymentId: {paymentId}");
+        return PaymentWebhookResult.Fail("Erro interno ao processar o pagamento.");
+    }
+}
+
+
+    public async Task ProcessMerchantOrderWebhookAsync(string merchantOrderId)
+    {
+        var merchantOrder = await _mercadoPagoClient.GetMerchantOrderByIdAsync(merchantOrderId);
+
+        if (merchantOrder == null)
+        {
+            _logger.LogWarning($"Merchant Order {merchantOrderId} não encontrado.");
             return;
         }
 
-        foreach (var order in ordersPending)
-        {
-            var status = await _mercadoPagoClient.GetPaymentStatusAsync(order.PaymentId!);
+        _logger.LogInformation($"Merchant Order recebido: {merchantOrder.Id}, Status: {merchantOrder.Status}");
 
-            if (status == "approved")
-            {
-                order.Status = OrderStatus.Paid;
-                _context.Orders.Update(order);
-                _logger.LogInformation($"O pedido #{order.RequestNumber} alterou o status para pago! ID: {order.Id}");
-            }
+        var externalRef = merchantOrder.ExternalReference;
+        if (string.IsNullOrWhiteSpace(externalRef))
+        {
+            _logger.LogWarning($"Merchant Order {merchantOrderId} sem referência externa.");
+            return;
         }
 
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task ProcessPaymentWebhookAsync(string paymentId)
-    {
-        try
+        var order = await _context.Orders.FirstOrDefaultAsync(o => o.ExternalPaymentId == externalRef);
+        if (order == null)
         {
-            var accessToken = _mercadoPagoSettings.AccessToken;
-            var response = await new HttpClient().GetAsync(
-                $"https://api.mercadopago.com/v1/payments/{paymentId}?access_token={accessToken}");
-
-            response.EnsureSuccessStatusCode();
-
-            var content = await response.Content.ReadAsStringAsync();
-            var json = JsonDocument.Parse(content).RootElement;
-
-            var status = json.GetProperty("status").GetString();
-            var externalReference = json.GetProperty("external_reference").GetString();
-
-            if (string.IsNullOrEmpty(externalReference))
-                return;
-
-            var userIdStr = externalReference.Split('-').ElementAtOrDefault(1);
-            if (!Guid.TryParse(userIdStr, out var userId))
-                return;
-
-            var order = await _context.Orders
-                .FirstOrDefaultAsync(x => x.UserId == userId && x.Status == OrderStatus.AwaitingPayment);
-
-            if (order == null) return;
-
-            if (status == "approved")
-            {
-                order.Status = OrderStatus.Paid;
-                _context.Orders.Update(order);
-                await _context.SaveChangesAsync();
-            }
+            _logger.LogWarning($"Pedido não encontrado para referência externa: {externalRef}");
+            return;
         }
-        catch (Exception ex)
+
+        if (order.Status == OrderStatus.Paid)
         {
-            Console.WriteLine($"Erro no webhook: {ex.Message}");
+            _logger.LogInformation($"Pedido {order.Id} já está pago. Nenhuma ação necessária.");
+            return;
         }
     }
 }

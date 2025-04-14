@@ -20,9 +20,10 @@ using Domain.Interfaces;
 using Integrations.MercadoPago;
 using Application.Payment.Commands;
 using Application.Carts.Dtos;
-using Api.Workflows.Workflows;
 using Integrations.SMTP;
 using Api.Workflows.JobSchedulerService;
+using Application.Workflows.Workflows;
+using Application.Workflows.Activities;
 
 namespace Api.Extensions;
 
@@ -67,6 +68,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<CartDeleteCommand, bool>, CartDeleteCommandHandler>();
         services.AddTransient<IRequestHandler<MergeUsersFirebaseCommand, bool>, MergeUsersFirebaseCommandHandler>();
         services.AddTransient<IRequestHandler<CreatePaymentCommand, string>, CreatePaymentCommandHandler>();
+        services.AddTransient<IRequestHandler<ProcessMerchantOrderWebhookCommand, Unit>, ProcessMerchantOrderWebhookCommandHandler>();
 
         // #endregion
 
@@ -83,9 +85,15 @@ public static class MyConfigServiceCollectionExtensions
         services.AddScoped<ISmtpService, SmtpServices>();
 
         // #region Workflows, Jobs and Activities
-        services.AddScoped<IProcessMergeUsersFirebaseActivity, ProcessMergeUsersFirebaseActivity>();
-        services.AddScoped<IMergeUsersWorkflow, MergeUsersWorkflow>();
         services.AddScoped<IJobSchedulerService, JobSchedulerService>();
+
+        services.AddScoped<UpdateOrderStatusWorkflow>();
+        services.AddScoped<OrderExpirationWorkflow>();
+        services.AddScoped<IMergeUsersWorkflow, MergeUsersWorkflow>();
+    
+        services.AddScoped<IProcessOrderExpirationActivity, ProcessOrderExpirationActivity>();
+        services.AddScoped<IProcessMergeUsersFirebaseActivity, ProcessMergeUsersFirebaseActivity>();
+        services.AddScoped<IUpdateOrderStatusActivity, UpdateOrderStatusActivity>();
         // #endregion
 
         // #region Factories

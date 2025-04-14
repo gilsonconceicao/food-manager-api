@@ -1,4 +1,4 @@
-using Api.Workflows.Workflows;
+using Application.Workflows.Workflows;
 using Domain.Extensions;
 using Hangfire;
 
@@ -14,20 +14,13 @@ public static class RecurringJobsScheduler
             cronExpression: "0 10 * * *",
             AddRecurringJobOptions()
         );
-
-        RecurringJob.AddOrUpdate<PaymentStatusCheckWorkflow>(
-            "check-pending-payments",
-            job => job.CheckPendingPaymentsAsync(),
-            "0 * * * *",
-            AddRecurringJobOptions()
-        );
     }
 
     private static RecurringJobOptions AddRecurringJobOptions()
     {
         return new RecurringJobOptions
         {
-            TimeZone = GenericExtenstions.GetBrazilTimeZone()
+            TimeZone = DateExtensions.GetBrazilTimeZone()
         };
     }
 }

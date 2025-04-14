@@ -1,4 +1,5 @@
 using Api.Services;
+using Api.Workflows.JobSchedulerService;
 using Application.Common.Exceptions;
 using Domain.Enums;
 using Domain.Interfaces;
@@ -20,16 +21,19 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
     private readonly ICurrentUser _httpUserService;
     private readonly DataBaseContext _context;
     private readonly IPaymentCommunication _paymentCommunication;
+    private readonly IJobSchedulerService _jobSchedulerService;
 
     public CreatePaymentCommandHandler(
         ICurrentUser httpUserService,
         DataBaseContext context,
-        IPaymentCommunication paymentCommunication
+        IPaymentCommunication paymentCommunication,
+        IJobSchedulerService jobSchedulerService
     )
     {
         _context = context;
         _httpUserService = httpUserService;
         _paymentCommunication = paymentCommunication;
+        _jobSchedulerService = jobSchedulerService;
     }
 
     public async Task<string> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
@@ -37,17 +41,13 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
         var userId = userAuthenticated.UserId;
 
-        var user = await _context.Users
-            .FirstOrDefaultAsync(x => x.CreatedByUserId == userId, cancellationToken)
-            ?? throw new NotFoundException("Usuário não encontrado.");
-
         var orders = await _context.Orders
             .Include(o => o.Items)
                 .ThenInclude(i => i.Food)
             .Where(o =>
                 request.OrderIds.Contains(o.Id) &&
                 o.CreatedByUserId == userId &&
-                o.Status == OrderStatus.AwaitingPayment
+                o.Status == OrderStatus.AwaitingPayment || o.Status == OrderStatus.Expired
             )
             .ToListAsync(cancellationToken);
 
@@ -73,11 +73,11 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
 
         foreach (var order in orders)
         {
-            order.PaymentId = preference.Id;
+            order.ExternalPaymentId = preference.ExternalReference;
+            order.ExpirationDateTo = DateTime.UtcNow.AddMinutes(5);
         }
 
         await _context.SaveChangesAsync(cancellationToken);
-
         return preference.InitPoint;
     }
 }
