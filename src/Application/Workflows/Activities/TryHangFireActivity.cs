@@ -1,18 +1,19 @@
+using Application.Carts.Commands;
 using Application.Users.Commands;
 using MediatR;
 
 namespace Application.Workflows.Workflows;
 
-public interface IProcessMergeUsersFirebaseActivity
+public interface IProcessTryHangFireActivity
 {
     Task ExecuteAsync();
 }
 
-public class ProcessMergeUsersFirebaseActivity : IProcessMergeUsersFirebaseActivity
+public class ProcessTryHangFireActivity : IProcessTryHangFireActivity
 {
     private readonly IMediator _mediator;
 
-    public ProcessMergeUsersFirebaseActivity(
+    public ProcessTryHangFireActivity(
         IMediator mediator
     )
     {
@@ -21,6 +22,6 @@ public class ProcessMergeUsersFirebaseActivity : IProcessMergeUsersFirebaseActiv
 
     public async Task ExecuteAsync()
     {
-        await _mediator.Send(new MergeUsersFirebaseCommand{});
+        await _mediator.Send(new TryHangFireCommand{});
     }
 }

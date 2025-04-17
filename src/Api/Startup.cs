@@ -34,7 +34,10 @@ public class Startup
         // database
         services.AddDbContext<DataBaseContext>(options =>
         {
-            options.UseNpgsql(connectionString);
+            options.UseNpgsql(connectionString, npgsqlOptions =>
+            {
+                npgsqlOptions.CommandTimeout(60);
+            });
         });
 
         services.AddDependencyInjections(_configuration);
@@ -49,7 +52,11 @@ public class Startup
             .UsePostgreSqlStorage(connectionStringHangfire, new PostgreSqlStorageOptions
             {
                 SchemaName = "hangfire",
-                PrepareSchemaIfNecessary = true
+                PrepareSchemaIfNecessary = true,
+                QueuePollInterval = TimeSpan.FromSeconds(15),
+                InvisibilityTimeout = TimeSpan.FromMinutes(2),
+                UseNativeDatabaseTransactions = true,
+                DistributedLockTimeout = TimeSpan.FromMinutes(1)
             }));
         // #endregion
 
@@ -131,7 +138,13 @@ public class Startup
             );
         });
 
-        services.AddHangfireServer();
+        services.AddHangfireServer(options =>
+        {
+            options.WorkerCount = 5;
+            options.ServerName = "GangfireFoodManager";
+            options.Queues = new[] { "default" };
+            options.SchedulePollingInterval = TimeSpan.FromSeconds(10);
+        });
         services.AddApplicationInsightsTelemetry();
 
 
@@ -184,8 +197,7 @@ public class Startup
 
         RecurringJobsScheduler.Schedule();
 
-        app.UseHangfireDashboard();
-        app.UseHangfireServer();
+        app.UseHangfireDashboard("/hangfire");
 
         app.UseEndpoints(endpoints =>
         {

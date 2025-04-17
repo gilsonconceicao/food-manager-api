@@ -69,6 +69,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<MergeUsersFirebaseCommand, bool>, MergeUsersFirebaseCommandHandler>();
         services.AddTransient<IRequestHandler<CreatePaymentCommand, string>, CreatePaymentCommandHandler>();
         services.AddTransient<IRequestHandler<ProcessMerchantOrderWebhookCommand, Unit>, ProcessMerchantOrderWebhookCommandHandler>();
+        services.AddTransient<IRequestHandler<TryHangFireCommand, bool>, TryHangFireCommandHandler>();
 
         // #endregion
 
@@ -89,8 +90,11 @@ public static class MyConfigServiceCollectionExtensions
 
         services.AddScoped<UpdateOrderStatusWorkflow>();
         services.AddScoped<OrderExpirationWorkflow>();
+        
+        services.AddScoped<ITryHangFireWorkflow, TryHangFireWorkflow>();
         services.AddScoped<IMergeUsersWorkflow, MergeUsersWorkflow>();
     
+        services.AddScoped<IProcessTryHangFireActivity, ProcessTryHangFireActivity>();
         services.AddScoped<IProcessOrderExpirationActivity, ProcessOrderExpirationActivity>();
         services.AddScoped<IProcessMergeUsersFirebaseActivity, ProcessMergeUsersFirebaseActivity>();
         services.AddScoped<IUpdateOrderStatusActivity, UpdateOrderStatusActivity>();

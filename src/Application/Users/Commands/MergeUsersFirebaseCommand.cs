@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 #nullable disable
-namespace Application.Carts.Commands;
+namespace Application.Users.Commands;
 
 public class MergeUsersFirebaseCommand : IRequest<bool>
 {

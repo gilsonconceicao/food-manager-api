@@ -59,4 +59,28 @@ public static class EmailTemplates
 </body>
 </html>";
     }
+
+    public static string TryHangfireTemplete()
+    {
+        var sb = new StringBuilder();
+
+        return $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Relatório de Usuários</title>
+</head>
+<body style='margin: 0; padding: 0; font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5;'>
+
+    <div style='max-width: 700px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
+        <div style='background-color: #2e86de; color: white; padding: 30px 40px;'>
+            <h1 style='margin: 0; font-size: 28px;'>👋 Olá!</h1>
+            <p style='margin: 5px 0 0;'>Isso é apenas um e-mail do sistema.</p>
+        </div>
+    </div>
+
+</body>
+</html>";
+    }
 }

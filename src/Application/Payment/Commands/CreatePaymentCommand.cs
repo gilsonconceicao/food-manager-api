@@ -74,7 +74,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         foreach (var order in orders)
         {
             order.ExternalPaymentId = preference.ExternalReference;
-            order.ExpirationDateTo = DateTime.UtcNow.AddMinutes(5);
+            order.ExpirationDateTo = DateTime.UtcNow.AddHours(1);
         }
 
         await _context.SaveChangesAsync(cancellationToken);

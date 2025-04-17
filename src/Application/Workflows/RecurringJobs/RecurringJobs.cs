@@ -14,6 +14,13 @@ public static class RecurringJobsScheduler
             cronExpression: "0 10 * * *",
             AddRecurringJobOptions()
         );
+
+        RecurringJob.AddOrUpdate<TryHangFireWorkflow>(
+            recurringJobId: "try-logger-email",
+            methodCall: process => process.TryAsync(),
+            cronExpression: "0 18 * * *",
+            AddRecurringJobOptions()
+        );
     }
 
     private static RecurringJobOptions AddRecurringJobOptions()

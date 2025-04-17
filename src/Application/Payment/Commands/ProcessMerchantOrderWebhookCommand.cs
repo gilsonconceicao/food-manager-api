@@ -29,7 +29,7 @@ public class ProcessMerchantOrderWebhookCommandHandler : IRequestHandler<Process
         {
             BackgroundJob.Schedule<UpdateOrderStatusWorkflow>(
                activity => activity.UpdateStatusAsync(result.Order.Id, OrderStatus.InPreparation),
-               TimeSpan.FromMinutes(2)
+               TimeSpan.FromHours(1)
            );
         }
         return await Task.FromResult(Unit.Value);

@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Domain.Interfaces;
-using Microsoft.Extensions.Logging;
-using Hangfire;
-using Application.Workflows.Workflows;
 using MediatR;
 using Application.Payment.Commands;
 
