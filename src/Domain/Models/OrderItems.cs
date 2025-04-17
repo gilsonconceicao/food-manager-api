@@ -23,9 +23,6 @@ public class OrderItems
     public decimal? Price { get; set; }
     
     public int? Quantity { get; set; }
-
-    [Column(TypeName = "varchar(150)")]
-    public string? Observations { get; set; }
     
     [Column(TypeName = "decimal(18, 2)")]
     public decimal? Discount { get; set; }

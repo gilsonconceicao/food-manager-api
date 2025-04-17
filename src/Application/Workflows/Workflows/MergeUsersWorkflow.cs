@@ -1,4 +1,4 @@
-namespace Api.Workflows.Workflows;
+namespace Application.Workflows.Workflows;
 
 public interface IMergeUsersWorkflow
 {

@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace Domain.Extensions;
 
-public static class GenericExtenstions
+public static class DateExtensions
 {
     public static TimeZoneInfo GetBrazilTimeZone()
     {

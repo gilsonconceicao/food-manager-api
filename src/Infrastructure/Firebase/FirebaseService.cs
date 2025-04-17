@@ -38,12 +38,7 @@ namespace Api.Extensions
                     });
 
                     
-                    Console.WriteLine("Firebase inicializado com sucesso." + new
-                    {
-                        variables = configuration.GetSection("FirebaseSettings"), 
-                        firebaseConfig = firebaseConfig, 
-                        jsonConfig = jsonConfig
-                    });
+                    Console.WriteLine("Firebase inicializado com sucesso.");
                 }
                 catch (Exception ex)
                 {

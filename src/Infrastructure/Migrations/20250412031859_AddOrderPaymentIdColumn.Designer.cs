@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250412031859_AddOrderPaymentIdColumn")]
+    partial class AddOrderPaymentIdColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -162,17 +165,11 @@ namespace Infrastructure.Migrations
                     b.Property<string>("CreatedByUserName")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("ExpirationDateTo")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ExternalPaymentId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FailureReason")
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("PaymentId")
+                        .HasColumnType("text");
 
                     b.Property<int>("RequestNumber")
                         .HasColumnType("integer");

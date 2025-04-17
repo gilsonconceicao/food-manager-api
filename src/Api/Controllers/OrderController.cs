@@ -35,7 +35,7 @@ public class OrderController : BaseController
         var result = await _mediator.Send(new OrderCreateCommand
         {
             UserId = UserId,
-            Foods = model.Foods
+            CartIds = model.CartIds
         });
         return Ok(result);
     }
@@ -94,22 +94,6 @@ public class OrderController : BaseController
         {
             OrderId = Id,
             IsPermanent = IsPermanent
-        });
-        return Ok(result);
-    }
-
-    /// <summary>
-    /// Processar pedido 
-    /// </summary>
-    [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
-    [HttpPut("{Id}/Process")]
-    [Authorize(Policy = "Auth")]
-    public async Task<IActionResult> ConfirmAsync([FromRoute] Guid Id, [FromBody] ProcessStepDto model)
-    {
-        var result = await _mediator.Send(new ExecuteTriggerCommand
-        {
-            Trigger = model.OrderTrigger,
-            Id = Id
         });
         return Ok(result);
     }

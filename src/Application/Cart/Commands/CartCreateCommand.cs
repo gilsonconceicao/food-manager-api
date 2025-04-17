@@ -11,7 +11,7 @@ namespace Application.Carts.Commands;
 #nullable disable 
 public class CartCreateCommand : IRequest<bool>
 {
-    public Guid ItemId { get; set; }
+    public Guid FoodId { get; set; }
     public int? Quantity { get; set; } = 1;
     public string? Observations { get; set; }
 
@@ -39,7 +39,7 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
         var user = await _httpUserService.GetAuthenticatedUser();
 
         Food existsFoodRelated = await _context.Foods
-                .FirstOrDefaultAsync(c => c.Id == request.ItemId)
+                .FirstOrDefaultAsync(c => c.Id == request.FoodId)
                 ?? throw new HttpResponseException
                 {
                     Status = 404,
@@ -54,7 +54,7 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
 
         var getExistsItem = await _context.Carts
             .FirstOrDefaultAsync(x =>
-                request.ItemId == x.FoodId && x.CreatedByUserId == user.UserId);
+                request.FoodId == x.FoodId && x.CreatedByUserId == user.UserId);
 
         if (getExistsItem is not null)
         {
@@ -65,7 +65,7 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
         }
         else
         {
-            var newCart = _CartFactory.CreateCart(request.ItemId, request.Quantity, request.Observations);
+            var newCart = _CartFactory.CreateCart(request.FoodId, request.Quantity, request.Observations);
             cartId = newCart.Id;
             _context.Carts.Add(newCart);
         }

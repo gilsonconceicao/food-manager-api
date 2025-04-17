@@ -2,7 +2,6 @@
 using FluentValidation;
 using Api.Enums;
 using Application.Common.Exceptions;
-using Application.Orders.Dtos;
 using Application.Utils;
 using Domain.Enums;
 using Domain.Models;
@@ -12,10 +11,11 @@ using Microsoft.EntityFrameworkCore;
 
 #nullable disable
 namespace Application.Orders.Commands;
+
 public class OrderCreateCommand : IRequest<bool>
 {
     public string UserId { get; set; }
-    public List<OrderItemCreateDto> Foods { get; set; }
+    public List<Guid> CartIds { get; set; }
 }
 
 public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
@@ -60,48 +60,35 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
             UserId = user.Id,
             RequestNumber = orderCount + 1,
             CreatedAt = DateTime.UtcNow,
-            Status = OrderStatus.Created
+            Status = OrderStatus.AwaitingPayment
         };
 
         await _context.Orders.AddAsync(order, cancellationToken);
 
-        var foodIdsRequest = request.Foods.Select(x => x.FoodId).ToList();
+        var cartIds = request.CartIds;
 
-        var getFoodIncludeIds = await _context.Foods
-            .Where(x => foodIdsRequest.Contains(x.Id))
-            .Select(x => x.Id)
+        var getCarts = await _context.Carts
+            .Where(x => cartIds.Contains(x.Id))
             .ToListAsync();
 
-        var missingFoodIds = foodIdsRequest.Except(getFoodIncludeIds).ToList();
+        var newOrderItems = new List<OrderItems>();
 
-        if (missingFoodIds.Any())
+        foreach (var item in getCarts)
         {
-            throw new HttpResponseException
-            {
-                Status = 404,
-                Value = new
-                {
-                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                    Message = $"Comidas não foram encontradas",
-                    Resource = missingFoodIds
-                }
-            };
-        };
-
-        foreach (var item in request.Foods)
-        {
-            var orderFoodRelation = new OrderItems
+            var orderItem = new OrderItems
             {
                 OrderId = order.Id,
                 FoodId = item.FoodId,
-                Quantity = item.Quantity ?? null,
-                Observations = item.Observations ?? null
+                Quantity = item.Quantity ?? null
             };
 
-            _context.Set<OrderItems>().Add(orderFoodRelation);
-        };
+            newOrderItems.Add(orderItem);
 
+        }
+
+        await _context.Items.AddRangeAsync(newOrderItems);
         await _context.SaveChangesAsync();
+
         return true;
     }
 }

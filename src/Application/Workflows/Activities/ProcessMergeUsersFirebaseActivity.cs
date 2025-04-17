@@ -1,7 +1,7 @@
 using Application.Carts.Commands;
 using MediatR;
 
-namespace Api.Workflows.Workflows;
+namespace Application.Workflows.Workflows;
 
 public interface IProcessMergeUsersFirebaseActivity
 {

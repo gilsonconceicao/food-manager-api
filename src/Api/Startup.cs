@@ -48,11 +48,10 @@ public class Startup
             .UseColouredConsoleLogProvider()
             .UsePostgreSqlStorage(connectionStringHangfire, new PostgreSqlStorageOptions
             {
-                SchemaName = "hangfire"
+                SchemaName = "hangfire",
+                PrepareSchemaIfNecessary = true
             }));
         // #endregion
-
-
 
         // Add controllers with NewtonsoftJson for handling JSON serialization
         services.AddControllers(options =>

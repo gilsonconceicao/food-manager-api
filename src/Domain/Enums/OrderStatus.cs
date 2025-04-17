@@ -5,34 +5,34 @@ namespace Domain.Enums;
 public enum OrderStatus
 {
     /// <summary>
-    /// Criado
+    /// Aguardando pagamento
     /// </summary>
-    [Description("Criado")]
-    Created = 0,
+    [Description("Aguardando pagamento")]
+    AwaitingPayment = 0,
 
     /// <summary>
-    /// Solicitado
+    /// Pago
     /// </summary>
-    [Description("Solicitado")]
-    Requested = 1,
+    [Description("Pago")]
+    Paid = 1,
 
     /// <summary>
-    /// Aguardando confirmação
-    /// </summary>
-    [Description("Aguardando confirmação")]
-    AwaitingConfirmation = 2,
-
-    /// <summary>
-    /// Em preparo
+    /// Em preparo"
     /// </summary>
     [Description("Em preparo")]
-    InPreparation = 3,
+    InPreparation = 2,
 
     /// <summary>
     /// Pronto
     /// </summary>
     [Description("Pronto")]
-    Done = 4,
+    Done = 3,
+
+    /// <summary>
+    /// Enviando
+    /// </summary>
+    [Description("Enviando")]
+    Delivery = 4,
 
     /// <summary>
     /// Finalizado
@@ -44,5 +44,16 @@ public enum OrderStatus
     /// Cancelado
     /// </summary>
     [Description("Cancelado")]
-    Canceled = 6
+    Canceled = 6,
+    /// <summary>
+    /// Falha no pagamento
+    /// </summary>
+    [Description("Falha no pagamento")]
+    PaymentFailed = 7,
+
+    /// <summary>
+    /// Pagamento expirado por tempo limite excedido.
+    /// </summary>
+    [Description("Pagamento expirado por tempo limite")]
+    Expired = 8
 }

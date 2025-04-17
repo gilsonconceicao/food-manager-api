@@ -3,6 +3,6 @@ namespace Application.Orders.Dtos
 #nullable disable
     public class OrderCreateDto
     {
-        public List<OrderItemCreateDto> Foods { get; set; }
+        public List<Guid> CartIds { get; set; }
     }
 }
