@@ -1,5 +1,4 @@
 using Application.Carts.Commands;
-using Application.Users.Commands;
 using MediatR;
 
 namespace Application.Workflows.Workflows;

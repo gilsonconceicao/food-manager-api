@@ -7,13 +7,13 @@ public interface ITryHangFireWorkflow
 
 public class TryHangFireWorkflow : ITryHangFireWorkflow
 {
-    private readonly IProcessMergeUsersFirebaseActivity _processMergeUsersFirebaseActivity;
-    public TryHangFireWorkflow(IProcessMergeUsersFirebaseActivity activity)
+    private readonly IProcessTryHangFireActivity _processTryHangFireActivity;
+    public TryHangFireWorkflow(IProcessTryHangFireActivity processTryHangFireActivity)
     {
-        _processMergeUsersFirebaseActivity = activity;
+        _processTryHangFireActivity = processTryHangFireActivity;
     }
     public async Task TryAsync()
     {
-        await _processMergeUsersFirebaseActivity.ExecuteAsync();
+        await _processTryHangFireActivity.ExecuteAsync();
     }
 }
