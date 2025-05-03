@@ -195,7 +195,7 @@ public class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
-        RecurringJobsScheduler.Schedule();
+        // RecurringJobsScheduler.Schedule();
 
         app.UseHangfireDashboard("/hangfire");
 
