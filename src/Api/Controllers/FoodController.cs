@@ -7,6 +7,7 @@ using AutoMapper;
 using Domain.Extensions;
 using Application.Foods.Queries.FoodGetListPaginationQuery;
 using Microsoft.AspNetCore.Authorization;
+using Application.Foods.Queries.FoodGetByIdQuery;
 
 namespace Api.Controllers;
 public class FoodController : BaseController
@@ -49,6 +50,23 @@ public class FoodController : BaseController
         );
 
         return Ok(listMappedFromPagination);
+    }
+
+    /// <summary>
+    /// Obtem comida por identificador
+    /// </summary>
+    [ProducesResponseType<FoodDto>(StatusCodes.Status200OK)]
+    [HttpGet("{Id}")]
+    public async Task<IActionResult> GetFoodById([FromRoute] Guid Id)
+    {
+        var result = await _mediator.Send(new FoodGetByIdQuery
+        { 
+            Id = Id
+        });
+
+        var resultMapped = _mapper.Map<FoodDto>(result);
+
+        return Ok(resultMapped);
     }
 
     /// <summary>
