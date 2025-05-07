@@ -7,6 +7,7 @@ using AutoMapper;
 using Domain.Extensions;
 using Application.Foods.Queries.FoodGetListPaginationQuery;
 using Microsoft.AspNetCore.Authorization;
+using Application.Foods.Queries.FoodGetByIdQuery;
 
 namespace Api.Controllers;
 public class FoodController : BaseController
@@ -52,6 +53,23 @@ public class FoodController : BaseController
     }
 
     /// <summary>
+    /// Obtem comida por identificador
+    /// </summary>
+    [ProducesResponseType<FoodDto>(StatusCodes.Status200OK)]
+    [HttpGet("{Id}")]
+    public async Task<IActionResult> GetFoodById([FromRoute] Guid Id)
+    {
+        var result = await _mediator.Send(new FoodGetByIdQuery
+        { 
+            Id = Id
+        });
+
+        var resultMapped = _mapper.Map<FoodDto>(result);
+
+        return Ok(resultMapped);
+    }
+
+    /// <summary>
     /// Remove um registro de comida por identifcador 
     /// </summary>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
@@ -80,7 +98,7 @@ public class FoodController : BaseController
             IsAvailable: model.IsAvailable,
             Name: model.Name,
             Price: model.Price,
-            UrlImage: model.UrlImage
+            Url: model.Url
         ));
 
         return Ok(result);

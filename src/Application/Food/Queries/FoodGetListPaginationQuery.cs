@@ -39,11 +39,12 @@ namespace Application.Foods.Queries.FoodGetListPaginationQuery
                 .Include(x => x.Items)
                 .ThenInclude(x => x.Order)
                 .Where(x => !x.IsDeleted)
-                .Where(x => string.IsNullOrEmpty(searchString) || 
+                .Where(x => string.IsNullOrEmpty(searchString) ||
                     x.Name.ToLower().Contains(searchString) ||
                     x.Description.ToLower().Contains(searchString)
                 )
-                .OrderBy(c => c.Name);
+                .OrderBy(c => c.Name)
+                .OrderByDescending(c => c.UpdatedAt != null ? c.UpdatedAt : c.CreatedAt);
 
             var totalCount = await queryData.CountAsync(cancellationToken);
 

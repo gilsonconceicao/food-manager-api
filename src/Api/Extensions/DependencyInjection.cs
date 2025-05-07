@@ -11,7 +11,6 @@ using Application.Orders.Commands.Validatons;
 using Application.Orders.Queries;
 using Application.Users.Commands;
 using Application.Users.Queries;
-using Domain.Enums;
 using Domain.Extensions;
 using Domain.Models;
 using MediatR;
@@ -24,6 +23,7 @@ using Integrations.SMTP;
 using Api.Workflows.JobSchedulerService;
 using Application.Workflows.Workflows;
 using Application.Workflows.Activities;
+using Application.Foods.Queries.FoodGetByIdQuery;
 
 namespace Api.Extensions;
 
@@ -81,6 +81,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<UserGetByIdQuery, User>, UserGetByIdQueryHandler>();
         services.AddTransient<IRequestHandler<VerifyUserIsMasterQuery, bool>, VerifyUserIsMasterQueryHandler>();
         services.AddTransient<IRequestHandler<CartGetListQuery, CartListDto>, CartGetListQueryHandler>();
+        services.AddTransient<IRequestHandler<FoodGetByIdQuery, Food>, FoodGetByIdQueryHandler>();
         // #endregion
 
         services.AddScoped<ISmtpService, SmtpServices>();

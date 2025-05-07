@@ -11,7 +11,7 @@ public class FoodUpdateCommand : IRequest<bool>
     public FoodUpdateCommand(
         Guid Id,
         string Name,
-        string UrlImage,
+        string Url,
         string Description,
         bool IsAvailable,
         decimal Price,
@@ -19,7 +19,7 @@ public class FoodUpdateCommand : IRequest<bool>
     {
         this.Id = Id;
         this.Name = Name;
-        this.UrlImage = UrlImage;
+        this.Url = Url;
         this.Description = Description;
         this.IsAvailable = IsAvailable;
         this.Price = Price;
@@ -27,7 +27,7 @@ public class FoodUpdateCommand : IRequest<bool>
     }
     public Guid Id { get; set; }
     public string? Name { get; set; }
-    public string? UrlImage { get; set; }
+    public string? Url { get; set; }
     public string? Description { get; set; }
     public bool? IsAvailable { get; set; }
     public decimal? Price { get; set; }
@@ -63,8 +63,8 @@ public class FoodUpdateHandler : IRequestHandler<FoodUpdateCommand, bool>
         if (request.Description != null)
             getFoodById.Description = request.Description;
 
-        if (request.UrlImage != null)
-            getFoodById.UrlImage = request.UrlImage;
+        if (request.Url != null)
+            getFoodById.UrlImage = request.Url;
 
 
         _context.Foods.Update(getFoodById);
