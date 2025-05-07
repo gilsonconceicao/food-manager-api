@@ -98,7 +98,7 @@ public class FoodController : BaseController
             IsAvailable: model.IsAvailable,
             Name: model.Name,
             Price: model.Price,
-            UrlImage: model.UrlImage
+            Url: model.Url
         ));
 
         return Ok(result);
