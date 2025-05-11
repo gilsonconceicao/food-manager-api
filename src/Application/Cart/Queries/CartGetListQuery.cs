@@ -36,7 +36,7 @@ namespace Application.Carts.Queries
             var queryData = await _context.Carts
                 .Include(x => x.Food)
                 .AsNoTracking()
-                .Where(c => !c.IsDeleted)
+                .Where(c => !c.IsDeleted && ! c.Food.IsDeleted)
                 .Where(c => c.CreatedByUserId == user.UserId)
                 .OrderBy(c => c.CreatedAt)
                 .ToListAsync(); 
