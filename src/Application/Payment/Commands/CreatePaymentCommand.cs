@@ -60,8 +60,8 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             {
                 Id = $"{item.OrderId}-{item.FoodId}",
                 Title = $"Pedido #{item.Order.RequestNumber} - {item.Food.Name}",
-                Description = $"Item do pedido - {item.Food.Description}",
-                PictureUrl = item.Food.UrlImage,
+                Description = $"Teste de descrição",
+                PictureUrl = $"https://{item.Food.UrlImage}",
                 CategoryId = item.Food.Category.ToString(),
                 Quantity = item.Quantity <= 0 ? 1 : item.Quantity,
                 UnitPrice = item.Food.Price / 100m,
@@ -75,6 +75,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         {
             order.ExternalPaymentId = preference.ExternalReference;
             order.ExpirationDateTo = DateTime.UtcNow.AddHours(1);
+            order.NumberOfInstallments = preference.PaymentMethods.Installments;
         }
 
         await _context.SaveChangesAsync(cancellationToken);

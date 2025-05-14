@@ -22,7 +22,7 @@ public class FoodMappers : Profile
                     x => x.Category,
                     src => src.MapFrom(x => x.Category.HasValue ? Enum.GetName(typeof(FoodCategoryEnum), x.Category.GetValueOrDefault()) : null)
                 )
-              .ForMember(x => x.Orders, src => src.MapFrom(x => x.Items.Select(x => x.Order)))
+            //   .ForMember(x => x.Orders, src => src.MapFrom(x => x.Items.Select(x => x.Order)))
               .ForMember(x => x.Url, src => src.MapFrom(x => x.UrlImage));
 
         CreateMap<Food, FoodItemsDto>()

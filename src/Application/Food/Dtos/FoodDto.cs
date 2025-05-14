@@ -12,6 +12,5 @@ namespace Application.Foods.Queries.GetAllWithPaginationFoodQuery
         public string CategoryDisplay { get; set; }
         public string Category { get; set; }
         public DateTime CreatedAt { get; set; }
-        public List<OrdersRealatedFoodDto> Orders { get; set; }
     }
 }
