@@ -203,8 +203,6 @@ public class Startup
         {
             endpoints.MapControllers();
         });
-
-
     }
 
     private static DataBaseContext GetPostgreSql(IServiceCollection services)
