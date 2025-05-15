@@ -18,6 +18,7 @@ public class OrderMappers : Profile
         CreateMap<Order, OrderDto>()
             .ForMember(x => x.OrderNumber, src => src.MapFrom(x => x.RequestNumber))
             .ForMember(x => x.CreatedBy, src => src.MapFrom(x => x.User))
-            .ForMember(x => x.StatusDisplay, src => src.MapFrom(x => x.Status.GetDescription()));
+            .ForMember(x => x.StatusDisplay, src => src.MapFrom(x => x.Status.GetDescription()))
+            .ForMember(x => x.Status, src => src.MapFrom(x => x.Status.ToString()));
     }
 }

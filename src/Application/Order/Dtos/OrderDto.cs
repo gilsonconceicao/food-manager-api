@@ -10,9 +10,12 @@ public class OrderDto
     public string ExternalPaymentId { get; set; }
     public string PaymentId { get; set; }
     public int OrderNumber { get; set; }
-    public OrderStatus Status { get; set; }
+    public string Status { get; set; }
     public string StatusDisplay { get; set; }
+    public int NumberOfInstallments { get; set; }
+    public decimal TotalValue { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
     public CreatedByDto CreatedBy { get; set; }
     public List<OrderItemsDto> Items { get; set; }
 }

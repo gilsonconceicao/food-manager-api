@@ -68,10 +68,13 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
         var cartIds = request.CartIds;
 
         var getCarts = await _context.Carts
+            .AsNoTracking()
+            .Include(c => c.Food)
             .Where(x => cartIds.Contains(x.Id))
             .ToListAsync();
 
         var newOrderItems = new List<OrderItems>();
+        decimal totalValue = 0;
 
         foreach (var item in getCarts)
         {
@@ -79,13 +82,17 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
             {
                 OrderId = order.Id,
                 FoodId = item.FoodId,
-                Quantity = item.Quantity ?? null
+                Quantity = item.Quantity,
+                Price = item.Food.Price
             };
 
-            newOrderItems.Add(orderItem);
+            totalValue = item.Food.Price + totalValue; 
 
+            newOrderItems.Add(orderItem);
         }
 
+
+        order.TotalValue = totalValue;
         await _context.Items.AddRangeAsync(newOrderItems);
         await _context.SaveChangesAsync();
 

@@ -23,7 +23,7 @@ public class OrderController : BaseController
     }
 
     /// <summary>
-    /// Método utilizado para realizar um pedido
+    /// Método utilizado para criar um pedido
     /// </summary>
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

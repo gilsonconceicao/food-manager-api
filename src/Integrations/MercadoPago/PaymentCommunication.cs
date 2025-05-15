@@ -79,9 +79,7 @@ public class PaymentCommunication : IPaymentCommunication
                 NotificationUrl = "https://f956-2804-7f0-455-136d-6cf5-e386-f166-7e5b.ngrok-free.app/webhooks/mercadopago",
                 StatementDescriptor = "Bolos e variedades da Cris",
                 ExternalReference = Guid.NewGuid().ToString(),
-                Expires = true,
-                ExpirationDateFrom = DateTime.UtcNow,
-                ExpirationDateTo = DateTime.UtcNow.AddMinutes(5)
+                Expires = false
             };
 
             var client = new PreferenceClient();
@@ -136,7 +134,7 @@ public class PaymentCommunication : IPaymentCommunication
 
         if (!isApproved)
         {
-            order.Status = OrderStatus.Canceled;
+            order.Status = OrderStatus.Cancelled;
             order.FailureReason = !string.IsNullOrWhiteSpace(payment.StatusDetail)
                 ? StringExtensions.RemoveSpecialCharacters(payment.StatusDetail)
                 : "Não conseguimos processar seu pagamento. Você pode tentar novamente em instantes ou até mesmo, utilizar outro método.";
