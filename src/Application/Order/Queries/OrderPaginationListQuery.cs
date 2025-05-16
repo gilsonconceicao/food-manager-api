@@ -38,9 +38,8 @@ public class OrderPaginationListHandler : IRequestHandler<OrderPaginationListQue
         var data = await queryData
             .Skip((page) * size)
             .Take(size)
+            .OrderByDescending(c => c.UpdatedAt != null ? c.UpdatedAt : c.CreatedAt)
             .ToListAsync(cancellationToken);
-
-        data.OrderByDescending(x => x.CreatedAt);
 
         return new ListDataResponse<List<Order>>
         {
