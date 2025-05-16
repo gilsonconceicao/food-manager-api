@@ -12,13 +12,13 @@ using Microsoft.EntityFrameworkCore;
 #nullable disable
 namespace Application.Orders.Commands;
 
-public class OrderCreateCommand : IRequest<bool>
+public class OrderCreateCommand : IRequest<Guid>
 {
     public string UserId { get; set; }
     public List<Guid> CartIds { get; set; }
 }
 
-public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
+public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
 {
     private readonly DataBaseContext _context;
     private readonly IValidator<OrderCreateCommand> _validator;
@@ -32,7 +32,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
         _validator = validator;
     }
 
-    public async Task<bool> Handle(OrderCreateCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(OrderCreateCommand request, CancellationToken cancellationToken)
     {
         var validationResult = _validator.Validate(request);
 
@@ -71,6 +71,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
             .AsNoTracking()
             .Include(c => c.Food)
             .Where(x => cartIds.Contains(x.Id))
+            .Where(x => x.CreatedByUserId == user.FirebaseUserId)
             .ToListAsync();
 
         var newOrderItems = new List<OrderItems>();
@@ -91,11 +92,13 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, bool>
             newOrderItems.Add(orderItem);
         }
 
-
         order.TotalValue = totalValue;
+        
         await _context.Items.AddRangeAsync(newOrderItems);
+
+        _context.Carts.RemoveRange(getCarts);
         await _context.SaveChangesAsync();
 
-        return true;
+        return order.Id;
     }
 }

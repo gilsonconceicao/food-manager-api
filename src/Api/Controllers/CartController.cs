@@ -1,7 +1,5 @@
-using Api.Controllers;
-using Api.Services;
+
 using Application.Carts.Commands;
-using Application.Carts.Dtos;
 using Application.Carts.Queries;
 using AutoMapper;
 using MediatR;
