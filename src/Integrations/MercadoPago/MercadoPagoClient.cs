@@ -3,13 +3,15 @@ using Integrations.Settings;
 using MercadoPago.Client.MerchantOrder;
 using MercadoPago.Config;
 using MercadoPago.Resource.MerchantOrder;
+using MercadoPago.Resource.Preference;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 namespace Integrations.MercadoPago;
 
 public interface IMercadoPagoClient
 {
-    Task<MercadoPagoPaymentResult?> GetPaymentByIdAsync(string preferenceId);
+    Task<string?> GetPreferenceByIdAsync(string preferenceId);
+    Task<MercadoPagoPaymentResult?> GetPaymentByIdAsync(string paymentId);
     Task<MerchantOrder> GetMerchantOrderByIdAsync(string merchantOrderId);
 }
 
@@ -71,6 +73,25 @@ public class MercadoPagoClient : IMercadoPagoClient
         return merchantOrder;
     }
 
+    public async Task<string?> GetPreferenceByIdAsync(string preferenceId)
+    {
+        var accessToken = _mercadoPagoSettings.AccessToken;
+        var response = await _httpClient.GetAsync(
+            $"https://api.mercadopago.com/checkout/preferences/{preferenceId}?access_token={accessToken}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            _logger.LogError("❌ Erro ao buscar preferência {id} | Status: {status} | Conteúdo: {content}",
+                             preferenceId, response.StatusCode, errorContent);
+            return null;
+        }
+
+        var content = await response.Content.ReadAsStringAsync();
+        var json = JsonDocument.Parse(content).RootElement;
+
+        return json.GetProperty("init_point").GetString(); 
+  }
 
 }
 

@@ -13,12 +13,13 @@ public class OrderMappers : Profile
         CreateMap<OrderCreateCommand, Order>();
 
         CreateMap<Order, OrdersRealatedFoodDto>()
-            .ForMember(x => x.OrderNumber, src => src.MapFrom(x => x.RequestNumber));
-            
+            .ForMember(o => o.OrderNumber, src => src.MapFrom(o => o.RequestNumber));
+
         CreateMap<Order, OrderDto>()
-            .ForMember(x => x.OrderNumber, src => src.MapFrom(x => x.RequestNumber))
-            .ForMember(x => x.CreatedBy, src => src.MapFrom(x => x.User))
-            .ForMember(x => x.StatusDisplay, src => src.MapFrom(x => x.Status.GetDescription()))
-            .ForMember(x => x.Status, src => src.MapFrom(x => x.Status.ToString()));
+            .ForMember(o => o.OrderNumber, src => src.MapFrom(o => o.RequestNumber))
+            .ForMember(o => o.CreatedBy, src => src.MapFrom(o => o.User))
+            .ForMember(o => o.StatusDisplay, src => src.MapFrom(o => o.Status.GetDescription()))
+            .ForMember(o => o.Status, src => src.MapFrom(o => o.Status.ToString()))
+            .ForMember(o => o.TotalValue, src => src.MapFrom(o => o.Items.Select(i => i.Price * i.Quantity).Sum()));
     }
 }

@@ -1,3 +1,4 @@
+using Api.Enums;
 using Api.Services;
 using Api.Workflows.JobSchedulerService;
 using Application.Common.Exceptions;
@@ -41,6 +42,17 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
         var userId = userAuthenticated.UserId;
 
+        if (request.OrderIds.Count > 1)
+            throw new HttpResponseException
+            {
+                Status = 404,
+                Value = new
+                {
+                    Code = CodeErrorEnum.INVALID_BUSINESS_RULE.ToString(),
+                    Message = $"Usuário não encontrado",
+                }
+            };
+
         var orders = await _context.Orders
             .Include(o => o.Items)
                 .ThenInclude(i => i.Food)
@@ -59,9 +71,9 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             .Select(item => new PreferenceItemRequest
             {
                 Id = $"{item.OrderId}-{item.FoodId}",
-                Title = $"Pedido #{item.Order.RequestNumber} - {item.Food.Name}",
-                Description = $"Teste de descrição",
-                PictureUrl = $"https://{item.Food.UrlImage}",
+                Title = $"{item.Food.Name} ({item.Quantity}x)",
+                Description = $"Bolos e variedades da Cris - Pedido #{item.Order.RequestNumber}",
+                PictureUrl = item.Food.UrlImage,
                 CategoryId = item.Food.Category.ToString(),
                 Quantity = item.Quantity <= 0 ? 1 : item.Quantity,
                 UnitPrice = item.Food.Price / 100m,
@@ -69,11 +81,11 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             })
             .ToList();
 
-        var preference = await _paymentCommunication.CreateCheckoutProAsync(allItems);
+        var preference = await _paymentCommunication.CreateCheckoutProAsync(allItems, orders.First().Id);
 
         foreach (var order in orders)
         {
-            order.ExternalPaymentId = preference.ExternalReference;
+            order.ExternalPaymentId = preference.Id;
             order.ExpirationDateTo = DateTime.UtcNow.AddHours(1);
             order.NumberOfInstallments = preference.PaymentMethods.Installments;
         }

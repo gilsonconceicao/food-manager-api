@@ -20,11 +20,29 @@ public class PaymentController : BaseController
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<string>(StatusCodes.Status201Created)]
-    [HttpPost]
+    [HttpPost("CreatePreference")]
     [Authorize(Policy = "Auth")]
     public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentCommand createPaymentCommand)
     {
         var result = await _mediator.Send(createPaymentCommand);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Obtem uma preferência de pagamento
+    /// </summary>
+    /// <response code="200">200 Sucesso</response>
+    /// <response code="400">400 Erro</response>
+    [ProducesResponseType<string>(StatusCodes.Status201Created)]
+    [HttpGet("{preferenceId}")]
+    [Authorize(Policy = "Auth")]
+    public async Task<IActionResult> GetPaymentPreference(string preferenceId)
+    {
+        var result = await _mediator.Send(new GetPreferenceByIdQuery
+        {
+            PreferenceId = preferenceId
+        });
+        
         return Ok(result);
     }
 }

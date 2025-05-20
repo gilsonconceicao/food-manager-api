@@ -75,7 +75,6 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
             .ToListAsync();
 
         var newOrderItems = new List<OrderItems>();
-        decimal totalValue = 0;
 
         foreach (var item in getCarts)
         {
@@ -87,13 +86,10 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
                 Price = item.Food.Price
             };
 
-            totalValue = item.Food.Price + totalValue; 
 
             newOrderItems.Add(orderItem);
         }
-
-        order.TotalValue = totalValue;
-        
+                
         await _context.Items.AddRangeAsync(newOrderItems);
 
         _context.Carts.RemoveRange(getCarts);

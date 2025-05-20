@@ -6,7 +6,7 @@ namespace Domain.Interfaces;
 
 public interface IPaymentCommunication
 {
-    Task<Preference> CreateCheckoutProAsync(List<PreferenceItemRequest> items);
+    Task<Preference> CreateCheckoutProAsync(List<PreferenceItemRequest> items, Guid orderId);
     Task<PaymentWebhookResult> ProcessPaymentWebhookAsync(string paymentId);
     Task ProcessMerchantOrderWebhookAsync(string merchantOrderId);
 }
