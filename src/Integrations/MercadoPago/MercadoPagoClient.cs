@@ -10,7 +10,7 @@ namespace Integrations.MercadoPago;
 
 public interface IMercadoPagoClient
 {
-    Task<string?> GetPreferenceByIdAsync(string preferenceId);
+    Task<Preference?> GetPreferenceByIdAsync(string preferenceId);
     Task<MercadoPagoPaymentResult?> GetPaymentByIdAsync(string paymentId);
     Task<MerchantOrder> GetMerchantOrderByIdAsync(string merchantOrderId);
 }
@@ -73,7 +73,7 @@ public class MercadoPagoClient : IMercadoPagoClient
         return merchantOrder;
     }
 
-    public async Task<string?> GetPreferenceByIdAsync(string preferenceId)
+    public async Task<Preference?> GetPreferenceByIdAsync(string preferenceId)
     {
         var accessToken = _mercadoPagoSettings.AccessToken;
         var response = await _httpClient.GetAsync(
@@ -90,8 +90,51 @@ public class MercadoPagoClient : IMercadoPagoClient
         var content = await response.Content.ReadAsStringAsync();
         var json = JsonDocument.Parse(content).RootElement;
 
-        return json.GetProperty("init_point").GetString(); 
-  }
+        var preference = new Preference
+        {
+            Id = GetStringSafe(json, "id"),
+            InitPoint = GetStringSafe(json, "init_point"),
+            SandboxInitPoint = GetStringSafe(json, "sandbox_init_point"),
+            NotificationUrl = GetStringSafe(json, "notification_url"),
+            StatementDescriptor = GetStringSafe(json, "statement_descriptor"),
+            ExternalReference = GetStringSafe(json, "external_reference"),
+            Marketplace = GetStringSafe(json, "marketplace"),
+            Purpose = GetStringSafe(json, "purpose"),
+            AdditionalInfo = GetStringSafe(json, "additional_info"),
+            AutoReturn = GetStringSafe(json, "auto_return"),
+            OperationType = GetStringSafe(json, "operation_type"),
+            DateOfExpiration = GetDateTimeSafe(json, "date_of_expiration"),
+            ExpirationDateFrom = GetDateTimeSafe(json, "expiration_date_from"),
+            ExpirationDateTo = GetDateTimeSafe(json, "expiration_date_to"),
+            DateCreated = GetDateTimeSafe(json, "date_created"),
+            Expires = json.TryGetProperty("expires", out var expiresProp) && expiresProp.ValueKind == JsonValueKind.True ? true :
+                      (expiresProp.ValueKind == JsonValueKind.False ? false : (bool?)null),
+            BinaryMode = json.TryGetProperty("binary_mode", out var binaryProp) && binaryProp.ValueKind == JsonValueKind.True ? true :
+                         (binaryProp.ValueKind == JsonValueKind.False ? false : (bool?)null),
+            CollectorId = json.TryGetProperty("collector_id", out var collectorProp) && collectorProp.TryGetInt64(out var collectorId) ? collectorId : (long?)null,
+            SponsorId = json.TryGetProperty("sponsor_id", out var sponsorProp) && sponsorProp.TryGetInt64(out var sponsorId) ? sponsorId : (long?)null,
+            MarketplaceFee = json.TryGetProperty("marketplace_fee", out var feeProp) && feeProp.TryGetDecimal(out var fee) ? fee : (decimal?)null,
+            ProcessingModes = json.TryGetProperty("processing_modes", out var procProp) && procProp.ValueKind == JsonValueKind.Array
+                ? procProp.EnumerateArray().Select(p => p.GetString()).Where(p => p != null).ToList()
+                : new List<string>()
+        };
+
+        return preference;
+    }
+    string? GetStringSafe(JsonElement json, string propertyName)
+    { 
+        return json.TryGetProperty(propertyName, out var prop) && prop.ValueKind != JsonValueKind.Null
+            ? prop.GetString()
+            : null;
+    }
+
+    DateTime? GetDateTimeSafe(JsonElement json, string propertyName)
+    {
+        return json.TryGetProperty(propertyName, out var prop) && prop.ValueKind == JsonValueKind.String
+            && DateTime.TryParse(prop.GetString(), out var date)
+            ? date
+            : null;
+    }
 
 }
 

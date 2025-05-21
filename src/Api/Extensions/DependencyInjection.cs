@@ -78,7 +78,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<FoodGetListPaginationQuery, ListDataResponse<List<Food>>>, FoodGetListPaginationQueryHandler>();
         services.AddTransient<IRequestHandler<OrderPaginationListQuery, ListDataResponse<List<Order>>>, OrderPaginationListHandler>();
         services.AddTransient<IRequestHandler<OrderGetByIdQuery, Order>, OrderGetByIdHandler>();
-        services.AddTransient<IRequestHandler<GetPreferenceByIdQuery, string>, GetPreferenceByIdQueryHandler>();
+        services.AddTransient<IRequestHandler<GetPreferenceByIdQuery, Preference>, GetPreferenceByIdQueryHandler>();
         services.AddTransient<IRequestHandler<UserPaginationListQuery, ListDataResponse<List<User>>>, UserPaginationListQueryHandler>();
         services.AddTransient<IRequestHandler<UserGetByIdQuery, User>, UserGetByIdQueryHandler>();
         services.AddTransient<IRequestHandler<VerifyUserIsMasterQuery, bool>, VerifyUserIsMasterQueryHandler>();

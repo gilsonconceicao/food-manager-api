@@ -8,13 +8,13 @@ using MercadoPago.Resource.Preference;
 #nullable disable
 namespace Application.Payment.Commands;
 
-public class GetPreferenceByIdQuery : IRequest<string>
+public class GetPreferenceByIdQuery : IRequest<Preference>
 {
     public string PreferenceId { get; set; }
 
 }
 
-public class GetPreferenceByIdQueryHandler : IRequestHandler<GetPreferenceByIdQuery, string>
+public class GetPreferenceByIdQueryHandler : IRequestHandler<GetPreferenceByIdQuery, Preference>
 {
     private readonly ICurrentUser _httpUserService;
     private readonly DataBaseContext _context;
@@ -32,7 +32,7 @@ public class GetPreferenceByIdQueryHandler : IRequestHandler<GetPreferenceByIdQu
         _mercadoPagoClient = mercadoPagoClient;
     }
 
-    public async Task<string> Handle(GetPreferenceByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Preference> Handle(GetPreferenceByIdQuery request, CancellationToken cancellationToken)
     {
         var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
 
