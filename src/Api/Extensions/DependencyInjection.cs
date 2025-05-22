@@ -25,6 +25,7 @@ using Application.Workflows.Workflows;
 using Application.Workflows.Activities;
 using Application.Foods.Queries.FoodGetByIdQuery;
 using MercadoPago.Resource.Preference;
+using Integrations.MercadoPago.Factories;
 
 namespace Api.Extensions;
 
@@ -105,6 +106,7 @@ public static class MyConfigServiceCollectionExtensions
 
         // #region Factories
         services.AddScoped<ICartFactory, CartFactory>();
+        services.AddScoped<IPaymentFactory, PaymentFactory>();
         // #endregion
 
         return services;

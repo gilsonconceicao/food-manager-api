@@ -7,7 +7,7 @@ namespace Domain.Models
 {
     public class Order : BaseEntity
     {
-        public string? ExternalPaymentId { get; set; }
+        public string? PaymentId { get; set; }
 
         public string? FailureReason { get; set; }
 

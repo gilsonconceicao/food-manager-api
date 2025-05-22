@@ -2,14 +2,12 @@ using Api.Services;
 using Domain.Enums;
 using Domain.Extensions;
 using Domain.Interfaces;
-using Domain.Models;
-using Hangfire;
 using Infrastructure.Database;
+using Integrations.MercadoPago.Factories;
 using Integrations.Settings;
-using MercadoPago.Client.Common;
-using MercadoPago.Client.Preference;
+using MercadoPago.Client.Payment;
 using MercadoPago.Config;
-using MercadoPago.Resource.Preference;
+using MercadoPago.Resource.Payment;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,6 +21,7 @@ public class PaymentCommunication : IPaymentCommunication
     private readonly DataBaseContext _context;
     private readonly IMercadoPagoClient _mercadoPagoClient;
     private readonly ILogger<PaymentCommunication> _logger;
+    private readonly IPaymentFactory _paymentFactory;
 
 
     public PaymentCommunication(
@@ -30,7 +29,8 @@ public class PaymentCommunication : IPaymentCommunication
         ICurrentUser httpUserService,
         DataBaseContext context,
         IMercadoPagoClient mercadoPagoClient,
-        ILogger<PaymentCommunication> logger
+        ILogger<PaymentCommunication> logger,
+        IPaymentFactory paymentFactory
     )
     {
         _mercadoPagoSettings = mercadoPagoSettings.Value;
@@ -38,77 +38,47 @@ public class PaymentCommunication : IPaymentCommunication
         _context = context;
         _mercadoPagoClient = mercadoPagoClient;
         _logger = logger;
+        _paymentFactory = paymentFactory;
     }
 
-    public async Task<Preference> CreateCheckoutProAsync(
-        List<PreferenceItemRequest> items,
-        Guid orderId
+    public async Task<Payment> CreatePaymentAsync(
+        PaymentMethodEnum paymentMethod,
+        decimal amount,
+        string description,
+        int installments = 1,
+        string? token = null
     )
     {
         MercadoPagoConfig.AccessToken = _mercadoPagoSettings.AccessToken;
 
-        try
-        {
-            var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
-            var user = _context
-                .Users
-                .FirstOrDefault(x => x.FirebaseUserId == userAuthenticated.UserId)
-                ?? throw new Exception("Usuário autenticado não encontrado na base.");
+        var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
+        var user = _context
+            .Users
+            .FirstOrDefault(x => x.FirebaseUserId == userAuthenticated.UserId)
+            ?? throw new Exception("Usuário autenticado não encontrado na base.");
 
-            // var redirectUrl = $"http://localhost:5173/pedidos";
+        var paymentRequest = _paymentFactory.CreatePayment(
+            paymentMethod,
+            user,
+            amount,
+            description,
+            _mercadoPagoSettings.NotificationUrl,
+            token,
+            installments
+        );
 
-            var request = new PreferenceRequest
-            {
-                StatementDescriptor = "Cris variedades",
-                Items = items,
-                Payer = new PreferencePayerRequest
-                {
-                    Name = user.Name,
-                    Surname = "", // ºSobrenome°
-                    Email = user.Email,
-                    Identification = new IdentificationRequest
-                    {
-                        Type = "PhoneNumber",
-                        Number = user.PhoneNumber
-                    },
-                },
-                AutoReturn = "approved",
-                PaymentMethods = new PreferencePaymentMethodsRequest
-                {
-                    Installments = 6,
-                    ExcludedPaymentTypes = new List<PreferencePaymentTypeRequest>
-                    {
-                        new() { Id = "ticket" },
-                        new() { Id = "atm" }
-                    }
-                },
-                BackUrls = new()
-                {
-                    Failure = "https://food-manager-one.vercel.app/comidas",
-                    Pending = "https://food-manager-one.vercel.app/comidas",
-                    Success = "https://food-manager-one.vercel.app/comidas"
-                },
-                NotificationUrl = "https://2043-2804-5cf8-e82b-5300-5441-14aa-f918-2f8e.ngrok-free.app/webhooks/mercadopago",
-                ExternalReference = Guid.NewGuid().ToString(),
-                Expires = false,
-            };
+        var client = new PaymentClient();
+        var payment = await client.CreateAsync(paymentRequest);
 
-            var client = new PreferenceClient();
-            Preference preference = await client.CreateAsync(request);
-
-            return preference;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception($"Erro no processo ao gerar o link de pagamento: {ex.Message}", ex);
-        }
+        return payment;
     }
 
-    public async Task<PaymentWebhookResult> ProcessPaymentWebhookAsync(string paymentId)
+    public async Task<PaymentWebhookResult> ProcessPaymentWebhookAsync(string paymentId, CancellationToken cancellationToken = default)
     {
         try
         {
-            var payment = await _mercadoPagoClient.GetPaymentByIdAsync(paymentId);
+            var payment = await _mercadoPagoClient.GetPaymentByIdAsync(paymentId)
+                                                   .ConfigureAwait(false);
 
             _logger.LogInformation($"Processando webhook para PaymentId: {paymentId}");
 
@@ -124,7 +94,8 @@ public class PaymentCommunication : IPaymentCommunication
             _logger.LogInformation($"Pagamento localizado: PreferenceId {externalReference}, Status {payment.Status}");
 
             var order = await _context.Orders
-                .FirstOrDefaultAsync(o => o.ExternalPaymentId == externalReference);
+                .FirstOrDefaultAsync(o => o.PaymentId == externalReference, cancellationToken)
+                .ConfigureAwait(false);
 
             if (order == null)
             {
@@ -138,7 +109,7 @@ public class PaymentCommunication : IPaymentCommunication
 
                 order.Status = OrderStatus.Expired;
                 order.FailureReason = "O link de pagamento expirou. Por favor, gere um novo.";
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
                 return PaymentWebhookResult.Fail("Pagamento fora do prazo.");
             }
@@ -149,13 +120,24 @@ public class PaymentCommunication : IPaymentCommunication
                 order.FailureReason = !string.IsNullOrWhiteSpace(payment.StatusDetail)
                     ? StringExtensions.RemoveSpecialCharacters(payment.StatusDetail)
                     : "Não conseguimos processar seu pagamento. Você pode tentar novamente em instantes ou até mesmo, utilizar outro método.";
-                await _context.SaveChangesAsync();
+
+                await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                _logger.LogInformation($"Pagamento não aprovado para Order {order.Id}. Status definido como Cancelled.");
 
                 return PaymentWebhookResult.Fail(order.FailureReason);
             }
 
-            order.Status = OrderStatus.Paid;
-            await _context.SaveChangesAsync();
+            if (order.Status != OrderStatus.Paid)
+            {
+                order.Status = OrderStatus.Paid;
+                order.FailureReason = null;
+                await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                _logger.LogInformation($"Pedido {order.Id} atualizado para status Paid.");
+            }
+            else
+            {
+                _logger.LogInformation($"Pedido {order.Id} já está com status Paid.");
+            }
 
             return PaymentWebhookResult.Ok(order);
         }
@@ -165,7 +147,6 @@ public class PaymentCommunication : IPaymentCommunication
             return PaymentWebhookResult.Fail("Erro interno ao processar o pagamento.");
         }
     }
-
 
     public async Task ProcessMerchantOrderWebhookAsync(string merchantOrderId)
     {
@@ -186,7 +167,7 @@ public class PaymentCommunication : IPaymentCommunication
             return;
         }
 
-        var order = await _context.Orders.FirstOrDefaultAsync(o => o.ExternalPaymentId == externalRef);
+        var order = await _context.Orders.FirstOrDefaultAsync(o => o.PaymentId == externalRef);
         if (order == null)
         {
             _logger.LogWarning($"Pedido não encontrado para referência externa: {externalRef}");

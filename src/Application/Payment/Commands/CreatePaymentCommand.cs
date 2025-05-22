@@ -13,7 +13,10 @@ namespace Application.Payment.Commands;
 
 public class CreatePaymentCommand : IRequest<string>
 {
-    public List<Guid> OrderIds { get; set; }
+    public Guid OrderId { get; set; }
+    public PaymentMethodEnum PaymentMethod { get; set; }
+    public int Installments { get; set; } = 1;
+    public string PaymentMehodToken { get; set; }
 
 }
 
@@ -42,55 +45,38 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
         var userId = userAuthenticated.UserId;
 
-        if (request.OrderIds.Count > 1)
-            throw new HttpResponseException
-            {
-                Status = 404,
-                Value = new
-                {
-                    Code = CodeErrorEnum.INVALID_BUSINESS_RULE.ToString(),
-                    Message = $"Usuário não encontrado",
-                }
-            };
-
-        var orders = await _context.Orders
+        var order = await _context.Orders
             .Include(o => o.Items)
                 .ThenInclude(i => i.Food)
-            .Where(o =>
-                request.OrderIds.Contains(o.Id) &&
+            .FirstOrDefaultAsync(o =>
                 o.CreatedByUserId == userId &&
-                o.Status == OrderStatus.AwaitingPayment || o.Status == OrderStatus.Expired
-            )
-            .ToListAsync(cancellationToken);
+                (o.Status == OrderStatus.AwaitingPayment || o.Status == OrderStatus.Expired) &&
+                o.Id == request.OrderId,
+                cancellationToken);
 
-        if (!orders.Any())
+        if (order == null)
             throw new NotFoundException("Nenhum pedido aguardando aprovação encontrado.");
+        if (order.TotalValue == null || order.TotalValue == 0)
+            throw new NotFoundException("Valor do pedido inválido.");
 
-        var allItems = orders
-            .SelectMany(or => or.Items)
-            .Select(item => new PreferenceItemRequest
-            {
-                Id = $"{item.OrderId}-{item.FoodId}",
-                Title = $"{item.Food.Name} ({item.Quantity}x)",
-                Description = $"Bolos e variedades da Cris - Pedido #{item.Order.RequestNumber}",
-                PictureUrl = item.Food.UrlImage,
-                CategoryId = item.Food.Category.ToString(),
-                Quantity = item.Quantity <= 0 ? 1 : item.Quantity,
-                UnitPrice = item.Food.Price / 100m,
-                CurrencyId = "BRL"
-            })
-            .ToList();
+        var description = $"Pedido #{order.RequestNumber}: " +
+                          string.Join(", ", order.Items.Select(i => $"{i.Food.Name} ({i.Quantity}x)"));
 
-        var preference = await _paymentCommunication.CreateCheckoutProAsync(allItems, orders.First().Id);
+        var amount = (Int32)order.TotalValue / 100m;
 
-        foreach (var order in orders)
-        {
-            order.ExternalPaymentId = preference.Id;
-            order.ExpirationDateTo = DateTime.UtcNow.AddHours(1);
-            order.NumberOfInstallments = preference.PaymentMethods.Installments;
-        }
+        var payment = await _paymentCommunication.CreatePaymentAsync(
+            request.PaymentMethod,
+            amount,
+            description,
+            request.Installments,
+            request.PaymentMehodToken
+        );
+
+        order.PaymentId = payment.Id.ToString();
+        order.ExpirationDateTo = DateTime.UtcNow.AddHours(1);
+        order.NumberOfInstallments = request.Installments;
 
         await _context.SaveChangesAsync(cancellationToken);
-        return preference.InitPoint;
+        return payment.Id.ToString();
     }
 }
