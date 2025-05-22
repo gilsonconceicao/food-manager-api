@@ -20,7 +20,7 @@ public class PaymentController : BaseController
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<string>(StatusCodes.Status201Created)]
-    [HttpPost("CreatePreference")]
+    [HttpPost]
     [Authorize(Policy = "Auth")]
     public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentCommand createPaymentCommand)
     {
