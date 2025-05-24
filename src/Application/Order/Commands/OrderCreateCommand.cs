@@ -91,6 +91,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
         }
                 
         await _context.Items.AddRangeAsync(newOrderItems);
+        order.TotalValue = newOrderItems.Sum(i => i.Quantity * i.Price);
 
         _context.Carts.RemoveRange(getCarts);
         await _context.SaveChangesAsync();

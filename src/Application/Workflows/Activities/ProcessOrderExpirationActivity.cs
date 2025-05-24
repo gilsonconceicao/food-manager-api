@@ -28,7 +28,8 @@ public class ProcessOrderExpirationActivity : IProcessOrderExpirationActivity
         var now = DateTime.UtcNow;
 
         var expiredOrders = await _context.Orders
-            .Where(o => o.Status == OrderStatus.AwaitingPayment && o.ExpirationDateTo != null && o.ExpirationDateTo < now)
+            .Include(o => o.Pay)
+            .Where(o => o.Status == OrderStatus.AwaitingPayment && o.Pay.ExpirationDateTo != null && o.Pay.ExpirationDateTo < now)
             .ToListAsync();
 
         if (expiredOrders.Count == 0)

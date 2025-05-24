@@ -37,9 +37,6 @@ namespace Api.Controllers
 
             switch (topic)
             {
-                case "merchant_order":
-                    await _paymentCommunication.ProcessMerchantOrderWebhookAsync(id);
-                    break;
                 case "payment":
                     await _mediator.Send(new ProcessMerchantOrderWebhookCommand
                     {

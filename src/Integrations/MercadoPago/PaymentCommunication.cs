@@ -1,7 +1,9 @@
 using Api.Services;
 using Domain.Enums;
 using Domain.Extensions;
+using Domain.Helpers;
 using Domain.Interfaces;
+using Domain.Models;
 using Infrastructure.Database;
 using Integrations.MercadoPago.Factories;
 using Integrations.Settings;
@@ -41,7 +43,7 @@ public class PaymentCommunication : IPaymentCommunication
         _paymentFactory = paymentFactory;
     }
 
-    public async Task<Payment> CreatePaymentAsync(
+    public async Task<PaymentCreateRequest> CreatePaymentAsync(
         PaymentMethodEnum paymentMethod,
         decimal amount,
         string description,
@@ -67,10 +69,7 @@ public class PaymentCommunication : IPaymentCommunication
             installments
         );
 
-        var client = new PaymentClient();
-        var payment = await client.CreateAsync(paymentRequest);
-
-        return payment;
+        return paymentRequest;
     }
 
     public async Task<PaymentWebhookResult> ProcessPaymentWebhookAsync(string paymentId, CancellationToken cancellationToken = default)
@@ -84,26 +83,28 @@ public class PaymentCommunication : IPaymentCommunication
 
             if (payment == null)
             {
-                _logger.LogWarning($"Pagamento não encontrado para ID: {paymentId}");
+                _logger.LogWarning($"Pagamento não encontrado no mercado pago para ID: {paymentId}");
                 return PaymentWebhookResult.Fail("Pagamento não encontrado.");
             }
 
-            var externalReference = payment.ExternalReference;
+            var paymentClientId = payment.PaymentId.ToString();
             bool isApproved = payment.Status == "approved";
 
-            _logger.LogInformation($"Pagamento localizado: PreferenceId {externalReference}, Status {payment.Status}");
+            _logger.LogInformation($"Pagamento localizado: PreferenceId {paymentClientId}, Status {payment.Status}");
 
-            var order = await _context.Orders
-                .FirstOrDefaultAsync(o => o.PaymentId == externalReference, cancellationToken)
-                .ConfigureAwait(false);
+            var order = await Helpers.RetryAsync(
+                () => _context.Orders.Include(o => o.Pay).FirstOrDefaultAsync(o => o.PaymentId == paymentClientId, cancellationToken),
+                3,
+                1500
+            );
 
             if (order == null)
             {
-                _logger.LogWarning($"Pedido não encontrado para referência: {externalReference}");
+                _logger.LogWarning($"Pedido não encontrado pelo paymentId: {paymentClientId}");
                 return PaymentWebhookResult.Fail("Pedido não encontrado.");
             }
 
-            if (order.ExpirationDateTo.HasValue && order.ExpirationDateTo < DateTime.UtcNow)
+            if (order.Pay.ExpirationDateTo != null && order.Pay.ExpirationDateTo < DateTime.UtcNow)
             {
                 _logger.LogWarning($"Pagamento recebido fora do prazo para Order {order.Id}, PaymentId: {paymentId}. Ignorado.");
 
@@ -145,39 +146,6 @@ public class PaymentCommunication : IPaymentCommunication
         {
             _logger.LogError(ex, $"Erro ao processar webhook para PaymentId: {paymentId}");
             return PaymentWebhookResult.Fail("Erro interno ao processar o pagamento.");
-        }
-    }
-
-    public async Task ProcessMerchantOrderWebhookAsync(string merchantOrderId)
-    {
-        var merchantOrder = await _mercadoPagoClient.GetMerchantOrderByIdAsync(merchantOrderId);
-
-        if (merchantOrder == null)
-        {
-            _logger.LogWarning($"Merchant Order {merchantOrderId} não encontrado.");
-            return;
-        }
-
-        _logger.LogInformation($"Merchant Order recebido: {merchantOrder.Id}, Status: {merchantOrder.Status}");
-
-        var externalRef = merchantOrder.ExternalReference;
-        if (string.IsNullOrWhiteSpace(externalRef))
-        {
-            _logger.LogWarning($"Merchant Order {merchantOrderId} sem referência externa.");
-            return;
-        }
-
-        var order = await _context.Orders.FirstOrDefaultAsync(o => o.PaymentId == externalRef);
-        if (order == null)
-        {
-            _logger.LogWarning($"Pedido não encontrado para referência externa: {externalRef}");
-            return;
-        }
-
-        if (order.Status == OrderStatus.Paid)
-        {
-            _logger.LogInformation($"Pedido {order.Id} já está pago. Nenhuma ação necessária.");
-            return;
         }
     }
 }

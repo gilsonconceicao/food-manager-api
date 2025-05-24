@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Domain.Enums;
 
 #nullable enable
@@ -7,16 +8,15 @@ namespace Domain.Models
 {
     public class Order : BaseEntity
     {
+        public Pay Pay { get; set; }
         public string? PaymentId { get; set; }
+
+        public string? ExternalReference { get; set; }
 
         public string? FailureReason { get; set; }
 
-        public int? NumberOfInstallments { get; set; } = 1;
-
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? TotalValue { get; set; }
-
-        public DateTime? ExpirationDateTo { get; set; }
 
         public int RequestNumber { get; set; }
 

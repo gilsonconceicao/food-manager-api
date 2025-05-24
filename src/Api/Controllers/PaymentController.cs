@@ -29,18 +29,18 @@ public class PaymentController : BaseController
     }
 
     /// <summary>
-    /// Obtem uma preferência de pagamento
+    /// Realiza uma consulta de pagamento diretamente na API do Mercado Pago
     /// </summary>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<string>(StatusCodes.Status201Created)]
-    [HttpGet("{preferenceId}")]
+    [HttpGet("{paymentId}")]
     [Authorize(Policy = "Auth")]
-    public async Task<IActionResult> GetPaymentPreference(string preferenceId)
+    public async Task<IActionResult> GetPaymentPreference(long paymentId)
     {
-        var result = await _mediator.Send(new GetPreferenceByIdQuery
+        var result = await _mediator.Send(new GetPaymentByIdQuery
         {
-            PreferenceId = preferenceId
+            PaymentId = paymentId
         });
         
         return Ok(result);

@@ -58,7 +58,8 @@ public class PaymentFactory : IPaymentFactory
         Description = description,
         PaymentMethodId = "pix",
         Payer = payer,
-        NotificationUrl = notificationUrl
+        NotificationUrl = notificationUrl, 
+        ExternalReference = Guid.NewGuid().ToString()
     };
 
     private PaymentCreateRequest CreateCardPayment(
@@ -81,7 +82,8 @@ public class PaymentFactory : IPaymentFactory
             Token = token,
             Installments = installments,
             Payer = payer,
-            NotificationUrl = notificationUrl
+            NotificationUrl = notificationUrl,
+            ExternalReference = Guid.NewGuid().ToString()
         };
     }
 }

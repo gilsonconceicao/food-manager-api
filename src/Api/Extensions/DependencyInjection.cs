@@ -26,6 +26,7 @@ using Application.Workflows.Activities;
 using Application.Foods.Queries.FoodGetByIdQuery;
 using MercadoPago.Resource.Preference;
 using Integrations.MercadoPago.Factories;
+using MercadoPago.Resource.Payment;
 
 namespace Api.Extensions;
 
@@ -69,7 +70,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<CartCreateCommand, bool>, CartCreateCommandHandler>();
         services.AddTransient<IRequestHandler<CartDeleteCommand, bool>, CartDeleteCommandHandler>();
         services.AddTransient<IRequestHandler<MergeUsersFirebaseCommand, bool>, MergeUsersFirebaseCommandHandler>();
-        services.AddTransient<IRequestHandler<CreatePaymentCommand, string>, CreatePaymentCommandHandler>();
+        services.AddTransient<IRequestHandler<CreatePaymentCommand, Payment>, CreatePaymentCommandHandler>();
         services.AddTransient<IRequestHandler<ProcessMerchantOrderWebhookCommand, Unit>, ProcessMerchantOrderWebhookCommandHandler>();
         services.AddTransient<IRequestHandler<TryHangFireCommand, bool>, TryHangFireCommandHandler>();
 
@@ -79,7 +80,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<FoodGetListPaginationQuery, ListDataResponse<List<Food>>>, FoodGetListPaginationQueryHandler>();
         services.AddTransient<IRequestHandler<OrderPaginationListQuery, ListDataResponse<List<Order>>>, OrderPaginationListHandler>();
         services.AddTransient<IRequestHandler<OrderGetByIdQuery, Order>, OrderGetByIdHandler>();
-        services.AddTransient<IRequestHandler<GetPreferenceByIdQuery, Preference>, GetPreferenceByIdQueryHandler>();
+        services.AddTransient<IRequestHandler<GetPaymentByIdQuery, Pay>, GetPaymentByIdQueryHandler>();
         services.AddTransient<IRequestHandler<UserPaginationListQuery, ListDataResponse<List<User>>>, UserPaginationListQueryHandler>();
         services.AddTransient<IRequestHandler<UserGetByIdQuery, User>, UserGetByIdQueryHandler>();
         services.AddTransient<IRequestHandler<VerifyUserIsMasterQuery, bool>, VerifyUserIsMasterQueryHandler>();

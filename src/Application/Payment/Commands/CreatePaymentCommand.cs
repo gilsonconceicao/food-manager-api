@@ -1,17 +1,17 @@
-using Api.Enums;
 using Api.Services;
 using Api.Workflows.JobSchedulerService;
 using Application.Common.Exceptions;
 using Domain.Enums;
 using Domain.Interfaces;
+using Domain.Models;
 using Infrastructure.Database;
 using MediatR;
-using MercadoPago.Client.Preference;
+using MercadoPago.Client.Payment;
+using MercadoPago.Resource.Payment;
 using Microsoft.EntityFrameworkCore;
-#nullable disable
-namespace Application.Payment.Commands;
 
-public class CreatePaymentCommand : IRequest<string>
+#nullable disable
+public class CreatePaymentCommand : IRequest<Payment>
 {
     public Guid OrderId { get; set; }
     public PaymentMethodEnum PaymentMethod { get; set; }
@@ -20,7 +20,7 @@ public class CreatePaymentCommand : IRequest<string>
 
 }
 
-public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand, string>
+public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand, Payment>
 {
     private readonly ICurrentUser _httpUserService;
     private readonly DataBaseContext _context;
@@ -40,7 +40,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         _jobSchedulerService = jobSchedulerService;
     }
 
-    public async Task<string> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
+    public async Task<Payment> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
     {
         var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
         var userId = userAuthenticated.UserId;
@@ -51,12 +51,15 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             .FirstOrDefaultAsync(o =>
                 o.CreatedByUserId == userId &&
                 (o.Status == OrderStatus.AwaitingPayment || o.Status == OrderStatus.Expired) &&
-                o.Id == request.OrderId,
-                cancellationToken);
+                o.Id == request.OrderId, cancellationToken);
+
 
         if (order == null)
             throw new NotFoundException("Nenhum pedido aguardando aprovação encontrado.");
-        if (order.TotalValue == null || order.TotalValue == 0)
+
+        var totalValue = order.Items.Sum(i => i.Quantity * i.Food.Price);
+
+        if (totalValue == null || totalValue == 0)
             throw new NotFoundException("Valor do pedido inválido.");
 
         var description = $"Pedido #{order.RequestNumber}: " +
@@ -64,7 +67,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
 
         var amount = (Int32)order.TotalValue / 100m;
 
-        var payment = await _paymentCommunication.CreatePaymentAsync(
+        var paymentRequest = await _paymentCommunication.CreatePaymentAsync(
             request.PaymentMethod,
             amount,
             description,
@@ -72,11 +75,43 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             request.PaymentMehodToken
         );
 
-        order.PaymentId = payment.Id.ToString();
-        order.ExpirationDateTo = DateTime.UtcNow.AddHours(1);
-        order.NumberOfInstallments = request.Installments;
+        var client = new PaymentClient();
+        var payment = await client.CreateAsync(paymentRequest);
 
+        order.PaymentId = payment.Id.ToString()!;
         await _context.SaveChangesAsync(cancellationToken);
-        return payment.Id.ToString();
+
+        var pay = new Pay
+        {
+            OrderId = order.Id,
+            Id = payment.Id.ToString()!,
+            Description = payment.Description,
+            Status = payment.Status,
+            PaymentTypeId = payment.PaymentTypeId,
+            PaymentMethodId = payment.PaymentMethodId,
+            CurrencyId = payment.CurrencyId,
+            Installments = payment.Installments ?? 1,
+            TransactionAmount = payment.TransactionAmount ?? 0,
+            ExternalReference = payment.ExternalReference,
+            NotificationUrl = payment.NotificationUrl,
+            DateCreated = (payment.DateCreated ?? DateTime.UtcNow).ToUniversalTime(),
+            DateLastUpdated = (payment.DateLastUpdated ?? DateTime.UtcNow).ToUniversalTime(),
+            QrCode = payment.PointOfInteraction?.TransactionData?.QrCode,
+            QrCodeBase64 = payment.PointOfInteraction?.TransactionData?.QrCodeBase64,
+            CollectorId = (long)payment.CollectorId!,
+            IssuerId = payment.IssuerId,
+        };
+
+        var existingPay = await _context.Pays
+           .FirstOrDefaultAsync(p => p.OrderId == order.Id, cancellationToken);
+
+        if (existingPay is not null)
+        {
+            _context.Pays.Remove(existingPay);
+        }
+
+        await _context.Pays.AddAsync(pay, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+        return payment;
     }
 }

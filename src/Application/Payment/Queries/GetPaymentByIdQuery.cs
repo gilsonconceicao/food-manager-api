@@ -1,27 +1,28 @@
 using Api.Enums;
 using Api.Services;
 using Application.Common.Exceptions;
+using Domain.Models;
 using Infrastructure.Database;
 using Integrations.MercadoPago;
 using MediatR;
-using MercadoPago.Resource.Preference;
+using MercadoPago.Resource.Payment;
+using Microsoft.EntityFrameworkCore;
 #nullable disable
-namespace Application.Payment.Commands;
 
-public class GetPreferenceByIdQuery : IRequest<Preference>
+public class GetPaymentByIdQuery : IRequest<Pay>
 {
-    public string PreferenceId { get; set; }
+    public long PaymentId { get; set; }
 
 }
 
-public class GetPreferenceByIdQueryHandler : IRequestHandler<GetPreferenceByIdQuery, Preference>
+public class GetPaymentByIdQueryHandler : IRequestHandler<GetPaymentByIdQuery, Pay>
 {
     private readonly ICurrentUser _httpUserService;
     private readonly DataBaseContext _context;
         private readonly IMercadoPagoClient _mercadoPagoClient;
 
 
-    public GetPreferenceByIdQueryHandler(
+    public GetPaymentByIdQueryHandler(
         ICurrentUser httpUserService,
         DataBaseContext context,
         IMercadoPagoClient mercadoPagoClient
@@ -32,22 +33,22 @@ public class GetPreferenceByIdQueryHandler : IRequestHandler<GetPreferenceByIdQu
         _mercadoPagoClient = mercadoPagoClient;
     }
 
-    public async Task<Preference> Handle(GetPreferenceByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Pay> Handle(GetPaymentByIdQuery request, CancellationToken cancellationToken)
     {
         var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
 
-        if (request.PreferenceId == null || userAuthenticated == null)
+        if (request.PaymentId == null || userAuthenticated == null)
             throw new HttpResponseException
             {
                 Status = 400,
                 Value = new
                 {
                     Code = CodeErrorEnum.INVALID_BUSINESS_RULE.ToString(),
-                    Message = $"Informe um ID de preferência válido ou usuário não autenticado",
+                    Message = $"Informe um ID do pagamento válido ou usuário não autenticado",
                 }
             };
 
-        var data = await _mercadoPagoClient.GetPreferenceByIdAsync(request.PreferenceId);
+        var data = await _context.Pays.FirstOrDefaultAsync(p => p.Id == request.PaymentId.ToString());
         return data;
     }
 }

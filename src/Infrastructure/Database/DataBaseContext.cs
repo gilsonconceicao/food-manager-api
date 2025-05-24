@@ -22,6 +22,7 @@ namespace Infrastructure.Database
         public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<Cart> Carts { get; set; }
+        public DbSet<Pay> Pays { get; set; }
 
         public async Task MigrateAsync() => await base.Database.MigrateAsync();
 
@@ -29,6 +30,7 @@ namespace Infrastructure.Database
         {
             modelBuilder.ApplyConfiguration(new OrderItemsConfiguration());
             modelBuilder.ApplyConfiguration(new CartConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderConfiguration());
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(modelBuilder);
         }
