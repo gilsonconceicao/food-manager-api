@@ -93,7 +93,9 @@ public class PaymentCommunication : IPaymentCommunication
             _logger.LogInformation($"Pagamento localizado: PreferenceId {paymentClientId}, Status {payment.Status}");
 
             var order = await Helpers.RetryAsync(
-                () => _context.Orders.Include(o => o.Pay).FirstOrDefaultAsync(o => o.PaymentId == paymentClientId, cancellationToken),
+                () => _context.Orders
+                    .Include(o => o.Pay)
+                    .FirstOrDefaultAsync(o => o.PaymentId == paymentClientId, cancellationToken),
                 3,
                 1500
             );

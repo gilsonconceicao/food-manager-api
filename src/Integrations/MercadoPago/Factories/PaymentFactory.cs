@@ -58,8 +58,9 @@ public class PaymentFactory : IPaymentFactory
         Description = description,
         PaymentMethodId = "pix",
         Payer = payer,
-        NotificationUrl = notificationUrl, 
-        ExternalReference = Guid.NewGuid().ToString()
+        NotificationUrl = notificationUrl,
+        ExternalReference = Guid.NewGuid().ToString(), 
+        DateOfExpiration = DateTime.UtcNow.AddHours(1)
     };
 
     private PaymentCreateRequest CreateCardPayment(
@@ -83,7 +84,8 @@ public class PaymentFactory : IPaymentFactory
             Installments = installments,
             Payer = payer,
             NotificationUrl = notificationUrl,
-            ExternalReference = Guid.NewGuid().ToString()
-        };
+            ExternalReference = Guid.NewGuid().ToString(),
+            DateOfExpiration = DateTime.UtcNow.AddHours(1)
+        }; 
     }
 }

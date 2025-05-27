@@ -94,13 +94,13 @@ public static class MyConfigServiceCollectionExtensions
         services.AddScoped<IJobSchedulerService, JobSchedulerService>();
 
         services.AddScoped<UpdateOrderStatusWorkflow>();
-        services.AddScoped<OrderExpirationWorkflow>();
+        services.AddScoped<PaymentExpirationWorkflow>();
         
         services.AddScoped<ITryHangFireWorkflow, TryHangFireWorkflow>();
         services.AddScoped<IMergeUsersWorkflow, MergeUsersWorkflow>();
     
         services.AddScoped<IProcessTryHangFireActivity, ProcessTryHangFireActivity>();
-        services.AddScoped<IProcessOrderExpirationActivity, ProcessOrderExpirationActivity>();
+        services.AddScoped<IProcessPaymentExpirationActivity, ProcessPaymentExpirationActivity>();
         services.AddScoped<IProcessMergeUsersFirebaseActivity, ProcessMergeUsersFirebaseActivity>();
         services.AddScoped<IUpdateOrderStatusActivity, UpdateOrderStatusActivity>();
         // #endregion

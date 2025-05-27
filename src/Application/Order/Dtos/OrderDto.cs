@@ -10,6 +10,7 @@ public class OrderDto
     public string PaymentId { get; set; }
     public int OrderNumber { get; set; }
     public string Status { get; set; }
+    public string FailureReason { get; set; }
     public string StatusDisplay { get; set; }
     public int NumberOfInstallments { get; set; }
     public decimal TotalValue { get; set; }

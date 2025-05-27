@@ -1,6 +1,7 @@
 using Api.Services;
 using Api.Workflows.JobSchedulerService;
 using Application.Common.Exceptions;
+using Application.Workflows.Workflows;
 using Domain.Enums;
 using Domain.Interfaces;
 using Domain.Models;
@@ -96,6 +97,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             NotificationUrl = payment.NotificationUrl,
             DateCreated = (payment.DateCreated ?? DateTime.UtcNow).ToUniversalTime(),
             DateLastUpdated = (payment.DateLastUpdated ?? DateTime.UtcNow).ToUniversalTime(),
+            ExpirationDateTo = (payment.DateOfExpiration ?? DateTime.UtcNow.AddHours(1)).ToUniversalTime(),
             QrCode = payment.PointOfInteraction?.TransactionData?.QrCode,
             QrCodeBase64 = payment.PointOfInteraction?.TransactionData?.QrCodeBase64,
             CollectorId = (long)payment.CollectorId!,
@@ -112,6 +114,12 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
 
         await _context.Pays.AddAsync(pay, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
+
+        _jobSchedulerService.Schedule<PaymentExpirationWorkflow>(
+            job => job.CheckExpiredOrders(),
+            TimeSpan.FromHours(1)
+        );
+        
         return payment;
     }
 }
