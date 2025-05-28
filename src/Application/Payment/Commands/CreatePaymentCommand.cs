@@ -80,6 +80,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
         var payment = await client.CreateAsync(paymentRequest);
 
         order.PaymentId = payment.Id.ToString()!;
+        order.Status = OrderStatus.AwaitingPayment;
         await _context.SaveChangesAsync(cancellationToken);
 
         var pay = new Pay
@@ -119,7 +120,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
             job => job.CheckExpiredOrders(),
             TimeSpan.FromHours(1)
         );
-        
+
         return payment;
     }
 }

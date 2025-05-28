@@ -52,13 +52,13 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
                 }
             };
 
-        var orderCount = await _context.Orders.CountAsync(cancellationToken);
+        var orderCount = await _context.Orders.OrderByDescending(x => x.CreatedAt).FirstAsync();
 
         Order order = new Order
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
-            RequestNumber = orderCount + 1,
+            RequestNumber = orderCount.RequestNumber + 1,
             CreatedAt = DateTime.UtcNow,
             Status = OrderStatus.AwaitingPayment
         };
