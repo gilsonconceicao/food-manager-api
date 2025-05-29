@@ -15,7 +15,6 @@ using Domain.Extensions;
 using Domain.Models;
 using MediatR;
 using Integrations.Settings;
-using Domain.Interfaces;
 using Integrations.MercadoPago;
 using Application.Payment.Commands;
 using Application.Carts.Dtos;
@@ -27,6 +26,7 @@ using Application.Foods.Queries.FoodGetByIdQuery;
 using MercadoPago.Resource.Preference;
 using Integrations.MercadoPago.Factories;
 using MercadoPago.Resource.Payment;
+using Integrations.Interfaces;
 
 namespace Api.Extensions;
 

@@ -1,12 +1,13 @@
-using Api.Enums;
+using Domain.Enums;
 using Api.Services;
-using Application.Common.Exceptions;
+using Domain.Common.Exceptions;
 using Domain.Models;
 using Infrastructure.Database;
 using Integrations.MercadoPago;
 using MediatR;
 using MercadoPago.Resource.Payment;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 #nullable disable
 
 public class GetPaymentByIdQuery : IRequest<Pay>
@@ -38,15 +39,11 @@ public class GetPaymentByIdQueryHandler : IRequestHandler<GetPaymentByIdQuery, P
         var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
 
         if (request.PaymentId == null || userAuthenticated == null)
-            throw new HttpResponseException
-            {
-                Status = 400,
-                Value = new
-                {
-                    Code = CodeErrorEnum.INVALID_BUSINESS_RULE.ToString(),
-                    Message = $"Informe um ID do pagamento válido ou usuário não autenticado",
-                }
-            };
+            throw new HttpResponseException(
+                StatusCodes.Status400BadRequest,
+                CodeErrorEnum.INVALID_BUSINESS_RULE.ToString(),
+                $"Informe um ID do pagamento válido ou usuário não autenticado"
+            );
 
         var data = await _context.Pays.FirstOrDefaultAsync(p => p.Id == request.PaymentId.ToString());
         return data;

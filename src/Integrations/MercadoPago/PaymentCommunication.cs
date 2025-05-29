@@ -2,14 +2,13 @@ using Api.Services;
 using Domain.Enums;
 using Domain.Extensions;
 using Domain.Helpers;
-using Domain.Interfaces;
-using Domain.Models;
+using Domain.Models.Request;
 using Infrastructure.Database;
+using Integrations.Interfaces;
 using Integrations.MercadoPago.Factories;
 using Integrations.Settings;
 using MercadoPago.Client.Payment;
 using MercadoPago.Config;
-using MercadoPago.Resource.Payment;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,7 +23,6 @@ public class PaymentCommunication : IPaymentCommunication
     private readonly IMercadoPagoClient _mercadoPagoClient;
     private readonly ILogger<PaymentCommunication> _logger;
     private readonly IPaymentFactory _paymentFactory;
-
 
     public PaymentCommunication(
         IOptions<MercadoPagoSettings> mercadoPagoSettings,
@@ -48,16 +46,19 @@ public class PaymentCommunication : IPaymentCommunication
         decimal amount,
         string description,
         int installments = 1,
-        string? token = null
+        CardDataRequestDto? card = null
     )
     {
         MercadoPagoConfig.AccessToken = _mercadoPagoSettings.AccessToken;
 
         var userAuthenticated = await _httpUserService.GetAuthenticatedUser();
+
         var user = _context
             .Users
             .FirstOrDefault(x => x.FirebaseUserId == userAuthenticated.UserId)
             ?? throw new Exception("Usuário autenticado não encontrado na base.");
+
+        var cardTokenData = await _mercadoPagoClient.CreateCardTokenAsync(card) ?? null;
 
         var paymentRequest = _paymentFactory.CreatePayment(
             paymentMethod,
@@ -65,7 +66,7 @@ public class PaymentCommunication : IPaymentCommunication
             amount,
             description,
             _mercadoPagoSettings.NotificationUrl,
-            token,
+            cardTokenData.Token,
             installments
         );
 

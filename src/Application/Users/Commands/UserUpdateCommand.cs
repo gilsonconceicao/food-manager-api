@@ -1,13 +1,14 @@
 using AutoMapper;
 using FluentValidation;
-using Api.Enums;
-using Application.Common.Exceptions;
+using Domain.Enums;
+using Domain.Common.Exceptions;
 using Application.Users.Dtos;
 using Application.Utils;
 using Domain.Models;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Users.Commands;
 #nullable disable
@@ -49,16 +50,11 @@ public class UserUpdateCommandHandler : IRequestHandler<UserUpdateCommand, bool>
 
         if (user == null)
         {
-            throw new HttpResponseException
-            {
-                Status = 404,
-                Value = new
-                {
-                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                    Message = $"Usuário não encontrado",
-                    Resource = request.Id
-                }
-            };
+            throw new HttpResponseException(
+               StatusCodes.Status400BadRequest,
+               CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+               $"Usuário não encontrado"
+           );
         }
 
         if (user.Address == null && request.Address != null)
@@ -74,7 +70,8 @@ public class UserUpdateCommandHandler : IRequestHandler<UserUpdateCommand, bool>
             user.Address.Number = request.Address.Number;
             user.Address.State = request.Address.State;
             user.Address.Street = request.Address.Street;
-        };
+        }
+        ;
 
         user.Name = request.Name;
         user.Email = request.Email;

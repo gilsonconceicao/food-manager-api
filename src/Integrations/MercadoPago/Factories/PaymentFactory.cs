@@ -14,7 +14,8 @@ public interface IPaymentFactory
         string description,
         string notificationUrl,
         string token = null,
-        int installments = 1
+        int installments = 1, 
+        string paymentMethodId = null 
     );
 }
 
@@ -27,7 +28,8 @@ public class PaymentFactory : IPaymentFactory
         string description,
         string notificationUrl,
         string token = null,
-        int installments = 1
+        int installments = 1, 
+        string paymentMethodId = null
     )
     {
         var payer = new PaymentPayerRequest
@@ -41,7 +43,7 @@ public class PaymentFactory : IPaymentFactory
         {
             PaymentMethodEnum.Pix => CreatePixPayment(payer, amount, description, notificationUrl),
 
-            PaymentMethodEnum.Card => CreateCardPayment(payer, amount, description, notificationUrl, token, installments),
+            PaymentMethodEnum.Card => CreateCardPayment(payer, amount, description, notificationUrl, token, installments, paymentMethodId),
 
             _ => throw new NotImplementedException($"Método de pagamento '{paymentMethod}' não implementado.")
         };
@@ -69,7 +71,8 @@ public class PaymentFactory : IPaymentFactory
         string description,
         string notificationUrl,
         string token,
-        int installments
+        int installments, 
+        string paymentMethodId
     )
     {
         if (string.IsNullOrEmpty(token))
@@ -79,13 +82,14 @@ public class PaymentFactory : IPaymentFactory
         {
             TransactionAmount = amount,
             Description = description,
-            PaymentMethodId = "credit_card",
+            PaymentMethodId = paymentMethodId,
             Token = token,
             Installments = installments,
             Payer = payer,
             NotificationUrl = notificationUrl,
             ExternalReference = Guid.NewGuid().ToString(),
-            DateOfExpiration = DateTime.UtcNow.AddHours(1)
+            DateOfExpiration = DateTime.UtcNow.AddHours(1),
+
         }; 
     }
 }

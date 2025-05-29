@@ -1,13 +1,14 @@
 
 using FluentValidation;
-using Api.Enums;
-using Application.Common.Exceptions;
+using Domain.Enums;
+using Domain.Common.Exceptions;
 using Application.Utils;
 using Domain.Enums;
 using Domain.Models;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 #nullable disable
 namespace Application.Orders.Commands;
@@ -42,15 +43,11 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
         var user = _context.Users
             .Where(user => !user.IsDeleted)
             .FirstOrDefault(user => user.FirebaseUserId == request.UserId)
-            ?? throw new HttpResponseException
-            {
-                Status = 404,
-                Value = new
-                {
-                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                    Message = "Usuário não encontrado",
-                }
-            };
+            ?? throw new HttpResponseException(
+                StatusCodes.Status400BadRequest,
+                CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                $"Usuário não encontrado"
+            );
 
         var orderCount = await _context.Orders.OrderByDescending(x => x.CreatedAt).FirstAsync();
 
@@ -89,7 +86,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
 
             newOrderItems.Add(orderItem);
         }
-                
+
         await _context.Items.AddRangeAsync(newOrderItems);
         order.TotalValue = newOrderItems.Sum(i => i.Quantity * i.Price);
 

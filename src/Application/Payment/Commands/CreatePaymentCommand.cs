@@ -1,24 +1,26 @@
+using Domain.Enums;
 using Api.Services;
 using Api.Workflows.JobSchedulerService;
-using Application.Common.Exceptions;
+using Domain.Common.Exceptions;
 using Application.Workflows.Workflows;
 using Domain.Enums;
-using Domain.Interfaces;
 using Domain.Models;
+using Domain.Models.Request;
 using Infrastructure.Database;
+using Integrations.Interfaces;
 using MediatR;
 using MercadoPago.Client.Payment;
 using MercadoPago.Resource.Payment;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
-#nullable disable
+#nullable enable
 public class CreatePaymentCommand : IRequest<Payment>
 {
     public Guid OrderId { get; set; }
     public PaymentMethodEnum PaymentMethod { get; set; }
     public int Installments { get; set; } = 1;
-    public string PaymentMehodToken { get; set; }
-
+    public CardDataRequestDto? Card { get; set; }
 }
 
 public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand, Payment>
@@ -68,59 +70,71 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
 
         var amount = (Int32)order.TotalValue / 100m;
 
-        var paymentRequest = await _paymentCommunication.CreatePaymentAsync(
-            request.PaymentMethod,
-            amount,
-            description,
-            request.Installments,
-            request.PaymentMehodToken
-        );
-
-        var client = new PaymentClient();
-        var payment = await client.CreateAsync(paymentRequest);
-
-        order.PaymentId = payment.Id.ToString()!;
-        order.Status = OrderStatus.AwaitingPayment;
-        await _context.SaveChangesAsync(cancellationToken);
-
-        var pay = new Pay
+        try
         {
-            OrderId = order.Id,
-            Id = payment.Id.ToString()!,
-            Description = payment.Description,
-            Status = payment.Status,
-            PaymentTypeId = payment.PaymentTypeId,
-            PaymentMethodId = payment.PaymentMethodId,
-            CurrencyId = payment.CurrencyId,
-            Installments = payment.Installments ?? 1,
-            TransactionAmount = payment.TransactionAmount ?? 0,
-            ExternalReference = payment.ExternalReference,
-            NotificationUrl = payment.NotificationUrl,
-            DateCreated = (payment.DateCreated ?? DateTime.UtcNow).ToUniversalTime(),
-            DateLastUpdated = (payment.DateLastUpdated ?? DateTime.UtcNow).ToUniversalTime(),
-            ExpirationDateTo = (payment.DateOfExpiration ?? DateTime.UtcNow.AddHours(1)).ToUniversalTime(),
-            QrCode = payment.PointOfInteraction?.TransactionData?.QrCode,
-            QrCodeBase64 = payment.PointOfInteraction?.TransactionData?.QrCodeBase64,
-            CollectorId = (long)payment.CollectorId!,
-            IssuerId = payment.IssuerId,
-        };
+            var paymentRequest = await _paymentCommunication.CreatePaymentAsync(
+                request.PaymentMethod,
+                amount,
+                description,
+                request.Installments,
+                request.Card
+            );
 
-        var existingPay = await _context.Pays
-           .FirstOrDefaultAsync(p => p.OrderId == order.Id, cancellationToken);
+            var client = new PaymentClient();
+            var payment = await client.CreateAsync(paymentRequest);
 
-        if (existingPay is not null)
-        {
-            _context.Pays.Remove(existingPay);
+            order.PaymentId = payment.Id.ToString()!;
+            order.Status = OrderStatus.AwaitingPayment;
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            var pay = new Pay
+            {
+                OrderId = order.Id,
+                Id = payment.Id.ToString()!,
+                Description = payment.Description,
+                Status = payment.Status,
+                PaymentTypeId = payment.PaymentTypeId,
+                PaymentMethodId = payment.PaymentMethodId,
+                CurrencyId = payment.CurrencyId,
+                Installments = payment.Installments ?? 1,
+                TransactionAmount = payment.TransactionAmount ?? 0,
+                ExternalReference = payment.ExternalReference,
+                NotificationUrl = payment.NotificationUrl,
+                DateCreated = (payment.DateCreated ?? DateTime.UtcNow).ToUniversalTime(),
+                DateLastUpdated = (payment.DateLastUpdated ?? DateTime.UtcNow).ToUniversalTime(),
+                ExpirationDateTo = (payment.DateOfExpiration ?? DateTime.UtcNow.AddHours(1)).ToUniversalTime(),
+                QrCode = payment.PointOfInteraction?.TransactionData?.QrCode,
+                QrCodeBase64 = payment.PointOfInteraction?.TransactionData?.QrCodeBase64,
+                CollectorId = (long)payment.CollectorId!,
+                IssuerId = payment.IssuerId,
+            };
+
+            var existingPay = await _context.Pays
+               .FirstOrDefaultAsync(p => p.OrderId == order.Id, cancellationToken);
+
+            if (existingPay is not null)
+            {
+                _context.Pays.Remove(existingPay);
+            }
+
+            await _context.Pays.AddAsync(pay, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            _jobSchedulerService.Schedule<PaymentExpirationWorkflow>(
+                job => job.CheckExpiredOrders(),
+                TimeSpan.FromHours(1)
+            );
+
+            return payment;
         }
-
-        await _context.Pays.AddAsync(pay, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        _jobSchedulerService.Schedule<PaymentExpirationWorkflow>(
-            job => job.CheckExpiredOrders(),
-            TimeSpan.FromHours(1)
-        );
-
-        return payment;
+        catch (Exception ex)
+        {
+            throw new HttpResponseException(
+                StatusCodes.Status400BadRequest,
+                CodeErrorEnum.PAYMENT_FAILURE.ToString(),
+                ex.Message.ToString()
+            );
+        }
     }
 }

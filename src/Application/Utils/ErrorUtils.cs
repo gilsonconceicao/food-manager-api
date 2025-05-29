@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using Api.Enums;
-using Application.Common.Exceptions;
+using Domain.Enums;
+using Domain.Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 
 namespace Application.Utils;
@@ -18,33 +18,37 @@ static class ErrorUtils
         return mapperProperties;
     }
 
-    
+
     public static object InvalidFieldsError(FluentValidation.Results.ValidationResult validations)
     {
         var errorsList = validations.Errors;
-        throw new HttpResponseException
-        {
-            Status = 400,
-            Value = new
+          throw new HttpResponseException(
+            StatusCodes.Status400BadRequest, 
+            CodeErrorEnum.INVALID_FORM_FIELDS.ToString(), 
+            errorsList.Count > 1 ? "Erro ao validar os campos" : $"Campo {validations.Errors[0].PropertyName} inválido", 
+            new
             {
-                Code = CodeErrorEnum.INVALID_FORM_FIELDS.ToString(),
-                Message = errorsList.Count > 1 ? "Erro ao validar os campos" : $"Campo {validations.Errors[0].PropertyName} inválido",
                 Details = ErrorUtils.ValidationFailure(validations.Errors)
             }
-        };
+        );
     }
 
     public static object NotFoudException(string? Message)
     {
-        throw new HttpResponseException
-        {
-            Status = StatusCodes.Status404NotFound,
-            Value = new
-            {
-                Code = CodeErrorEnum.INVALID_FORM_FIELDS.ToString(),
-                Message = Message ?? "Recuro nõao encontrado",
-            }
-        };
+        throw new HttpResponseException(
+            StatusCodes.Status404NotFound, 
+            CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(), 
+            Message ?? "Recuro não encontrado"
+        );
+    }
+
+    public static object BadRequestException(string? Message)
+    {
+        throw new HttpResponseException(
+            StatusCodes.Status400BadRequest, 
+            CodeErrorEnum.INVALID_BUSINESS_RULE.ToString(), 
+            Message ?? "Erro desconhecido"
+        );
     }
 }
 

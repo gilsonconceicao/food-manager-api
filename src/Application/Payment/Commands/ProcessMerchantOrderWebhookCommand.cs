@@ -1,7 +1,4 @@
-using Application.Workflows.Workflows;
-using Domain.Enums;
-using Domain.Interfaces;
-using Hangfire;
+using Integrations.Interfaces;
 using MediatR;
 
 namespace Application.Payment.Commands;

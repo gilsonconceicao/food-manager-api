@@ -1,11 +1,12 @@
-using Api.Enums;
+using Domain.Enums;
 using Api.Services;
 using Application.Carts.Commands.Factories;
-using Application.Common.Exceptions;
+using Domain.Common.Exceptions;
 using Domain.Models;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Application.Utils;
 
 namespace Application.Carts.Commands;
 #nullable disable 
@@ -39,16 +40,12 @@ public class CartCreateCommandHandler : IRequestHandler<CartCreateCommand, bool>
         var user = await _httpUserService.GetAuthenticatedUser();
 
         Food existsFoodRelated = await _context.Foods
-                .FirstOrDefaultAsync(c => c.Id == request.FoodId)
-                ?? throw new HttpResponseException
-                {
-                    Status = 404,
-                    Value = new
-                    {
-                        Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                        Message = "ID informado não possui nenhum recurso relacionado.",
-                    }
-                };
+                .FirstOrDefaultAsync(c => c.Id == request.FoodId);
+
+        if (existsFoodRelated is null)
+        {
+            ErrorUtils.NotFoudException("ID informado não possui nenhum recurso relacionado.");
+        }
 
         Guid cartId = Guid.Empty;
 

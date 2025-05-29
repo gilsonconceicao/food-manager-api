@@ -1,6 +1,6 @@
 using System.Net.Mime;
 using System.Reflection;
-using Application.Common.Exceptions;
+using Domain.Common.Exceptions;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
