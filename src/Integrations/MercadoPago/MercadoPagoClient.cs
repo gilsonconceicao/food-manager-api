@@ -3,6 +3,7 @@ using System.Text.Json;
 using Domain.Common.Exceptions;
 using Domain.Enums;
 using Domain.Extensions;
+using Domain.Models;
 using Domain.Models.Request;
 using Integrations.Settings;
 using Microsoft.AspNetCore.Http;

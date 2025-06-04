@@ -42,9 +42,7 @@ public class PaymentFactory : IPaymentFactory
         return paymentMethod switch
         {
             PaymentMethodEnum.Pix => CreatePixPayment(payer, amount, description, notificationUrl),
-
-            PaymentMethodEnum.Card => CreateCardPayment(payer, amount, description, notificationUrl, token, installments, paymentMethodId),
-
+            // PaymentMethodEnum.Card => CreateCardPayment(payer, amount, description, notificationUrl, token, installments, paymentMethodId),
             _ => throw new NotImplementedException($"Método de pagamento '{paymentMethod}' não implementado.")
         };
     }
@@ -62,7 +60,7 @@ public class PaymentFactory : IPaymentFactory
         Payer = payer,
         NotificationUrl = notificationUrl,
         ExternalReference = Guid.NewGuid().ToString(), 
-        DateOfExpiration = DateTime.UtcNow.AddHours(1)
+        DateOfExpiration = DateTime.UtcNow.AddMinutes(10)
     };
 
     private PaymentCreateRequest CreateCardPayment(

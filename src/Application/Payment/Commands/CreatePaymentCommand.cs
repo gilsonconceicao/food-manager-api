@@ -103,7 +103,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
                 NotificationUrl = payment.NotificationUrl,
                 DateCreated = (payment.DateCreated ?? DateTime.UtcNow).ToUniversalTime(),
                 DateLastUpdated = (payment.DateLastUpdated ?? DateTime.UtcNow).ToUniversalTime(),
-                ExpirationDateTo = (payment.DateOfExpiration ?? DateTime.UtcNow.AddHours(1)).ToUniversalTime(),
+                ExpirationDateTo = (payment.DateOfExpiration ?? DateTime.UtcNow.AddMinutes(10)).ToUniversalTime(),
                 QrCode = payment.PointOfInteraction?.TransactionData?.QrCode,
                 QrCodeBase64 = payment.PointOfInteraction?.TransactionData?.QrCodeBase64,
                 CollectorId = (long)payment.CollectorId!,
@@ -123,7 +123,7 @@ public class CreatePaymentCommandHandler : IRequestHandler<CreatePaymentCommand,
 
             _jobSchedulerService.Schedule<PaymentExpirationWorkflow>(
                 job => job.CheckExpiredOrders(),
-                TimeSpan.FromHours(1)
+                TimeSpan.FromMinutes(10)
             );
 
             return payment;

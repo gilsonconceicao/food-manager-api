@@ -45,6 +45,7 @@ public enum OrderStatus
     /// </summary>
     [Description("Cancelado")]
     Cancelled = 6,
+    
     /// <summary>
     /// Falha no pagamento
     /// </summary>

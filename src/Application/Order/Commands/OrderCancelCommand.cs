@@ -4,25 +4,24 @@ using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
-using Application.Utils;
 
 namespace Application.Orders.Commands
 {
-    public class OrderDeleteCommand : IRequest<bool>
+    public class OrderCancelCommand : IRequest<bool>
     {
         public Guid OrderId { get; set; }
-        public bool IsPermanent { get; set; }
     }
-    public class OrderDeleteHandler : IRequestHandler<OrderDeleteCommand, bool>
+
+    public class OrderCancelHandler : IRequestHandler<OrderCancelCommand, bool>
     {
         private readonly DataBaseContext _context;
 
-        public OrderDeleteHandler(DataBaseContext dataBaseContext)
+        public OrderCancelHandler(DataBaseContext dataBaseContext)
         {
             _context = dataBaseContext;
         }
 
-        public async Task<bool> Handle(OrderDeleteCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(OrderCancelCommand request, CancellationToken cancellationToken)
         {
             var order = await _context.Orders
                 .Where(o => !o.IsDeleted)
@@ -31,24 +30,21 @@ namespace Application.Orders.Commands
 
             var statusAvailableToDelete = new List<OrderStatus>
             {
-                OrderStatus.Cancelled,
-                OrderStatus.PaymentFailed
+                OrderStatus.AwaitingPayment,
+                OrderStatus.PaymentFailed,
+                OrderStatus.Expired
             };
 
             if (!statusAvailableToDelete.Contains(order.Status))
             {
                 throw new HttpResponseException(
-                StatusCodes.Status400BadRequest,
-                CodeErrorEnum.INVALID_BUSINESS_RULE.ToString(),
-                "Só é permitido exluir pedido nos status 'Aguardando pagamento', 'Cancelado' ou 'expirado'."
-            );
+                    StatusCodes.Status400BadRequest,
+                    CodeErrorEnum.INVALID_BUSINESS_RULE.ToString(),
+                    "Só é permitido exluir pedido nos status 'Aguardando pagamento', 'falha no pagamento' ou 'expirado'."
+                );
             }
 
-            order.IsDeleted = true;
-            if (!!request.IsPermanent)
-            {
-                _context.Remove(order);
-            }
+            order.Status = OrderStatus.Cancelled;
             await _context.SaveChangesAsync();
             return true;
         }

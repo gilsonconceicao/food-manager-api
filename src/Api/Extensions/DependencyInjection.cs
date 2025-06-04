@@ -23,7 +23,6 @@ using Api.Workflows.JobSchedulerService;
 using Application.Workflows.Workflows;
 using Application.Workflows.Activities;
 using Application.Foods.Queries.FoodGetByIdQuery;
-using MercadoPago.Resource.Preference;
 using Integrations.MercadoPago.Factories;
 using MercadoPago.Resource.Payment;
 using Integrations.Interfaces;
@@ -69,6 +68,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<UserUpdateCommand, bool>, UserUpdateCommandHandler>();
         services.AddTransient<IRequestHandler<CartCreateCommand, bool>, CartCreateCommandHandler>();
         services.AddTransient<IRequestHandler<CartDeleteCommand, bool>, CartDeleteCommandHandler>();
+        services.AddTransient<IRequestHandler<OrderCancelCommand, bool>, OrderCancelHandler>();
         services.AddTransient<IRequestHandler<MergeUsersFirebaseCommand, bool>, MergeUsersFirebaseCommandHandler>();
         services.AddTransient<IRequestHandler<CreatePaymentCommand, Payment>, CreatePaymentCommandHandler>();
         services.AddTransient<IRequestHandler<ProcessMerchantOrderWebhookCommand, Unit>, ProcessMerchantOrderWebhookCommandHandler>();

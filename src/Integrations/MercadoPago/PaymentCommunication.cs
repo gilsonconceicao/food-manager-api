@@ -58,7 +58,13 @@ public class PaymentCommunication : IPaymentCommunication
             .FirstOrDefault(x => x.FirebaseUserId == userAuthenticated.UserId)
             ?? throw new Exception("Usuário autenticado não encontrado na base.");
 
-        var cardTokenData = await _mercadoPagoClient.CreateCardTokenAsync(card) ?? null;
+        CreateCardTokenResult? cardTokenData = null; 
+
+        if (card != null)
+        {
+            cardTokenData = await _mercadoPagoClient.CreateCardTokenAsync(card);
+        }
+
 
         var paymentRequest = _paymentFactory.CreatePayment(
             paymentMethod,
@@ -66,7 +72,7 @@ public class PaymentCommunication : IPaymentCommunication
             amount,
             description,
             _mercadoPagoSettings.NotificationUrl,
-            cardTokenData.Token,
+            cardTokenData?.Token,
             installments
         );
 
