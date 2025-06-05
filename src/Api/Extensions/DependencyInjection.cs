@@ -69,6 +69,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<CartCreateCommand, bool>, CartCreateCommandHandler>();
         services.AddTransient<IRequestHandler<CartDeleteCommand, bool>, CartDeleteCommandHandler>();
         services.AddTransient<IRequestHandler<OrderCancelCommand, bool>, OrderCancelHandler>();
+        services.AddTransient<IRequestHandler<UpdateOrderStatusCommand, bool>, UpdateOrderStatusHandler>();
         services.AddTransient<IRequestHandler<MergeUsersFirebaseCommand, bool>, MergeUsersFirebaseCommandHandler>();
         services.AddTransient<IRequestHandler<CreatePaymentCommand, Payment>, CreatePaymentCommandHandler>();
         services.AddTransient<IRequestHandler<ProcessMerchantOrderWebhookCommand, Unit>, ProcessMerchantOrderWebhookCommandHandler>();

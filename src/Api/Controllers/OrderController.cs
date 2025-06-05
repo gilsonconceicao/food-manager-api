@@ -101,18 +101,36 @@ public class OrderController : BaseController
     /// Método para cancelar um pedido da lista
     /// </summary>
     /// <param name="Id"></param>
-    /// <param name="IsPermanent"></param>
     /// <response code="200">200 Sucesso</response>
     /// <response code="400">400 Erro</response>
     [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
     [HttpPut("{Id}/Cancel")]
     [Authorize(Policy = "Auth")]
-    public async Task<IActionResult> OrderCancelledByIdAsync(Guid Id, [FromQuery] bool IsPermanent)
+    public async Task<IActionResult> OrderCancelledByIdAsync(Guid Id)
     {
         var result = await _mediator.Send(new OrderCancelCommand
         {
             OrderId = Id
         });
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Método para atualizar o status atual de um pedido
+    /// </summary>
+    /// <param name="Id"></param>
+    /// <response code="200">200 Sucesso</response>
+    /// <response code="400">400 Erro</response>
+    [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
+    [HttpPut("{Id}/UpdateStatus")]
+    [Authorize(Policy = "Auth")]
+    public async Task<IActionResult> UpdateOrderStatusByIdAsync(Guid Id)
+    {
+        var result = await _mediator.Send(new UpdateOrderStatusCommand
+        {
+            OrderId = Id
+        });
+
         return Ok(result);
     }
 }
