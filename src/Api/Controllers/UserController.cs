@@ -65,13 +65,13 @@ public class UserController : BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<User>(StatusCodes.Status200OK)]
-    [HttpGet("{Id}")]
+    [HttpGet("{UserId}")]
     [Authorize(Policy = "Auth")]
-    public async Task<IActionResult> GetUserByIdAsync(Guid Id)
+    public async Task<IActionResult> GetUserByIdAsync(string UserId)
     {
         var result = await _mediator.Send(new UserGetByIdQuery
         {
-            Id = Id
+            Id = UserId
         });
         return Ok(_mapper.Map<GetUserDto>(result));
     }
@@ -99,14 +99,15 @@ public class UserController : BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType<Guid>(StatusCodes.Status201Created)]
-    [HttpPut("{Id}")]
+    [HttpPut("{UserId}")]
     [Authorize(Policy = "Auth")]
-    public async Task<IActionResult> CreateAsync([FromRoute] Guid Id, [FromBody] UserUpdateDto model)
+    public async Task<IActionResult> UpdateAsync([FromRoute] string UserId, [FromBody] UserUpdateDto model)
     {
         var result = await _mediator.Send(new UserUpdateCommand
         {
-            Id = Id,
+            UserId = UserId,
             Address = model.Address,
+            PhoneNumber = model.PhoneNumber,
             Name = model.Name
         });
         return Ok(result);

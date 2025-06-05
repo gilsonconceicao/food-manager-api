@@ -9,7 +9,7 @@ namespace Application.Users.Queries;
 
 public class UserGetByIdQuery : IRequest<User>
 {
-    public Guid Id { get; set; }
+    public string Id { get; set; }
 }
 
 public class UserGetByIdQueryHandler : IRequestHandler<UserGetByIdQuery, User>
@@ -26,7 +26,7 @@ public class UserGetByIdQueryHandler : IRequestHandler<UserGetByIdQuery, User>
             .Include(x => x.Address)
             .Include(x => x.Orders)
             .Where(x => !x.IsDeleted)
-            .FirstOrDefaultAsync(x => x.Id == request.Id)
+            .FirstOrDefaultAsync(x => x.FirebaseUserId == request.Id)
             ?? throw new NotFoundException("Usuário não encontrada ou não existe.");
 
         return user;

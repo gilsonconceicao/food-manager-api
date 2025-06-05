@@ -14,9 +14,9 @@ namespace Application.Users.Commands;
 #nullable disable
 public class UserUpdateCommand : IRequest<bool>
 {
-    public Guid Id { get; set; }
+    public string UserId { get; set; }
     public string Name { get; set; }
-    public string Email { get; set; }
+    public string PhoneNumber { get; set; }
     public AddressUpdateDto? Address { get; set; }
 }
 
@@ -46,7 +46,7 @@ public class UserUpdateCommandHandler : IRequestHandler<UserUpdateCommand, bool>
         var user = _context.Users
             .Include(x => x.Address)
             .Where(x => !x.IsDeleted)
-            .FirstOrDefault(x => x.Id == request.Id);
+            .FirstOrDefault(x => x.FirebaseUserId == request.UserId);
 
         if (user == null)
         {
@@ -61,7 +61,8 @@ public class UserUpdateCommandHandler : IRequestHandler<UserUpdateCommand, bool>
         {
             Address newAddress = _mapper.Map<Address>(request.Address);
             newAddress.UserId = user.Id;
-            _context.Address.Add(newAddress);
+            await _context.Address.AddAsync(newAddress);
+            user.AddressId = newAddress.Id;
         }
         else if (request.Address != null)
         {
@@ -73,8 +74,12 @@ public class UserUpdateCommandHandler : IRequestHandler<UserUpdateCommand, bool>
         }
         ;
 
-        user.Name = request.Name;
-        user.Email = request.Email;
+        if (request.PhoneNumber != null)
+            user.PhoneNumber = request.PhoneNumber;
+
+        if (request.Name != null)
+            user.Name = request.Name;
+
         await _context.SaveChangesAsync();
         return true;
     }
