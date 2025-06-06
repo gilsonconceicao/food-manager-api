@@ -16,8 +16,11 @@ public class Address
     [Column(TypeName = "varchar(100)")]
     public string Street { get; set; }
 
-    [Column(TypeName = "varchar(25)")]
+    [Column(TypeName = "varchar(80)")]
     public string City { get; set; }
+
+    [Column(TypeName = "varchar(40)")]
+    public string Complement { get; set; }
 
     [Column(TypeName = "varchar(2)")]
     public string State { get; set; }

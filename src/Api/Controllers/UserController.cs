@@ -112,4 +112,14 @@ public class UserController : BaseController
         });
         return Ok(result);
     }
+    
+    /// <summary>
+    /// Método que sincroniza usuários
+    /// </summary>
+    [HttpPost("Sync")]
+    public async Task<IActionResult> SyncUsers()
+    {
+        var result = await _mediator.Send(new MergeUsersFirebaseCommand{});
+        return Ok(result);
+    }
 }

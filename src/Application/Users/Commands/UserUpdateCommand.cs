@@ -66,20 +66,29 @@ public class UserUpdateCommandHandler : IRequestHandler<UserUpdateCommand, bool>
         }
         else if (request.Address != null)
         {
-            user.Address.ZipCode = request.Address.ZipCode;
-            user.Address.City = request.Address.City;
-            user.Address.Number = request.Address.Number;
-            user.Address.State = request.Address.State;
-            user.Address.Street = request.Address.Street;
-        }
-        ;
+            var currentAddress = user.Address;
+            var newAddress = request.Address; 
+
+            if (newAddress.ZipCode != null)
+                currentAddress.ZipCode = newAddress.ZipCode;
+            if (newAddress.City != null)
+                currentAddress.City = newAddress.City;
+            if (newAddress.Number != null)
+                currentAddress.Number = newAddress.Number;
+            if (newAddress.State != null)
+                currentAddress.State = newAddress.State;
+            if (newAddress.Street != null)
+                currentAddress.Street = newAddress.Street;
+            if (newAddress.Complement != null)
+                currentAddress.Complement = newAddress.Complement;
+        };
 
         if (request.PhoneNumber != null)
             user.PhoneNumber = request.PhoneNumber;
 
         if (request.Name != null)
             user.Name = request.Name;
-
+        user.AddressId = user.Address.Id; 
         await _context.SaveChangesAsync();
         return true;
     }
