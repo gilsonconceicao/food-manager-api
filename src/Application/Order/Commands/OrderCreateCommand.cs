@@ -17,6 +17,7 @@ public class OrderCreateCommand : IRequest<Guid>
 {
     public string UserId { get; set; }
     public List<Guid> CartIds { get; set; }
+    public string? Observations { get; set; }
 }
 
 public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
@@ -57,7 +58,8 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
             UserId = user.Id,
             RequestNumber = orderCount.RequestNumber + 1,
             CreatedAt = DateTime.UtcNow,
-            Status = OrderStatus.AwaitingPayment
+            Status = OrderStatus.AwaitingPayment,
+            Observations = request?.Observations
         };
 
         await _context.Orders.AddAsync(order, cancellationToken);

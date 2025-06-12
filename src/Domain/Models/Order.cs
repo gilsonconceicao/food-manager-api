@@ -14,6 +14,8 @@ namespace Domain.Models
         public string? ExternalReference { get; set; }
 
         public string? FailureReason { get; set; }
+        
+        public string? Observations { get; set; }
 
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? TotalValue { get; set; }

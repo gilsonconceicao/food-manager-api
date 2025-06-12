@@ -34,7 +34,26 @@ public class OrderController : BaseController
         var result = await _mediator.Send(new OrderCreateCommand
         {
             UserId = UserId,
-            CartIds = model.CartIds
+            CartIds = model.CartIds,
+            Observations = model.Observations
+        });
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Método utilizado para atualizar um pedido
+    /// </summary>
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<bool>(StatusCodes.Status201Created)]
+    [HttpPut("{Id}")]
+    [Authorize(Policy = "Auth")]
+    public async Task<IActionResult> OrderUpdateAsync([FromRoute] Guid Id, [FromBody] OrderUpdateDto model)
+    {
+        var result = await _mediator.Send(new OrderUpdateCommand
+        {
+            OrderId = Id,
+            Observations = model.Observations
         });
         return Ok(result);
     }
