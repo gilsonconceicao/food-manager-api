@@ -23,6 +23,7 @@ namespace Infrastructure.Database
         public DbSet<Order> Orders { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Pay> Pays { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
 
         public async Task MigrateAsync() => await base.Database.MigrateAsync();
 

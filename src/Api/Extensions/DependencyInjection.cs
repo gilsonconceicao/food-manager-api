@@ -26,6 +26,7 @@ using Application.Foods.Queries.FoodGetByIdQuery;
 using Integrations.MercadoPago.Factories;
 using MercadoPago.Resource.Payment;
 using Integrations.Interfaces;
+using Application.Contacts.Commands;
 
 namespace Api.Extensions;
 
@@ -73,9 +74,9 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<MergeUsersFirebaseCommand, bool>, MergeUsersFirebaseCommandHandler>();
         services.AddTransient<IRequestHandler<OrderUpdateCommand, bool>, OrderUpdateHandler>();
         services.AddTransient<IRequestHandler<CartUpdateCommand, bool>, CartUpdateCommandHandler>();
+        services.AddTransient<IRequestHandler<ContactCreateCommand, bool>, ContactCreateCommandHandler>();
         services.AddTransient<IRequestHandler<CreatePaymentCommand, Payment>, CreatePaymentCommandHandler>();
         services.AddTransient<IRequestHandler<ProcessMerchantOrderWebhookCommand, Unit>, ProcessMerchantOrderWebhookCommandHandler>();
-        services.AddTransient<IRequestHandler<TryHangFireCommand, bool>, TryHangFireCommandHandler>();
 
         // #endregion
 
@@ -99,10 +100,10 @@ public static class MyConfigServiceCollectionExtensions
         services.AddScoped<UpdateOrderStatusWorkflow>();
         services.AddScoped<PaymentExpirationWorkflow>();
         
-        services.AddScoped<ITryHangFireWorkflow, TryHangFireWorkflow>();
+        services.AddScoped<ISendEmailContactWorkflow, SendEmailContactWorkflow>();
         services.AddScoped<IMergeUsersWorkflow, MergeUsersWorkflow>();
     
-        services.AddScoped<IProcessTryHangFireActivity, ProcessTryHangFireActivity>();
+        services.AddScoped<IProcessSendEmailContactActivity, ProcessSendEmailContactActivity>();
         services.AddScoped<IProcessPaymentExpirationActivity, ProcessPaymentExpirationActivity>();
         services.AddScoped<IProcessMergeUsersFirebaseActivity, ProcessMergeUsersFirebaseActivity>();
         services.AddScoped<IUpdateOrderStatusActivity, UpdateOrderStatusActivity>();

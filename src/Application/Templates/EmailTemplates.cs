@@ -60,23 +60,42 @@ public static class EmailTemplates
 </html>";
     }
 
-    public static string TryHangfireTemplete()
+    public static string SendEmailContactTemplate(Contact contact)
     {
-        var sb = new StringBuilder();
-
         return $@"
 <!DOCTYPE html>
-<html>
+<html lang='pt-BR'>
 <head>
     <meta charset='UTF-8'>
-    <title>Relatório de Usuários</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Nova Mensagem de Contato</title>
 </head>
-<body style='margin: 0; padding: 0; font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5;'>
+<body style='margin:0; padding:0; background-color:#f4f4f4; font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;'>
 
-    <div style='max-width: 700px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
-        <div style='background-color: #2e86de; color: white; padding: 30px 40px;'>
-            <h1 style='margin: 0; font-size: 28px;'>👋 Olá!</h1>
-            <p style='margin: 5px 0 0;'>Isso é apenas um e-mail do sistema.</p>
+    <div style='max-width:600px; margin:40px auto; background-color:#fff; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); overflow:hidden;'>
+        
+        <div style='background-color:#2e86de; padding:24px 32px; color:#fff;'>
+            <h1 style='margin:0; font-size:24px;'>📌 Nova Mensagem de Contato</h1>
+            <p style='margin:8px 0 0;'>Você recebeu uma nova mensagem através do site.</p>
+        </div>
+
+        <div style='padding:32px;'>
+            <h2 style='margin-top:0; color:#333;'>Detalhes do Contato</h2>
+            
+            <p><strong>Nome:</strong> {contact.Name}</p>
+            <p><strong>E-mail:</strong> {contact.Email}</p>
+            <p><strong>Telefone:</strong> {contact.PhoneNumber}</p>
+
+            <hr style='border:none; border-top:1px solid #eee; margin:24px 0;'>
+
+            <h3 style='color:#333;'>Mensagem:</h3>
+            <p style='background-color:#f9f9f9; padding:16px; border-radius:6px; color:#555;'>
+                {contact.Message}
+            </p>
+        </div>
+
+        <div style='background-color:#f0f2f5; padding:16px 32px; text-align:center; font-size:12px; color:#999;'>
+            Este é um e-mail automático enviado pelo sistema.
         </div>
     </div>
 
