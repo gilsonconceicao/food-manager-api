@@ -6,7 +6,6 @@ using Domain.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Api.Services;
 
 namespace Api.Controllers;
 
@@ -35,7 +34,26 @@ public class OrderController : BaseController
         var result = await _mediator.Send(new OrderCreateCommand
         {
             UserId = UserId,
-            CartIds = model.CartIds
+            CartIds = model.CartIds,
+            Observations = model.Observations
+        });
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Método utilizado para atualizar um pedido
+    /// </summary>
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType<bool>(StatusCodes.Status201Created)]
+    [HttpPut("{Id}")]
+    [Authorize(Policy = "Auth")]
+    public async Task<IActionResult> OrderUpdateAsync([FromRoute] Guid Id, [FromBody] OrderUpdateDto model)
+    {
+        var result = await _mediator.Send(new OrderUpdateCommand
+        {
+            OrderId = Id,
+            Observations = model.Observations
         });
         return Ok(result);
     }
@@ -95,6 +113,43 @@ public class OrderController : BaseController
             OrderId = Id,
             IsPermanent = IsPermanent
         });
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Método para cancelar um pedido da lista
+    /// </summary>
+    /// <param name="Id"></param>
+    /// <response code="200">200 Sucesso</response>
+    /// <response code="400">400 Erro</response>
+    [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
+    [HttpPut("{Id}/Cancel")]
+    [Authorize(Policy = "Auth")]
+    public async Task<IActionResult> OrderCancelledByIdAsync(Guid Id)
+    {
+        var result = await _mediator.Send(new OrderCancelCommand
+        {
+            OrderId = Id
+        });
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Método para atualizar o status atual de um pedido
+    /// </summary>
+    /// <param name="Id"></param>
+    /// <response code="200">200 Sucesso</response>
+    /// <response code="400">400 Erro</response>
+    [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
+    [HttpPut("{Id}/UpdateStatus")]
+    [Authorize(Policy = "Auth")]
+    public async Task<IActionResult> UpdateOrderStatusByIdAsync(Guid Id)
+    {
+        var result = await _mediator.Send(new UpdateOrderStatusCommand
+        {
+            OrderId = Id
+        });
+
         return Ok(result);
     }
 }

@@ -1,16 +1,21 @@
+using System.Text;
 using System.Text.Json;
+using Domain.Common.Exceptions;
+using Domain.Enums;
+using Domain.Extensions;
+using Domain.Models;
+using Domain.Models.Request;
 using Integrations.Settings;
-using MercadoPago.Client.MerchantOrder;
-using MercadoPago.Config;
-using MercadoPago.Resource.MerchantOrder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 namespace Integrations.MercadoPago;
 
 public interface IMercadoPagoClient
 {
-    Task<MercadoPagoPaymentResult?> GetPaymentByIdAsync(string preferenceId);
-    Task<MerchantOrder> GetMerchantOrderByIdAsync(string merchantOrderId);
+    Task<MercadoPagoPaymentResult?> GetPaymentByIdAsync(string paymentId);
+    Task<CardBrandResult> GetCardBrandAsync(string bin);
+    Task<CreateCardTokenResult> CreateCardTokenAsync(CardDataRequestDto request);
 }
 
 public class MercadoPagoClient : IMercadoPagoClient
@@ -27,11 +32,96 @@ public class MercadoPagoClient : IMercadoPagoClient
         _logger = logger;
     }
 
+    public async Task<CreateCardTokenResult> CreateCardTokenAsync(CardDataRequestDto request)
+    {
+        try
+        {
+            var accessToken = _mercadoPagoSettings.AccessToken;
+
+            var payload = new
+            {
+                card_number = request.CardNumber,
+                expiration_month = request.ExpirationMonth,
+                expiration_year = request.ExpirationYear,
+                security_code = request.Cvv,
+                cardholder = new
+                {
+                    name = request.CardHolderNamenoCartão
+                }
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{_mercadoPagoSettings.BaseURL}/card_tokens?access_token={accessToken}", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error creating card token: {error}");
+            }
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            using var json = JsonDocument.Parse(responseContent);
+            var token = json.RootElement.GetProperty("id").GetString();
+            var bin = json.RootElement.GetProperty("first_six_digits").GetString();
+
+            return new CreateCardTokenResult
+            {
+                Bin = bin, 
+                Token = token
+            };
+        }
+        catch (Exception ex)
+        {
+            var message = StringExtensions.ExtractMessage(ex.Message.ToString());
+
+            throw new HttpResponseException(
+                StatusCodes.Status400BadRequest,
+                CodeErrorEnum.INVALID_BUSINESS_RULE.ToString(),
+                message ?? "Cartão inválido"
+            );
+        }
+    }
+
+    public async Task<CardBrandResult> GetCardBrandAsync(string bin)
+    {
+        var accessToken = _mercadoPagoSettings.AccessToken;
+        var url = $"https://api.mercadopago.com/v1/payment_methods/search?bin={bin}&site_id=MLB";
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+        var response = await _httpClient.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Error getting card brand: {error}");
+        }
+
+        var content = await response.Content.ReadAsStringAsync();
+        using var json = JsonDocument.Parse(content);
+
+        var results = json.RootElement.GetProperty("results");
+
+        if (results.GetArrayLength() == 0)
+            throw new Exception("Card brand not found.");
+
+        var paymentMethod = results[0];
+        var cardBrand = paymentMethod.GetProperty("name").GetString(); 
+        var paymentMethodId = paymentMethod.GetProperty("id").GetString();
+
+        return new CardBrandResult
+        {
+            CardBrand = cardBrand, 
+            PaymentMethodId = paymentMethodId
+        };
+    }
     public async Task<MercadoPagoPaymentResult?> GetPaymentByIdAsync(string paymentId)
     {
         var accessToken = _mercadoPagoSettings.AccessToken;
         var response = await _httpClient.GetAsync(
-            $"https://api.mercadopago.com/v1/payments/{paymentId}?access_token={accessToken}");
+            $"{_mercadoPagoSettings.BaseURL}/payments/{paymentId}?access_token={accessToken}");
 
         if (!response.IsSuccessStatusCode)
         {
@@ -54,30 +144,30 @@ public class MercadoPagoClient : IMercadoPagoClient
 
         return new MercadoPagoPaymentResult
         {
-            PaymentId = idProp.ToString(),
+            PaymentId = long.Parse(idProp.ToString()),
             Status = statusProp.GetString(),
             ExternalReference = external_reference.ToString(),
             StatusDetail = json.TryGetProperty("status_detail", out var detailProp) ? detailProp.GetString() : null
         };
     }
-
-    public async Task<MerchantOrder> GetMerchantOrderByIdAsync(string merchantOrderId)
-    {
-        MercadoPagoConfig.AccessToken = _mercadoPagoSettings.AccessToken;
-
-        var client = new MerchantOrderClient();
-        var merchantOrder = await client.GetAsync(long.Parse(merchantOrderId));
-
-        return merchantOrder;
-    }
-
-
 }
 
 public class MercadoPagoPaymentResult
 {
-    public string? PaymentId { get; set; }
+    public long? PaymentId { get; set; }
     public string? Status { get; set; }
     public string? ExternalReference { get; set; }
     public string? StatusDetail { get; set; }
+}
+
+public class CardBrandResult
+{
+    public string PaymentMethodId { get; set; }
+    public string CardBrand { get; set; }
+}
+
+public class CreateCardTokenResult
+{
+    public string Token { get; set; }
+    public string Bin { get; set; }
 }

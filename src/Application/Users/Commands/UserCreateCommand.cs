@@ -1,7 +1,7 @@
 using AutoMapper;
 using FluentValidation;
-using Api.Enums;
-using Application.Common.Exceptions;
+using Domain.Enums;
+using Domain.Common.Exceptions;
 using Application.Users.Dtos;
 using Application.Utils;
 using Domain.Extensions;

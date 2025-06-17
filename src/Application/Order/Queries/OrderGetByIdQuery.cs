@@ -1,5 +1,5 @@
-using Api.Enums;
-using Application.Common.Exceptions;
+using Domain.Enums;
+using Domain.Common.Exceptions;
 using Domain.Models;
 using Infrastructure.Database;
 using MediatR;

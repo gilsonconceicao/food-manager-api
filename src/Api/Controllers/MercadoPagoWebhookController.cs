@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Domain.Interfaces;
 using MediatR;
 using Application.Payment.Commands;
 
@@ -10,17 +9,14 @@ namespace Api.Controllers
     public class MercadoPagoWebhookController : ControllerBase
     {
         private readonly ILogger<MercadoPagoWebhookController> _logger;
-        private readonly IPaymentCommunication _paymentCommunication;
         private readonly IMediator _mediator;
 
 
         public MercadoPagoWebhookController(
             ILogger<MercadoPagoWebhookController> logger,
-            IPaymentCommunication paymentCommunication,
             IMediator mediator)
         {
             _logger = logger;
-            _paymentCommunication = paymentCommunication;
             _mediator = mediator;
         }
 
@@ -37,9 +33,6 @@ namespace Api.Controllers
 
             switch (topic)
             {
-                case "merchant_order":
-                    await _paymentCommunication.ProcessMerchantOrderWebhookAsync(id);
-                    break;
                 case "payment":
                     await _mediator.Send(new ProcessMerchantOrderWebhookCommand
                     {

@@ -29,7 +29,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("City")
-                        .HasColumnType("varchar(25)");
+                        .HasColumnType("varchar(80)");
+
+                    b.Property<string>("Complement")
+                        .HasColumnType("varchar(40)");
 
                     b.Property<int>("Number")
                         .HasColumnType("int");
@@ -162,10 +165,7 @@ namespace Infrastructure.Migrations
                     b.Property<string>("CreatedByUserName")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("ExpirationDateTo")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ExternalPaymentId")
+                    b.Property<string>("ExternalReference")
                         .HasColumnType("text");
 
                     b.Property<string>("FailureReason")
@@ -174,8 +174,11 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("NumberOfInstallments")
-                        .HasColumnType("integer");
+                    b.Property<string>("Observations")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PaymentId")
+                        .HasColumnType("text");
 
                     b.Property<int>("RequestNumber")
                         .HasColumnType("integer");
@@ -237,10 +240,77 @@ namespace Infrastructure.Migrations
                     b.ToTable("Items");
                 });
 
+            modelBuilder.Entity("Domain.Models.Pay", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<long>("CollectorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CurrencyId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DateLastUpdated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ExpirationDateTo")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ExternalReference")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Installments")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("IssuerId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NotificationUrl")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PaymentMethodId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PaymentTypeId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("QrCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("QrCodeBase64")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("TransactionAmount")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("Pays");
+                });
+
             modelBuilder.Entity("Domain.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AddressId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -338,6 +408,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Models.Pay", b =>
+                {
+                    b.HasOne("Domain.Models.Order", "Order")
+                        .WithOne("Pay")
+                        .HasForeignKey("Domain.Models.Pay", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("Domain.Models.Food", b =>
                 {
                     b.Navigation("Items");
@@ -346,6 +427,9 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Models.Order", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("Pay")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Models.User", b =>

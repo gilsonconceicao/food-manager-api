@@ -1,21 +1,22 @@
 using AutoMapper;
 using FluentValidation;
-using Api.Enums;
-using Application.Common.Exceptions;
+using Domain.Enums;
+using Domain.Common.Exceptions;
 using Application.Users.Dtos;
 using Application.Utils;
 using Domain.Models;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Users.Commands;
 #nullable disable
 public class UserUpdateCommand : IRequest<bool>
 {
-    public Guid Id { get; set; }
+    public string UserId { get; set; }
     public string Name { get; set; }
-    public string Email { get; set; }
+    public string PhoneNumber { get; set; }
     public AddressUpdateDto? Address { get; set; }
 }
 
@@ -45,39 +46,49 @@ public class UserUpdateCommandHandler : IRequestHandler<UserUpdateCommand, bool>
         var user = _context.Users
             .Include(x => x.Address)
             .Where(x => !x.IsDeleted)
-            .FirstOrDefault(x => x.Id == request.Id);
+            .FirstOrDefault(x => x.FirebaseUserId == request.UserId);
 
         if (user == null)
         {
-            throw new HttpResponseException
-            {
-                Status = 404,
-                Value = new
-                {
-                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                    Message = $"Usuário não encontrado",
-                    Resource = request.Id
-                }
-            };
+            throw new HttpResponseException(
+               StatusCodes.Status400BadRequest,
+               CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+               $"Usuário não encontrado"
+           );
         }
 
         if (user.Address == null && request.Address != null)
         {
             Address newAddress = _mapper.Map<Address>(request.Address);
             newAddress.UserId = user.Id;
-            _context.Address.Add(newAddress);
+            await _context.Address.AddAsync(newAddress);
+            user.AddressId = newAddress.Id;
         }
         else if (request.Address != null)
         {
-            user.Address.ZipCode = request.Address.ZipCode;
-            user.Address.City = request.Address.City;
-            user.Address.Number = request.Address.Number;
-            user.Address.State = request.Address.State;
-            user.Address.Street = request.Address.Street;
+            var currentAddress = user.Address;
+            var newAddress = request.Address; 
+
+            if (newAddress.ZipCode != null)
+                currentAddress.ZipCode = newAddress.ZipCode;
+            if (newAddress.City != null)
+                currentAddress.City = newAddress.City;
+            if (newAddress.Number != null)
+                currentAddress.Number = newAddress.Number;
+            if (newAddress.State != null)
+                currentAddress.State = newAddress.State;
+            if (newAddress.Street != null)
+                currentAddress.Street = newAddress.Street;
+            if (newAddress.Complement != null)
+                currentAddress.Complement = newAddress.Complement;
         };
 
-        user.Name = request.Name;
-        user.Email = request.Email;
+        if (request.PhoneNumber != null)
+            user.PhoneNumber = request.PhoneNumber;
+
+        if (request.Name != null)
+            user.Name = request.Name;
+        user.AddressId = user.Address.Id; 
         await _context.SaveChangesAsync();
         return true;
     }

@@ -4,5 +4,6 @@ namespace Application.Orders.Dtos
     public class OrderCreateDto
     {
         public List<Guid> CartIds { get; set; }
+        public string Observations { get; set; }
     }
 }

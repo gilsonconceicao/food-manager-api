@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using FirebaseAdmin.Auth;
 namespace Api.Firebase;
 public class FirebaseAuthService
@@ -15,4 +17,5 @@ public class FirebaseAuthService
             return null;
         }
     }
+    
 }

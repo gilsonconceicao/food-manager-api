@@ -1,7 +1,6 @@
 
-using Api.Enums;
 using Api.Services;
-using Application.Common.Exceptions;
+using Domain.Common.Exceptions;
 using Domain.Models;
 using Infrastructure.Database;
 using MediatR;
@@ -11,7 +10,7 @@ namespace Application.Carts.Commands;
 
 public class CartUpdateCommand : IRequest<bool>
 {
-    public Guid CartId { get; set; }
+    public Guid OrderId { get; set; }
     public Guid FoodId { get; set; }
     public int? Quantity { get; set; }
 }
@@ -34,17 +33,19 @@ public class CartUpdateCommandHandler : IRequestHandler<CartUpdateCommand, bool>
     {
         var user = await _httpUserService.GetAuthenticatedUser();
 
-        Cart cart = await _context.Carts
-            .FirstOrDefaultAsync(c => c.Id == request.CartId && user.UserId == c.CreatedByUserId)
-            ?? throw new NotFoundException("Comida não encontrada ou não existe.");
+        Order order = await _context.Orders
+            .Include(x => x.Items)
+            .ThenInclude(x => x.Food)
+            .FirstOrDefaultAsync(c => c.Id == request.OrderId)
+            ?? throw new NotFoundException("Pedido não encontrado ou não existe.");
 
+        var item = order.Items.FirstOrDefault(x => x.FoodId == request.FoodId); 
+        
         if (request.Quantity != null)
-            cart.Quantity = request.Quantity;
+            item.Quantity = request.Quantity;
 
-        cart.UpdatedAt = DateTime.UtcNow;
-
+        order.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
-
         return true;
     }
 }

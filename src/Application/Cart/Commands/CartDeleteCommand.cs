@@ -1,4 +1,4 @@
-using Application.Common.Exceptions;
+using Domain.Common.Exceptions;
 using Domain.Models;
 using Infrastructure.Database;
 using MediatR;

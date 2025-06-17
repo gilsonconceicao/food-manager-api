@@ -1,10 +1,11 @@
-using Api.Enums;
-using Application.Common.Exceptions;
+using Domain.Enums;
+using Domain.Common.Exceptions;
 using Domain.Extensions;
 using Domain.Models;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Users.Queries;
 #nullable disable
@@ -28,15 +29,10 @@ public class UserGetByRegistrationNumberHandler : IRequestHandler<UserGetByRegis
             .Include(x => x.Orders)
             .Where(x => !x.IsDeleted)
             .FirstOrDefaultAsync(x => x.PhoneNumber == request.RegistrationNumber.RemoveSpecialCharacters())
-            ?? throw new HttpResponseException
-            {
-                Status = 404,
-                Value = new
-                {
-                    Code = CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
-                    Message = "Usuário não encontrado ou não existe",
-                }
-            };
+            ?? throw new HttpResponseException(
+                StatusCodes.Status404NotFound,
+                CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
+                $"Usuário não encontrado");
 
         return user;
     }

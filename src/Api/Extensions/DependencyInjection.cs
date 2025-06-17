@@ -15,7 +15,6 @@ using Domain.Extensions;
 using Domain.Models;
 using MediatR;
 using Integrations.Settings;
-using Domain.Interfaces;
 using Integrations.MercadoPago;
 using Application.Payment.Commands;
 using Application.Carts.Dtos;
@@ -24,6 +23,9 @@ using Api.Workflows.JobSchedulerService;
 using Application.Workflows.Workflows;
 using Application.Workflows.Activities;
 using Application.Foods.Queries.FoodGetByIdQuery;
+using Integrations.MercadoPago.Factories;
+using MercadoPago.Resource.Payment;
+using Integrations.Interfaces;
 
 namespace Api.Extensions;
 
@@ -66,8 +68,12 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<UserUpdateCommand, bool>, UserUpdateCommandHandler>();
         services.AddTransient<IRequestHandler<CartCreateCommand, bool>, CartCreateCommandHandler>();
         services.AddTransient<IRequestHandler<CartDeleteCommand, bool>, CartDeleteCommandHandler>();
+        services.AddTransient<IRequestHandler<OrderCancelCommand, bool>, OrderCancelHandler>();
+        services.AddTransient<IRequestHandler<UpdateOrderStatusCommand, bool>, UpdateOrderStatusHandler>();
         services.AddTransient<IRequestHandler<MergeUsersFirebaseCommand, bool>, MergeUsersFirebaseCommandHandler>();
-        services.AddTransient<IRequestHandler<CreatePaymentCommand, string>, CreatePaymentCommandHandler>();
+        services.AddTransient<IRequestHandler<OrderUpdateCommand, bool>, OrderUpdateHandler>();
+        services.AddTransient<IRequestHandler<CartUpdateCommand, bool>, CartUpdateCommandHandler>();
+        services.AddTransient<IRequestHandler<CreatePaymentCommand, Payment>, CreatePaymentCommandHandler>();
         services.AddTransient<IRequestHandler<ProcessMerchantOrderWebhookCommand, Unit>, ProcessMerchantOrderWebhookCommandHandler>();
         services.AddTransient<IRequestHandler<TryHangFireCommand, bool>, TryHangFireCommandHandler>();
 
@@ -77,6 +83,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<FoodGetListPaginationQuery, ListDataResponse<List<Food>>>, FoodGetListPaginationQueryHandler>();
         services.AddTransient<IRequestHandler<OrderPaginationListQuery, ListDataResponse<List<Order>>>, OrderPaginationListHandler>();
         services.AddTransient<IRequestHandler<OrderGetByIdQuery, Order>, OrderGetByIdHandler>();
+        services.AddTransient<IRequestHandler<GetPaymentByIdQuery, Pay>, GetPaymentByIdQueryHandler>();
         services.AddTransient<IRequestHandler<UserPaginationListQuery, ListDataResponse<List<User>>>, UserPaginationListQueryHandler>();
         services.AddTransient<IRequestHandler<UserGetByIdQuery, User>, UserGetByIdQueryHandler>();
         services.AddTransient<IRequestHandler<VerifyUserIsMasterQuery, bool>, VerifyUserIsMasterQueryHandler>();
@@ -90,19 +97,20 @@ public static class MyConfigServiceCollectionExtensions
         services.AddScoped<IJobSchedulerService, JobSchedulerService>();
 
         services.AddScoped<UpdateOrderStatusWorkflow>();
-        services.AddScoped<OrderExpirationWorkflow>();
+        services.AddScoped<PaymentExpirationWorkflow>();
         
         services.AddScoped<ITryHangFireWorkflow, TryHangFireWorkflow>();
         services.AddScoped<IMergeUsersWorkflow, MergeUsersWorkflow>();
     
         services.AddScoped<IProcessTryHangFireActivity, ProcessTryHangFireActivity>();
-        services.AddScoped<IProcessOrderExpirationActivity, ProcessOrderExpirationActivity>();
+        services.AddScoped<IProcessPaymentExpirationActivity, ProcessPaymentExpirationActivity>();
         services.AddScoped<IProcessMergeUsersFirebaseActivity, ProcessMergeUsersFirebaseActivity>();
         services.AddScoped<IUpdateOrderStatusActivity, UpdateOrderStatusActivity>();
         // #endregion
 
         // #region Factories
         services.AddScoped<ICartFactory, CartFactory>();
+        services.AddScoped<IPaymentFactory, PaymentFactory>();
         // #endregion
 
         return services;

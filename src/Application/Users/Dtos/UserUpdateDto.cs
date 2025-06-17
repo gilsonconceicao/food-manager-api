@@ -7,6 +7,7 @@ namespace Application.Users.Dtos
     public class UserUpdateDto
     {
         public string Name { get; set; }
+        public string PhoneNumber { get; set; }
         public AddressUpdateDto Address { get; set; }
     }
 }

@@ -1,12 +1,15 @@
 
 using Api.Services;
 using AutoMapper;
+using Domain.Common.Exceptions;
+using Domain.Enums;
 using Domain.Models;
 using FirebaseAdmin.Auth;
 using Infrastructure.Database;
 using Integrations.Settings;
 using Integrations.SMTP;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -46,39 +49,38 @@ public class MergeUsersFirebaseCommandHandler : IRequestHandler<MergeUsersFireba
 
     public async Task<bool> Handle(MergeUsersFirebaseCommand request, CancellationToken cancellationToken)
     {
-        var firebaeUsers = await _httpUserService.GetExportedUserRecords();
-        var currentUsers = await _context.Users
-            .Include(u => u.Orders)
-            .ToListAsync();
-
-        var usersMapped = new List<User>();
-        var envDisplay = _config.GetValue<string>("EnvDisplay");
-
-        foreach (var user in firebaeUsers)
+        try
         {
-            var userExists = currentUsers.FirstOrDefault(x => x.FirebaseUserId == user.Uid);
-            if (userExists == null)
+            var firebaeUsers = await _httpUserService.GetExportedUserRecords();
+            var currentUsers = await _context.Users
+                .Include(u => u.Orders)
+                .ToListAsync();
+
+            var usersMapped = new List<User>();
+            var envDisplay = _config.GetValue<string>("EnvDisplay");
+
+            foreach (var user in firebaeUsers)
             {
-                usersMapped.Add(
-                    _mapper.Map<ExportedUserRecord, User>(user)
-                );
+                var userExists = currentUsers.FirstOrDefault(x => x.FirebaseUserId == user.Uid);
+                if (userExists == null)
+                {
+                    usersMapped.Add(
+                        _mapper.Map<ExportedUserRecord, User>(user)
+                    );
+                }
             }
+
+            await _context.Users.AddRangeAsync(usersMapped);
+            await _context.SaveChangesAsync();
+            return true;
         }
-
-        await _context.Users.AddRangeAsync(usersMapped);
-        await _context.SaveChangesAsync();
-
-        var rootUsers = currentUsers.Where(u => u.IsRoot == true).ToList();
-        foreach (var admin in rootUsers)
+        catch (Exception Exception)
         {
-            await _smtpService.SendEmailAsync(
-               from: _smtpServicesSetting.NetworkCredentialUserName,
-               to: admin.Email,
-               subject: "📊 Relatório Diário - Usuários sincronizados",
-               body: EmailTemplates.DailyReportMergeUsersHtml(admin, DateTime.Now, usersMapped, envDisplay)
-           );
+            throw new HttpResponseException(
+                   StatusCodes.Status400BadRequest,
+                   CodeErrorEnum.INVALID_BUSINESS_RULE.ToString(),
+                   "Houve um erro ao sincronizar usuário."
+               );
         }
-
-        return true;
     }
 }

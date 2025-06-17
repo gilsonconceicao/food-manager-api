@@ -44,6 +44,17 @@ public class CartController : BaseController
     }
 
     /// <summary>
+    /// Atualiza informações do carrinho
+    /// </summary>
+    [HttpPut]
+    [Authorize(Policy = "Auth")]
+    public async Task<ActionResult> UpdateCartAsync([FromBody] CartUpdateCommand request)
+    {
+        var result = await _mediator.Send(request);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Remove um item no carrinho
     /// </summary>
     [HttpDelete("{CartId}")]
