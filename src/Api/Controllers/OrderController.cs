@@ -97,6 +97,29 @@ public class OrderController : BaseController
     }
 
     /// <summary>
+    /// (Admin) Obter todos os pedidos de todos os usuários 
+    /// </summary>
+    /// <response code="200">200 Sucesso</response>
+    /// <response code="400">400 Erro</response>
+    [ProducesResponseType<bool>(StatusCodes.Status204NoContent)]
+    [HttpGet("Admin")]
+    [Authorize(Policy = "Auth")]
+      public async Task<IActionResult> AdminOrderGetListAsync([FromQuery] AdminOrderPaginationListQuery query)
+    {
+        var result = await _mediator.Send(query);
+        var listMapped = _mapper.Map<List<OrderDto>>(result.Data);
+
+        var listPaginated = new PagedList<OrderDto>(
+            data: listMapped,
+            count: result.Count ?? 0,
+            pageNumber: query.Page,
+            pageSize: query.Size
+        );
+
+        return Ok(listPaginated);
+    }
+
+    /// <summary>
     /// Método para remover um pedido da lista
     /// </summary>
     /// <param name="Id"></param>

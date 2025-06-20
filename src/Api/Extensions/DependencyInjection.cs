@@ -90,6 +90,7 @@ public static class MyConfigServiceCollectionExtensions
         services.AddTransient<IRequestHandler<VerifyUserIsMasterQuery, bool>, VerifyUserIsMasterQueryHandler>();
         services.AddTransient<IRequestHandler<CartGetListQuery, CartListDto>, CartGetListQueryHandler>();
         services.AddTransient<IRequestHandler<FoodGetByIdQuery, Food>, FoodGetByIdQueryHandler>();
+        services.AddTransient<IRequestHandler<AdminOrderPaginationListQuery, ListDataResponse<List<Order>>>, AdminOrderPaginationListQueryHandler>();
         // #endregion
 
         services.AddScoped<ISmtpService, SmtpServices>();

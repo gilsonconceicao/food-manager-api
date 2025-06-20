@@ -24,7 +24,6 @@ public class ContactController : BaseController
     /// Envia uma mensagem de contato
     /// </summary>
     [HttpPost]
-    [Authorize(Policy = "Auth")]
     public async Task<ActionResult> AddCartAsync([FromBody] ContactCreateCommand request)
     {
         var result = await _mediator.Send(request);
