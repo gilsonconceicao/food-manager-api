@@ -1,8 +1,7 @@
-using Application.Orders.Dtos;
 #nullable disable
 namespace Application.Foods.Queries.GetAllWithPaginationFoodQuery
 {
-    public class FoodDto
+    public class FoodDto : BaseModelResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -11,6 +10,5 @@ namespace Application.Foods.Queries.GetAllWithPaginationFoodQuery
         public decimal Price { get; set; }
         public string CategoryDisplay { get; set; }
         public string Category { get; set; }
-        public DateTime CreatedAt { get; set; }
     }
 }

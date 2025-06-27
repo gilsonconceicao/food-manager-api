@@ -17,7 +17,6 @@ public class OrderMappers : Profile
 
         CreateMap<Order, OrderDto>()
             .ForMember(o => o.OrderNumber, src => src.MapFrom(o => o.RequestNumber))
-            .ForMember(o => o.CreatedBy, src => src.MapFrom(o => o.User))
             .ForMember(o => o.StatusDisplay, src => src.MapFrom(o => o.Status.GetDescription()))
             .ForMember(o => o.Status, src => src.MapFrom(o => o.Status.ToString()))
             .ForMember(o => o.TotalValue, src => src.MapFrom(o => o.Items.Select(i => i.Price * i.Quantity).Sum()));
