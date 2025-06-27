@@ -122,4 +122,14 @@ public class UserController : BaseController
         var result = await _mediator.Send(new MergeUsersFirebaseCommand{});
         return Ok(result);
     }
+    
+    /// <summary>
+    /// Método utilizado para slvar um usuário
+    /// </summary>
+    [HttpPost]
+    public async Task<IActionResult> CreateUserAsync([FromBody] UserCreateCommand model)
+    {
+        var result = await _mediator.Send(model);
+        return Ok(result);
+    }
 }
