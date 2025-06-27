@@ -45,7 +45,7 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
             .Where(user => !user.IsDeleted)
             .FirstOrDefault(user => user.FirebaseUserId == request.UserId)
             ?? throw new HttpResponseException(
-                StatusCodes.Status400BadRequest,
+                StatusCodes.Status404NotFound,
                 CodeErrorEnum.NOT_FOUND_RESOURCE.ToString(),
                 $"Usuário não encontrado"
             );
@@ -62,8 +62,6 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
             Observations = request?.Observations
         };
 
-        await _context.Orders.AddAsync(order, cancellationToken);
-
         var cartIds = request.CartIds;
 
         var getCarts = await _context.Carts
@@ -72,6 +70,18 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
             .Where(x => cartIds.Contains(x.Id))
             .Where(x => x.CreatedByUserId == user.FirebaseUserId)
             .ToListAsync();
+
+        if (getCarts.Any(x => x.Quantity <= 0))
+        {
+            throw new HttpResponseException(
+                StatusCodes.Status400BadRequest,
+                CodeErrorEnum.INVALID_BUSINESS_RULE.ToString(),
+                $"Não é permitido seguir com item sem quantidade"
+            );
+        }
+
+        await _context.Orders.AddAsync(order, cancellationToken);
+
 
         var newOrderItems = new List<OrderItems>();
 
