@@ -50,13 +50,13 @@ public class OrderCreateHandler : IRequestHandler<OrderCreateCommand, Guid>
                 $"Usuário não encontrado"
             );
 
-        var orderCount = await _context.Orders.OrderByDescending(x => x.CreatedAt).FirstAsync();
+        var orderCount = await _context.Orders.SumAsync(x => x.RequestNumber);
 
         Order order = new Order
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
-            RequestNumber = orderCount.RequestNumber + 1,
+            RequestNumber = orderCount + 1,
             CreatedAt = DateTime.UtcNow,
             Status = OrderStatus.AwaitingPayment,
             Observations = request?.Observations
