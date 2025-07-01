@@ -21,7 +21,6 @@ using Application.Carts.Dtos;
 using Integrations.SMTP;
 using Api.Workflows.JobSchedulerService;
 using Application.Workflows.Workflows;
-using Application.Workflows.Activities;
 using Application.Foods.Queries.FoodGetByIdQuery;
 using Integrations.MercadoPago.Factories;
 using MercadoPago.Resource.Payment;
@@ -98,16 +97,12 @@ public static class MyConfigServiceCollectionExtensions
         // #region Workflows, Jobs and Activities
         services.AddScoped<IJobSchedulerService, JobSchedulerService>();
 
-        services.AddScoped<UpdateOrderStatusWorkflow>();
         services.AddScoped<PaymentExpirationWorkflow>();
         
         services.AddScoped<ISendEmailContactWorkflow, SendEmailContactWorkflow>();
-        services.AddScoped<IMergeUsersWorkflow, MergeUsersWorkflow>();
     
         services.AddScoped<IProcessSendEmailContactActivity, ProcessSendEmailContactActivity>();
         services.AddScoped<IProcessPaymentExpirationActivity, ProcessPaymentExpirationActivity>();
-        services.AddScoped<IProcessMergeUsersFirebaseActivity, ProcessMergeUsersFirebaseActivity>();
-        services.AddScoped<IUpdateOrderStatusActivity, UpdateOrderStatusActivity>();
         // #endregion
 
         // #region Factories

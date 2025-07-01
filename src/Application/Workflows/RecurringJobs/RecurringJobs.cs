@@ -8,12 +8,7 @@ public static class RecurringJobsScheduler
 {
     public static void Schedule()
     {
-        // RecurringJob.AddOrUpdate<MergeUsersWorkflow>(
-        //     recurringJobId: "merge-users-firebase-async",
-        //     methodCall: process => process.MergeFirebaseUsersAsync(),
-        //     cronExpression: "0 10 * * *",
-        //     AddRecurringJobOptions()
-        // );
+
     }
 
     private static RecurringJobOptions AddRecurringJobOptions()
